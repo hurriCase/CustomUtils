@@ -22,3 +22,6 @@
 - Added Custom attribute system with drawers
 - Added Assembly reference analyzer
 - Enhanced all original tools with improved UI and functionality
+## [2.0.1] – 2025-05-11
+### Fix
+- Added dependencies to other packages which are used.
