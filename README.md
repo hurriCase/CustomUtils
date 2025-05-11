@@ -1,81 +1,127 @@
-# Unity Editor Utilities Package
+# Unity Custom Utilities Package
 
-A collection of useful Unity Editor tools to help streamline your development workflow. This package includes utilities for managing scripts, fixing sprite-related issues, and organizing project assets.
+A comprehensive collection of utilities, frameworks, and editor tools designed to streamline Unity development workflows. This package provides solutions for resource management, audio handling, data persistence, and various editor productivity enhancements.
 
 ## Features
 
-### 1. Flat Scripts Creator
-Easily create flat script structures from nested directories.
+### Core Frameworks
 
-- Drag and drop folder support
-- Automatic unique naming for duplicate files
-- Visual feedback for operations
-- Progress tracking
-- Source and target folder selection via Unity's Object Field
+#### Resource Management
+- **ResourceLoader<T>**: Streamlined asset loading with automatic caching
+- **ResourceAttribute**: Define resource paths using attributes
+- **DontDestroyOnLoad**: Components and automatic persistence management
 
-**Access via:** Tools > Flat Scripts Creator
+#### Audio System
+- **AudioHandler**: Centralized audio management singleton
+- **AudioDatabase**: Organized sound and music containers with custom editors
+- **Audio Pooling**: Optimized audio source usage with pooling system
+- **Customizable Audio**: Support for random pitch, volume, and cooldowns
 
-### 2. Sprite Alpha Adder
-Convert RGB sprites to RGBA format to enable different compression formats and allow non-power-of-two resolutions in Unity.
+#### Storage System
+- **Multiple Providers**: Binary file, Firebase, and PlayerPrefs implementations
+- **IStorageProvider**: Interface for custom storage solutions
+- **PersistentReactiveProperty**: Reactive properties with automatic persistence
+- **Data Transformers**: Transformers for serialization and encryption
 
-Features:
-- Project-wide scanning for RGB sprites that need conversion
-- Visual preview of sprites requiring conversion
-- Batch processing capabilities
-- Individual sprite processing
-- Preserves original texture settings
-- Minimal alpha channel addition for format conversion
-- Enables use of different compression settings
+#### Object Pooling
+- **PoolHandler<T>**: Generic object pooling system
+- **Configurable Callbacks**: Hooks for create, get, release, and destroy operations
 
-**Access via:** Tools > Add Alpha To Sprite
+### Singleton Implementations
+- **Singleton<T>**: Basic singleton for non-MonoBehaviour classes
+- **SingletonBehaviour<T>**: MonoBehaviour-based singleton
+- **SingletonScriptableObject<T>**: ScriptableObject-based singleton
+- **PersistentSingletonBehavior<T>**: DontDestroyOnLoad singleton for MonoBehaviours
 
-### 3. Sprite Resizer (NPOT Fixer)
-Resize sprites to meet power-of-two requirements and optimize for better memory usage.
+### Editor Tools
 
-Features:
-- Single sprite or batch processing
-- Preview of original and target sizes
-- Progress tracking
-- Maintains sprite import settings
-- Automatic size calculation
-- Multiple sprites processing with progress bar
+#### Enhanced Editor Framework
+- **EditorBase** & **WindowBase**: Base classes for consistent editor UI
+- **ThemedEditorSettings**: Centralized UI styling for consistent look and feel
+- **EditorVisualControls**: Streamlined creation of editor UI elements
+- **EditorStateControls**: Automatic Undo support for editor operations
 
-**Access via:** Tools > FixNPOT
+#### Custom Menu Framework
+- **CustomMenuSettings**: Configuration-based menu item generation
+- **Scene, Asset, and Method Menus**: Multiple menu types
+- **ScriptingSymbolHandler**: Toggling scripting symbols via menu items
+
+#### Utility Windows
+- **DirtyMaker**: Force Unity to save specific assets
+- **FlatScriptsCreator**: Create flat script structures from nested directories
+- **SpriteAlphaAdder**: Convert RGB sprites to RGBA format
+- **SpriteResizer**: Resize sprites to meet power-of-two requirements
+- **AssemblyReferenceAnalyzer**: Find unused assembly references
+
+### Custom Attributes & Drawers
+- **DistinctEnumAttribute**: Ensure enum fields contain unique values
+- **InspectorReadOnlyAttribute**: Make fields read-only in the inspector
+- **RequiredFieldAttribute**: Mark fields as required with validation
+
+### Extension Methods
+- **CanvasExtensions**: Show/hide CanvasGroup components
+- **ConvertExtension**: Convert between async types
+- **StringExtensions**: String manipulation utilities
+- **JsonExtension**: JSON serialization helpers
+- **ReflectionExtensions**: Type reflection utilities
 
 ## Installation
 
-1. Open your Unity project
-2. Copy the package into your Assets folder
-3. The tools will be available under the "Tools" menu in Unity Editor
+1. Clone or download this repository
+2. Copy the package into your Unity project's Assets folder
+3. The utilities will be available immediately through their respective namespaces
+4. Editor tools can be accessed via the "Tools" menu in the Unity Editor
 
-## Usage
+## Usage Examples
 
-### Flat Scripts Creator
-1. Open via Tools > Flat Scripts Creator
-2. Select source folder containing your scripts
-3. Select target folder for the flat structure
-4. Click "Create Flat Scripts" or drag and drop folders
-5. Check the status message for operation results
+### Resource Loading
+```csharp
+// Define a resource using the ResourceAttribute
+[Resource(name: "MyConfig", resourcePath: "Configs")]
+public class MyConfig : ScriptableObject 
+{
+    // Your configuration properties here
+}
 
-### Sprite Alpha Adder
-1. Open via Tools > Add Alpha To Sprite
-2. Either:
-    - Click "Scan Project for Problematic Sprites" to find RGB sprites that need conversion
-    - Manually select a sprite to convert
-3. Use "Fix" or "Fix All" buttons to process sprites
-4. After conversion, you can modify compression settings in the Unity texture importer
-5. Check console for operation logs
+// Load the resource
+var config = ResourceLoader<MyConfig>.Load();
+```
 
-### Sprite Resizer
-1. Open via Tools > FixNPOT
-2. Choose between Single Sprite or Folder mode
-3. Select your sprite(s) or folder
-4. Review the preview of changes
-5. Click "Resize Sprite" or "Resize All Sprites"
-6. Wait for the process to complete
+### Audio System
+```csharp
+// Play a sound
+AudioHandler.Instance.PlaySound(SoundType.ButtonClick);
+
+// Play music
+AudioHandler.Instance.PlayMusic(MusicType.MainMenu);
+```
+
+### Persistent Storage
+```csharp
+// Create a storage provider
+var storageProvider = new BinaryFileProvider();
+
+// Create a persistent property
+var playerScore = new PersistentReactiveProperty<int>("player_score", storageProvider, 0);
+
+// Subscribe to changes
+playerScore.Subscribe(newScore => Debug.Log($"Score changed to {newScore}"));
+
+// Use the property (automatically saved on change)
+playerScore.Value = 100;
+```
+
+### Editor Tool Usage
+
+Access the editor tools through the Tools menu in the Unity Editor:
+
+- **DirtyMaker**: Tools > Utils > Dirty Maker
+- **FlatScriptCreator**: Tools > Utils > Flat Script
+- **SpriteAlphaAdder**: Tools > Utils > Sprite Alpha Adder
+- **SpriteResizer**: Tools > Utils > Fix NPOT
+- **AssemblyReferenceAnalyzer**: Tools > Utils > Analyze Unused Assembly References
 
 ## Notes
 - Always backup your project before using batch processing tools
 - Some operations may take time depending on the number of files being processed
-- Make sure you have adequate disk space when using the Flat Scripts Creator
-- The Sprite Resizer will only process sprites that need resizing
+- Extension methods and attributes can be used immediately without additional setup
