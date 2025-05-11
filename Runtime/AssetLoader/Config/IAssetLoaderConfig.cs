@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace CustomUtils.Runtime.AssetLoader.Config
 {
     /// <summary>
@@ -9,6 +11,6 @@ namespace CustomUtils.Runtime.AssetLoader.Config
         /// <summary>
         /// Gets the path where DontDestroyOnLoad prefabs are stored in Resources folder.
         /// </summary>
-        string DontDestroyPath { get; }
+        [CanBeNull] string DontDestroyPath { get; }
     }
 }
