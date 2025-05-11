@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
+using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.Extensions;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CustomUtils.CustomUtils.Editor
+namespace CustomUtils.Editor
 {
-    internal sealed class DirtyMaker : EditorWindow
+    /// <summary>
+    /// Editor window utility for marking Unity objects as dirty to force saving their state.
+    /// </summary>
+    internal sealed class DirtyMakerWindow : WindowBase
     {
         private readonly List<Object> _objectsToProcess = new();
         private readonly List<string> _errorMessages = new();
@@ -15,21 +20,38 @@ namespace CustomUtils.CustomUtils.Editor
         private int _successCount;
         private bool _autoSaveAssets = true;
 
-        [MenuItem("Tools/Dirty Maker")]
+        [MenuItem(MenuItemNames.DirtyMakerMenuName)]
         internal static void ShowWindow()
         {
-            GetWindow<DirtyMaker>("Dirty Maker");
+            var window = GetWindow<DirtyMakerWindow>(nameof(DirtyMakerWindow).ToSpacedWords());
+            window.minSize = new Vector2(400, 300);
+            window.Show();
         }
 
-        private void OnGUI()
+        protected override void InitializeWindow()
         {
-            GUILayout.Label("Dirty Maker", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "This tool marks any Unity objects as dirty, forcing Unity to save their current state.",
-                MessageType.Info);
+            _processingComplete = false;
+            _successCount = 0;
+            _errorMessages.Clear();
+        }
+
+        protected override void DrawWindowContent()
+        {
+            EditorVisualControls.H1Label("Dirty Maker");
+            EditorVisualControls.InfoBox(
+                "This tool marks any Unity objects as dirty, forcing Unity to save their current state.");
             EditorGUILayout.Space();
 
-            GUILayout.Label("Drag and drop any objects here:", EditorStyles.boldLabel);
+            DrawDropArea();
+            DrawOptionsArea();
+            DrawObjectList();
+            DrawActionButtons();
+            DrawResults();
+        }
+
+        private void DrawDropArea()
+        {
+            EditorVisualControls.H2Label("Drag and drop any objects here:");
 
             var dropArea = GUILayoutUtility.GetRect(0.0f, 100.0f, GUILayout.ExpandWidth(true));
             GUI.Box(dropArea, "Drop Objects Here");
@@ -63,16 +85,23 @@ namespace CustomUtils.CustomUtils.Editor
 
                     break;
             }
+        }
 
+        private void DrawOptionsArea()
+        {
             EditorGUILayout.Space();
-
-            _autoSaveAssets = EditorGUILayout.ToggleLeft("Auto-save assets after marking dirty", _autoSaveAssets);
-
+            _autoSaveAssets = EditorStateControls.Toggle("Auto-save assets after marking dirty", _autoSaveAssets);
             EditorGUILayout.Space();
+        }
 
-            if (_objectsToProcess.Count > 0)
+        private void DrawObjectList()
+        {
+            if (_objectsToProcess.Count <= 0)
+                return;
+
+            DrawSection("Objects to Process", () =>
             {
-                GUILayout.Label($"Objects to process ({_objectsToProcess.Count}):", EditorStyles.boldLabel);
+                EditorVisualControls.LabelField($"Total: {_objectsToProcess.Count} objects");
                 _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(150));
 
                 var itemsToRemove = new List<int>();
@@ -94,48 +123,66 @@ namespace CustomUtils.CustomUtils.Editor
                         EditorGUILayout.LabelField(_objectsToProcess[i].GetType().Name, GUILayout.Width(100));
                     }
 
-                    if (GUILayout.Button("Remove", GUILayout.Width(80)))
+                    if (EditorVisualControls.Button("Remove", GUILayout.Width(80)))
                         itemsToRemove.Add(i);
 
                     EditorGUILayout.EndHorizontal();
                 }
 
-                for (var i = itemsToRemove.Count - 1; i >= 0; i--)
-                    _objectsToProcess.RemoveAt(itemsToRemove[i]);
-
                 EditorGUILayout.EndScrollView();
 
-                EditorGUILayout.Space();
+                // Remove items that were flagged for deletion
+                for (var i = itemsToRemove.Count - 1; i >= 0; i--)
+                    _objectsToProcess.RemoveAt(itemsToRemove[i]);
+            });
+        }
 
-                EditorGUI.BeginDisabledGroup(_objectsToProcess.Count == 0);
+        private void DrawActionButtons()
+        {
+            if (_objectsToProcess.Count <= 0)
+                return;
 
-                if (GUILayout.Button("Mark All Objects as Dirty", GUILayout.Height(30)))
-                    MarkObjectsAsDirty();
+            EditorGUILayout.Space();
 
-                EditorGUI.EndDisabledGroup();
+            EditorGUILayout.BeginHorizontal();
 
-                if (GUILayout.Button("Clear All", GUILayout.Height(25)))
-                {
-                    _objectsToProcess.Clear();
-                    _processingComplete = false;
-                    _successCount = 0;
-                    _errorMessages.Clear();
-                }
+            EditorGUI.BeginDisabledGroup(_objectsToProcess.Count == 0);
+            if (EditorVisualControls.Button("Mark All Objects as Dirty", GUILayout.Height(30)))
+                MarkObjectsAsDirty();
+            EditorGUI.EndDisabledGroup();
+
+            if (EditorVisualControls.Button("Clear All", GUILayout.Height(30)))
+            {
+                _objectsToProcess.Clear();
+                _processingComplete = false;
+                _successCount = 0;
+                _errorMessages.Clear();
             }
 
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawResults()
+        {
             if (_processingComplete is false)
                 return;
 
             EditorGUILayout.Space();
-            EditorGUILayout.HelpBox($"Processing complete. Successfully marked {_successCount} objects as dirty.",
-                _successCount == _objectsToProcess.Count ? MessageType.Info : MessageType.Warning);
+
+            var messageType = _successCount == _objectsToProcess.Count
+                ? MessageType.Info
+                : MessageType.Warning;
+
+            EditorVisualControls.InfoBox($"Processing complete. Successfully marked {_successCount} objects as dirty.");
 
             if (_errorMessages.Count <= 0)
                 return;
 
-            EditorGUILayout.LabelField("Errors:", EditorStyles.boldLabel);
-            foreach (var error in _errorMessages)
-                EditorGUILayout.HelpBox(error, MessageType.Error);
+            DrawFoldoutSection("Errors", () =>
+            {
+                foreach (var error in _errorMessages)
+                    EditorVisualControls.ErrorBox(error);
+            });
         }
 
         private void MarkObjectsAsDirty()
@@ -145,19 +192,19 @@ namespace CustomUtils.CustomUtils.Editor
 
             Undo.RecordObjects(_objectsToProcess.ToArray(), "Mark Objects as Dirty");
 
-            foreach (var objectToPrecess in _objectsToProcess)
+            foreach (var objectToProcess in _objectsToProcess)
             {
-                if (!objectToPrecess)
+                if (!objectToProcess)
                     continue;
 
                 try
                 {
-                    EditorUtility.SetDirty(objectToPrecess);
+                    EditorUtility.SetDirty(objectToProcess);
                     _successCount++;
                 }
                 catch (System.Exception ex)
                 {
-                    _errorMessages.Add($"Error processing {objectToPrecess.name}: {ex.Message}");
+                    _errorMessages.Add($"Error processing {objectToProcess.name}: {ex.Message}");
                 }
             }
 
