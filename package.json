@@ -2,5 +2,8 @@
   "name": "com.firsttry.customutils",
   "version": "1.1.0",
   "displayName": "Custom Utils",
-  "unity": "2022.1"
+  "unity": "2022.1",
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+  }
 }
