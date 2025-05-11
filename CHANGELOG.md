@@ -25,3 +25,11 @@
 ## [2.0.1] – 2025-05-11
 ### Fix
 - Added dependencies to other packages which are used.
+## [2.0.2] – 2025-05-11
+### Feature
+- Localization.
+- AnyType.
+- MethodSerialization.
+### Refactor
+- Suppress some IDE warning.
+- Moved from linq to zlinq
