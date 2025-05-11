@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.AssetLoader
 {
     public static class ResourceLoader<T> where T : Object
@@ -68,14 +69,14 @@ namespace CustomUtils.Runtime.AssetLoader
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                Debug.LogError($"[ResourceLoader::ValidatePath] Path cannot be null or empty");
+                Debug.LogError("[ResourceLoader::ValidatePath] Path cannot be null or empty");
                 return null;
             }
 
             if (path.Contains("..") is false)
                 return path.TrimStart('/');
 
-            Debug.LogError($"[ResourceLoader::ValidatePath] Path cannot contain parent directory references");
+            Debug.LogError("[ResourceLoader::ValidatePath] Path cannot contain parent directory references");
             return null;
         }
 

@@ -1,3 +1,4 @@
+// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.AssetLoader.Config
 {
     /// <summary>

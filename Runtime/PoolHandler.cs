@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
+// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime
 {
     public class PoolHandler<TPoolEntity> where TPoolEntity : Object
