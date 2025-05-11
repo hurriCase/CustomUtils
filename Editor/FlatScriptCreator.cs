@@ -1,63 +1,77 @@
 ﻿using System;
 using System.IO;
+using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.Extensions;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CustomUtils.Editor
 {
-    public sealed class FlatScriptsCreatorWindow : EditorWindow
+    internal sealed class FlatScriptsCreatorWindow : WindowBase
     {
-        private UnityEngine.Object _sourceFolder;
-        private UnityEngine.Object _targetFolder;
+        private Object _sourceFolder;
+        private Object _targetFolder;
         private Vector2 _scrollPosition;
         private bool _showSuccessMessage;
         private string _statusMessage = string.Empty;
         private float _messageTimer;
 
-        [MenuItem("Tools/Flat Scripts Creator")]
-        public static void ShowWindow()
+        [MenuItem(MenuItemNames.FlatScriptMenuName)]
+        internal static void ShowWindow()
         {
-            var window = GetWindow<FlatScriptsCreatorWindow>("Flat Scripts Creator");
+            var window = GetWindow<FlatScriptsCreatorWindow>(nameof(FlatScriptsCreatorWindow).ToSpacedWords());
             window.minSize = new Vector2(400, 200);
         }
 
-        private void OnGUI()
+        protected override void InitializeWindow()
         {
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("Flat Scripts Creator", EditorStyles.boldLabel);
-            EditorGUILayout.Space(10);
+            _statusMessage = string.Empty;
+            _messageTimer = 0f;
+        }
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Source Folder:", GUILayout.Width(100));
-            _sourceFolder =
-                EditorGUILayout.ObjectField(_sourceFolder, typeof(DefaultAsset), false, GUILayout.ExpandWidth(true));
-            EditorGUILayout.EndHorizontal();
+        protected override void CleanupWindow() { }
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Target Folder:", GUILayout.Width(100));
-            _targetFolder =
-                EditorGUILayout.ObjectField(_targetFolder, typeof(DefaultAsset), false, GUILayout.ExpandWidth(true));
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(20);
-
-            var dragDropArea = GUILayoutUtility.GetRect(0, 50, GUILayout.ExpandWidth(true));
-            GUI.Box(dragDropArea, "Drag and Drop Folders Here", EditorStyles.helpBox);
-
-            HandleDragAndDrop(dragDropArea);
-
-            EditorGUILayout.Space(10);
+        protected override void DrawWindowContent()
+        {
+            DrawSection("Folder Selection", DrawFolderSelectionContent);
+            DrawSection("Quick Folder Setup", DrawDragAndDropContent);
 
             if (GUILayout.Button("Create Flat Scripts", GUILayout.Height(30)))
                 CreateFlatScripts();
 
-            if (string.IsNullOrEmpty(_statusMessage) is false)
-            {
-                EditorGUILayout.Space(10);
-                EditorGUILayout.HelpBox(_statusMessage, _showSuccessMessage ? MessageType.Info : MessageType.Error);
-            }
+            DrawStatusMessage();
 
-            if ((_messageTimer > 0) is false)
+            UpdateMessageTimer();
+        }
+
+        private void DrawFolderSelectionContent()
+        {
+            _sourceFolder = EditorStateControls.ObjectField("Source Folder:", _sourceFolder, typeof(DefaultAsset));
+            _targetFolder = EditorStateControls.ObjectField("Target Folder:", _targetFolder, typeof(DefaultAsset));
+        }
+
+        private void DrawDragAndDropContent()
+        {
+            var dragDropArea = GUILayoutUtility.GetRect(0, 50, GUILayout.ExpandWidth(true));
+            GUI.Box(dragDropArea, "Drag and Drop Folders Here", EditorStyles.helpBox);
+            HandleDragAndDrop(dragDropArea);
+        }
+
+        private void DrawStatusMessage()
+        {
+            if (string.IsNullOrEmpty(_statusMessage))
+                return;
+
+            if (_showSuccessMessage)
+                EditorVisualControls.WarningBox(_statusMessage);
+            else
+                EditorVisualControls.ErrorBox(_statusMessage);
+        }
+
+        private void UpdateMessageTimer()
+        {
+            if (_messageTimer <= 0)
                 return;
 
             _messageTimer -= Time.deltaTime;
@@ -92,12 +106,11 @@ namespace CustomUtils.Editor
                             continue;
 
                         var path = AssetDatabase.GetAssetPath(draggedObject);
-                        if (Directory.Exists(path) is false)
+                        if (!Directory.Exists(path))
                             continue;
 
                         if (_sourceFolder is null)
                             _sourceFolder = draggedObject;
-
                         else if (_targetFolder is null)
                             _targetFolder = draggedObject;
                     }
