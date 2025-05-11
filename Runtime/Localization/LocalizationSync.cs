@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using ZLinq;
 using Object = UnityEngine.Object;
 
 namespace CustomUtils.Runtime.Localization
@@ -82,7 +82,8 @@ namespace CustomUtils.Runtime.Localization
 
                 if (request.error == null)
                 {
-                    var sheet = Sheets.Single(i => url == string.Format(UrlPattern, TableId, i.Id));
+                    var sheet = Sheets.AsValueEnumerable()
+                        .Single(sheet => url == string.Format(UrlPattern, TableId, sheet.Id));
                     var path = Path.Combine(folder, sheet.Name + ".csv");
 
                     File.WriteAllBytes(path, request.downloadHandler.data);

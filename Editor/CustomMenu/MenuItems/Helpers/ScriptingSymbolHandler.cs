@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using ZLinq;
 
 // ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.CustomMenu.MenuItems.Helpers
@@ -103,7 +103,8 @@ namespace CustomUtils.Editor.CustomMenu.MenuItems.Helpers
             var definesList = currentDefines.Split(';');
 
             var updatedDefines =
-                string.Join(";", definesList.Where(defineSymbol => defineSymbol != symbolToRemove));
+                string.Join(";", definesList.AsValueEnumerable()
+                    .Where(defineSymbol => defineSymbol != symbolToRemove));
 
             PlayerSettings.SetScriptingDefineSymbols(currentBuildTarget, updatedDefines);
         }

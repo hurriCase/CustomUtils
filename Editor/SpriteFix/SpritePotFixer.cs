@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
+using ZLinq;
 using static UnityEngine.RenderTexture;
 
 namespace CustomUtils.Editor.SpriteFix
@@ -196,7 +196,7 @@ namespace CustomUtils.Editor.SpriteFix
         private void ProcessSprites(List<SpriteResizeInfo> spriteInfos)
         {
             var processedCount = 0;
-            var totalToProcess = spriteInfos.Count(s => s.ShouldResize);
+            var totalToProcess = spriteInfos.AsValueEnumerable().Count(s => s.ShouldResize);
 
             foreach (var spriteInfo in spriteInfos)
             {

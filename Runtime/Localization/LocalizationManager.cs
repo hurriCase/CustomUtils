@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {
@@ -50,7 +51,7 @@ namespace CustomUtils.Runtime.Localization
             {
                 var textAsset = sheet.TextAsset;
                 var lines = GetLines(textAsset.text);
-                var languages = lines[0].Split(',').Select(i => i.Trim()).ToList();
+                var languages = lines[0].Split(',').AsValueEnumerable().Select(i => i.Trim()).ToList();
 
                 if (languages.Count != languages.Distinct().Count())
                 {

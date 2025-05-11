@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ZLinq;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBeInternal
@@ -33,6 +34,7 @@ namespace CustomUtils.Editor.Extensions
             where TClass : class =>
             typeof(TClass)
                 .GetFields(bindingFlags)
+                .AsValueEnumerable()
                 .First(fieldInfo => fieldInfo.FieldType == typeof(TField))
                 .Name;
 

@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using ZLinq;
 using Object = UnityEngine.Object;
 using ValueType = CustomUtils.Runtime.AnyType.ValueType;
 
@@ -60,7 +61,9 @@ namespace CustomUtils.Editor.MethodSerialization
             if (callbackType.IsGenericType is false)
                 return;
 
-            var methods = targetType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            var methods = targetType
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .AsValueEnumerable()
                 .Where(m => m.ReturnType == genericType)
                 .ToArray();
 

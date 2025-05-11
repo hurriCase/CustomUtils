@@ -13,6 +13,7 @@ using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using ZLinq;
 using Object = UnityEngine.Object;
 
 namespace CustomUtils.Runtime.Localization
@@ -214,7 +215,7 @@ namespace CustomUtils.Runtime.Localization
                         Sheets.Add(new Sheet { Id = item.Value, Name = item.Key });
 
                     EditorUtility.DisplayDialog("Message",
-                        $"{Sheets.Count} sheets resolved: {string.Join(", ", Sheets.Select(i => i.Name))}.", "OK");
+                        $"{Sheets.Count} sheets resolved: {string.Join(", ", Sheets.AsValueEnumerable().Select(i => i.Name))}.", "OK");
                 }
                 else
                     throw new Exception(request.error);

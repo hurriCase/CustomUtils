@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.Audio.Containers;
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using PrimeTween;
 using R3;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Runtime.Audio
 {
@@ -70,7 +70,7 @@ namespace CustomUtils.Runtime.Audio
             Tween.Delay(this, soundData.AudioData.AudioClip.length,
                 handler =>
                 {
-                    var aliveData = handler._sortedAliveAudioData.First();
+                    var aliveData = handler._sortedAliveAudioData.AsValueEnumerable().First();
                     handler._soundPool.Release(aliveData.Value.AudioSource);
                 });
 

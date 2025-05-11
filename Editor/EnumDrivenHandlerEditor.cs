@@ -5,6 +5,7 @@ using System.Reflection;
 using CustomUtils.Editor.Extensions;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Editor
 {
@@ -145,7 +146,7 @@ namespace CustomUtils.Editor
                 _selectedEnumValue = _unusedValues[0];
             }
 
-            var displayOptions = _unusedValues.Select(@enum => @enum.ToString()).ToArray();
+            var displayOptions = _unusedValues.AsValueEnumerable().Select(@enum => @enum.ToString()).ToArray();
             var newSelectedIndex = EditorGUILayout.Popup("Add Specific Type", selectedIndex, displayOptions);
 
             if (newSelectedIndex >= 0 && newSelectedIndex < _unusedValues.Count)

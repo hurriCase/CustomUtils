@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems.MethodExecution;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Editor.CustomMenu
 {
@@ -93,7 +93,7 @@ namespace CustomMenu.Scripts.Editor
 
             // Generate Asset Menu Items
             if (settings.AssetMenuItems != null)
-                foreach (var item in settings.AssetMenuItems.Where(assetMenuItem => assetMenuItem.MenuTarget))
+                foreach (var item in settings.AssetMenuItems.AsValueEnumerable().Where(assetMenuItem => assetMenuItem.MenuTarget))
                 {
                     if (ValidateMenuPath(item.MenuPath) is false)
                         return string.Empty;

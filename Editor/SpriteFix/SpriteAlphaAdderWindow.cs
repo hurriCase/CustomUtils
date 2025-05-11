@@ -3,7 +3,6 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
 
@@ -157,7 +156,7 @@ namespace CustomUtils.Editor.SpriteFix
             var showProgress = false;
             EditorVisualControls.DrawBoxWithFoldout("Processing Progress", ref showProgress, () =>
             {
-                foreach (var importer in _problematicSprites.ToList())
+                foreach (var importer in _problematicSprites)
                 {
                     EditorVisualControls.LabelField($"Processing: {Path.GetFileName(importer.assetPath)}");
                     AddAlphaPixel(importer);

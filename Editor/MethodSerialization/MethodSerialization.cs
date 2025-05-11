@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CustomUtils.Runtime.AnyType;
 using UnityEngine;
+using ZLinq;
 using Object = UnityEngine.Object;
 
 namespace CustomUtils.Editor.MethodSerialization
@@ -65,14 +65,17 @@ namespace CustomUtils.Editor.MethodSerialization
                 return;
             }
 
-            var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameterTypes = methodInfo.GetParameters().AsValueEnumerable().Select(p => p.ParameterType).ToArray();
             if (_parameters.Length != parameterTypes.Length)
             {
                 Debug.LogWarning($"Parameter mismatch for method {_methodName}");
                 return;
             }
 
-            var delegateType = Expression.GetDelegateType(parameterTypes.Append(methodInfo.ReturnType).ToArray());
+            var delegateType = Expression.GetDelegateType(parameterTypes.AsValueEnumerable()
+                .Append(methodInfo.ReturnType)
+                .ToArray());
+
             _cachedDelegate = methodInfo.CreateDelegate(delegateType, _targetObject);
             _isDelegateRebuilt = true;
         }

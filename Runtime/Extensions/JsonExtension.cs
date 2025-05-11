@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using Newtonsoft.Json;
+using ZLinq;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
@@ -18,6 +18,7 @@ namespace CustomUtils.Runtime.Extensions
             var attribute = enumValue.GetType()
                 .GetField(enumValue.ToString())
                 ?.GetCustomAttributes(typeof(JsonPropertyAttribute), false)
+                .AsValueEnumerable()
                 .FirstOrDefault() as JsonPropertyAttribute;
 
             return attribute?.PropertyName ?? enumValue.ToString();

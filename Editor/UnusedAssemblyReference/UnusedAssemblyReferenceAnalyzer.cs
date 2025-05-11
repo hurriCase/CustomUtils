@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using CustomUtils.Editor.EditorTheme;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Editor.UnusedAssemblyReference
 {
@@ -364,7 +365,7 @@ namespace CustomUtils.Editor.UnusedAssemblyReference
                     }
                 }
 
-                return potentiallyUnused.Where(r => !usedReferences.Contains(r)).ToList();
+                return potentiallyUnused.AsValueEnumerable().Where(r => !usedReferences.Contains(r)).ToList();
             }
             catch (Exception ex)
             {
