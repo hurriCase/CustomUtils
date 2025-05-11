@@ -4,105 +4,116 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.Extensions;
 
 namespace CustomUtils.Editor.SpriteFix
 {
-    public sealed class SpriteAlphaAdder : EditorWindow
+    internal sealed class SpriteAlphaAdderWindow : WindowBase
     {
         private Sprite _targetSprite;
         private Vector2 _scrollPosition;
         private readonly List<TextureImporter> _problematicSprites = new();
         private bool _showProblematicSprites;
 
-        [MenuItem("Tools/Add Alpha To Sprite")]
-        public static void ShowWindow()
+        [MenuItem(MenuItemNames.SpriteAlphaAdderMenuName)]
+        internal static void ShowWindow()
         {
-            GetWindow<SpriteAlphaAdder>("Alpha Adder");
+            GetWindow<SpriteAlphaAdderWindow>(nameof(SpriteAlphaAdderWindow).ToSpacedWords());
         }
 
-        private void OnGUI()
+        protected override void InitializeWindow()
         {
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("Add Alpha Pixel To Sprite", EditorStyles.boldLabel);
-            EditorGUILayout.Space(5);
+            _showProblematicSprites = false;
+        }
 
-            DrawScan();
-            DrawManualSelection();
+        protected override void DrawWindowContent()
+        {
+            DrawSection("Project Scanner", DrawScan);
+            DrawSection("Manual Sprite Processing", DrawManualSelection);
         }
 
         private void DrawScan()
         {
-            if (GUILayout.Button("Scan Project for Problematic Sprites"))
+            if (EditorVisualControls.Button("Scan Project for Problematic Sprites"))
                 FindProblematicSprites();
 
             if (_problematicSprites.Count <= 0)
                 return;
 
-            EditorGUILayout.Space(10);
-            _showProblematicSprites = EditorGUILayout.Foldout(_showProblematicSprites,
-                $"Problematic Sprites Found: {_problematicSprites.Count}", true);
+            _showProblematicSprites = EditorVisualControls
+                .Foldout(_showProblematicSprites, $"Problematic Sprites Found: {_problematicSprites.Count}");
 
             if (_showProblematicSprites is false)
                 return;
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-            foreach (var importer in _problematicSprites)
+
+            EditorVisualControls.DrawPanel(() =>
             {
-                EditorGUILayout.BeginHorizontal();
-
-                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(importer.assetPath);
-                if (texture)
-                    GUILayout.Label(AssetPreview.GetAssetPreview(texture), GUILayout.Width(50),
-                        GUILayout.Height(50));
-
-                EditorGUILayout.BeginVertical();
-                EditorGUILayout.LabelField(Path.GetFileName(importer.assetPath));
-                EditorGUILayout.LabelField($"Size: {texture?.width}x{texture?.height}", EditorStyles.miniLabel);
-                EditorGUILayout.EndVertical();
-                if (GUILayout.Button("Select", GUILayout.Width(60)))
+                foreach (var importer in _problematicSprites)
                 {
-                    Selection.activeObject = texture;
-                    EditorGUIUtility.PingObject(texture);
+                    DrawSpriteEntry(importer);
                 }
-
-                if (GUILayout.Button("Fix", GUILayout.Width(40)))
-                    AddAlphaPixel(importer);
-
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.Space(5);
-            }
+            });
 
             EditorGUILayout.EndScrollView();
-            if (GUILayout.Button("Fix All"))
+
+            if (EditorVisualControls.Button("Fix All", GUILayout.Height(25)))
                 FixAllSprites();
+        }
+
+        private void DrawSpriteEntry(TextureImporter importer)
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(importer.assetPath);
+            if (texture)
+                GUILayout.Label(AssetPreview.GetAssetPreview(texture),
+                    GUILayout.Width(50), GUILayout.Height(50));
+
+            EditorVisualControls.LabelField(Path.GetFileName(importer.assetPath));
+            EditorVisualControls.LabelField($"Size: {texture?.width}x{texture?.height}", EditorStyles.miniLabel);
+
+            if (EditorVisualControls.Button("Select", GUILayout.Width(60)))
+            {
+                Selection.activeObject = texture;
+                EditorGUIUtility.PingObject(texture);
+            }
+
+            if (EditorVisualControls.Button("Fix", GUILayout.Width(40)))
+                AddAlphaPixel(importer);
         }
 
         private void DrawManualSelection()
         {
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("Manual Selection", EditorStyles.boldLabel);
-            _targetSprite = (Sprite)EditorGUILayout.ObjectField("Target Sprite", _targetSprite, typeof(Sprite), false);
-            if (_targetSprite is null)
+            _targetSprite = EditorStateControls.SpriteField("Target Sprite", _targetSprite);
+
+            if (!_targetSprite)
                 return;
 
             var path = AssetDatabase.GetAssetPath(_targetSprite);
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             var isRGBA = importer && importer.DoesSourceTextureHaveAlpha();
-            EditorGUILayout.Space(5);
-            EditorGUILayout.LabelField($"Current Format: {(isRGBA ? "RGBA" : "RGB")}", EditorStyles.boldLabel);
+
+            EditorVisualControls.H3Label($"Current Format: {(isRGBA ? "RGBA" : "RGB")}");
+
             if (isRGBA is false)
-            {
-                EditorGUILayout.Space(10);
-                if (GUILayout.Button("Add Alpha Pixel"))
-                    AddAlphaPixel(importer);
-            }
+                EditorVisualControls.DrawPanel(() =>
+                {
+                    if (EditorVisualControls.Button("Add Alpha Pixel", GUILayout.Height(25)))
+                        AddAlphaPixel(importer);
+                });
             else
-                EditorGUILayout.HelpBox("This sprite already has an alpha channel.", MessageType.Info);
+                EditorVisualControls.WarningBox("This sprite already has an alpha channel.");
         }
 
         private void FindProblematicSprites()
         {
             _problematicSprites.Clear();
+
+            EditorVisualControls.DrawBoxedSection("Scan Progress",
+                () => { EditorVisualControls.LabelField("Scanning project textures..."); });
 
             var guids = AssetDatabase.FindAssets("t:texture2d");
             foreach (var guid in guids)
@@ -115,11 +126,11 @@ namespace CustomUtils.Editor.SpriteFix
                     continue;
 
                 var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-                if (texture is null)
+                if (!texture)
                     continue;
 
                 var isNPOT = IsPowerOfTwo(texture.width) is false && IsPowerOfTwo(texture.height) is false;
-                var isRGB8 = !importer.DoesSourceTextureHaveAlpha();
+                var isRGB8 = importer.DoesSourceTextureHaveAlpha() is false;
                 var hasCrunchEnabled = importer.crunchedCompression;
 
                 if (isNPOT is false || isRGB8 is false || hasCrunchEnabled is false)
@@ -130,21 +141,35 @@ namespace CustomUtils.Editor.SpriteFix
             }
 
             Debug.Log($"Found {_problematicSprites.Count} problematic sprites");
+
+            if (_problematicSprites.Count > 0)
+                EditorVisualControls.InfoBox(
+                    $"Found {_problematicSprites.Count} problematic sprites that need alpha channel fixes.");
+            else
+                EditorGUILayout.HelpBox("No problematic sprites found. All sprites have proper alpha channels.",
+                    MessageType.Info);
         }
 
         private bool IsPowerOfTwo(int x) => x != 0 && (x & (x - 1)) == 0;
 
         private void FixAllSprites()
         {
-            foreach (var importer in _problematicSprites.ToList())
-                AddAlphaPixel(importer);
+            var showProgress = false;
+            EditorVisualControls.DrawBoxWithFoldout("Processing Progress", ref showProgress, () =>
+            {
+                foreach (var importer in _problematicSprites.ToList())
+                {
+                    EditorVisualControls.LabelField($"Processing: {Path.GetFileName(importer.assetPath)}");
+                    AddAlphaPixel(importer);
+                }
+            });
 
             _problematicSprites.Clear();
         }
 
         private void AddAlphaPixel(TextureImporter textureImporter)
         {
-            if (textureImporter is null)
+            if (!textureImporter)
                 return;
 
             var path = textureImporter.assetPath;
@@ -190,6 +215,7 @@ namespace CustomUtils.Editor.SpriteFix
             }
             catch (Exception e)
             {
+                EditorVisualControls.ErrorBox($"Error processing {Path.GetFileName(path)}: {e.Message}");
                 Debug.LogError($"Error adding alpha pixel to {path}: {e.Message}");
 
                 textureImporter.SetTextureSettings(originalSettings);

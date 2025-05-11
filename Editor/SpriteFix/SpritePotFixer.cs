@@ -1,22 +1,17 @@
 ﻿using System;
+using UnityEngine;
+using UnityEditor;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.Extensions;
 using static UnityEngine.RenderTexture;
 
 namespace CustomUtils.Editor.SpriteFix
 {
-    using UnityEngine;
-    using UnityEditor;
-    using System.IO;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    public sealed class SpriteResizer : EditorWindow
+    internal sealed class SpriteResizerWindow : WindowBase
     {
-        private enum Mode
-        {
-            SingleSprite,
-            Folder
-        }
-
         private Mode _currentMode = Mode.SingleSprite;
         private Sprite _selectedSprite;
         private DefaultAsset _selectedFolder;
@@ -25,37 +20,35 @@ namespace CustomUtils.Editor.SpriteFix
         private readonly List<SpriteResizeInfo> _spritesToResize = new();
         private bool _processingComplete;
 
-        private sealed class SpriteResizeInfo
+        [MenuItem(MenuItemNames.FixNPOTMenuName)]
+        internal static void ShowWindow()
         {
-            public string path;
-            public Sprite sprite;
-            public Vector2 originalSize;
-            public Vector2 newSize;
-            public bool ShouldResize => originalSize != newSize;
+            GetWindow<SpriteResizerWindow>(nameof(SpriteResizerWindow).ToSpacedWords());
         }
 
-        [MenuItem("Tools/FixNPOT")]
-        public static void ShowWindow()
+        protected override void InitializeWindow()
         {
-            GetWindow<SpriteResizer>("Sprite Resizer");
+            _showPreview = true;
+            _processingComplete = false;
         }
 
-        private void OnGUI()
-        {
-            GUILayout.Label("Sprite Resizer", EditorStyles.boldLabel);
+        protected override void CleanupWindow() { }
 
-            EditorGUILayout.Space();
-            _currentMode = (Mode)EditorGUILayout.EnumPopup("Mode", _currentMode);
-            EditorGUILayout.Space();
+        protected override void DrawWindowContent()
+        {
+            DrawSection("Mode", DrawModeSelection);
 
             switch (_currentMode)
             {
                 case Mode.SingleSprite:
-                    DrawSingleSpriteMode();
+                    DrawSection("Single Sprite Mode", DrawSingleSpriteMode);
                     break;
 
                 case Mode.Folder:
-                    DrawFolderMode();
+                    DrawSection("Folder Mode", DrawFolderMode);
+                    break;
+
+                case Mode.None:
                     break;
 
                 default:
@@ -63,11 +56,15 @@ namespace CustomUtils.Editor.SpriteFix
             }
         }
 
+        private void DrawModeSelection()
+        {
+            _currentMode = EditorStateControls.EnumField(_currentMode);
+        }
+
         private void DrawSingleSpriteMode()
         {
             EditorGUI.BeginChangeCheck();
-            _selectedSprite =
-                (Sprite)EditorGUILayout.ObjectField("Select Sprite", _selectedSprite, typeof(Sprite), false);
+            _selectedSprite = EditorStateControls.SpriteField("Select Sprite", _selectedSprite);
 
             if (EditorGUI.EndChangeCheck() && _selectedSprite)
             {
@@ -76,21 +73,22 @@ namespace CustomUtils.Editor.SpriteFix
                 _processingComplete = false;
             }
 
-            if (_selectedSprite is null)
+            if (!_selectedSprite)
                 return;
 
             DrawSpriteList();
+
             EditorGUILayout.Space();
-            if (GUILayout.Button("Resize Sprite"))
+
+            if (GUILayout.Button("Resize Sprite", GUILayout.Height(30)))
                 ProcessSprites(_spritesToResize);
         }
 
         private void DrawFolderMode()
         {
             EditorGUI.BeginChangeCheck();
-            _selectedFolder =
-                (DefaultAsset)EditorGUILayout.ObjectField("Select Folder", _selectedFolder, typeof(DefaultAsset),
-                    false);
+            _selectedFolder = (DefaultAsset)EditorStateControls
+                .ObjectField("Select Folder", _selectedFolder, typeof(DefaultAsset));
 
             if (EditorGUI.EndChangeCheck() && _selectedFolder)
             {
@@ -107,23 +105,26 @@ namespace CustomUtils.Editor.SpriteFix
                 }
             }
 
-            if (_selectedFolder is null)
+            if (!_selectedFolder)
                 return;
 
-            _showPreview = EditorGUILayout.Toggle("Show Preview", _showPreview);
+            _showPreview = EditorStateControls.Toggle("Show Preview", _showPreview);
+
             if (_showPreview)
                 DrawSpriteList();
 
             EditorGUILayout.Space();
+
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Refresh"))
+
+            if (GUILayout.Button("Refresh", GUILayout.Height(25)))
             {
-                string folderPath = AssetDatabase.GetAssetPath(_selectedFolder);
+                var folderPath = AssetDatabase.GetAssetPath(_selectedFolder);
                 FindSpritesInFolder(folderPath);
                 _processingComplete = false;
             }
 
-            if (GUILayout.Button("Resize All Sprites"))
+            if (GUILayout.Button("Resize All Sprites", GUILayout.Height(25)))
                 ProcessSprites(_spritesToResize);
 
             EditorGUILayout.EndHorizontal();
@@ -132,15 +133,19 @@ namespace CustomUtils.Editor.SpriteFix
         private void DrawSpriteList()
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Sprites to process:", EditorStyles.boldLabel);
+            EditorVisualControls.DrawSectionHeader("Sprites to process:");
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
             foreach (var spriteInfo in _spritesToResize)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.LabelField("Sprite: " + Path.GetFileName(spriteInfo.path));
-                EditorGUILayout.LabelField("Original Size: " + spriteInfo.originalSize.x + " x " +
-                                           spriteInfo.originalSize.y);
-                EditorGUILayout.LabelField("New Size: " + spriteInfo.newSize.x + " x " + spriteInfo.newSize.y);
+
+                EditorGUILayout.LabelField("Sprite: " + Path.GetFileName(spriteInfo.Path));
+                EditorGUILayout.LabelField("Original Size: " + spriteInfo.OriginalSize.x + " x " +
+                                           spriteInfo.OriginalSize.y);
+                EditorGUILayout.LabelField("New Size: " + spriteInfo.NewSize.x + " x " + spriteInfo.NewSize.y);
+
                 if (spriteInfo.ShouldResize is false)
                     EditorGUILayout.LabelField("(No resize needed)", EditorStyles.miniLabel);
 
@@ -151,13 +156,14 @@ namespace CustomUtils.Editor.SpriteFix
             EditorGUILayout.EndScrollView();
 
             if (_processingComplete)
-                EditorGUILayout.HelpBox("Processing complete!", MessageType.Info);
+                EditorVisualControls.WarningBox("Processing complete!");
         }
 
         private void FindSpritesInFolder(string folderPath)
         {
             _spritesToResize.Clear();
             var guids = AssetDatabase.FindAssets("t:sprite", new[] { folderPath });
+
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -174,12 +180,13 @@ namespace CustomUtils.Editor.SpriteFix
                 RoundToNearestMultipleOf4((int)originalSize.x),
                 RoundToNearestMultipleOf4((int)originalSize.y)
             );
+
             _spritesToResize.Add(new SpriteResizeInfo
             {
-                path = AssetDatabase.GetAssetPath(sprite),
-                sprite = sprite,
-                originalSize = originalSize,
-                newSize = newSize
+                Path = AssetDatabase.GetAssetPath(sprite),
+                Sprite = sprite,
+                OriginalSize = originalSize,
+                NewSize = newSize
             });
         }
 
@@ -198,39 +205,52 @@ namespace CustomUtils.Editor.SpriteFix
 
                 EditorUtility.DisplayProgressBar(
                     "Processing Sprites",
-                    $"Processing {Path.GetFileName(spriteInfo.path)} ({processedCount + 1}/{totalToProcess})",
+                    $"Processing {Path.GetFileName(spriteInfo.Path)} ({processedCount + 1}/{totalToProcess})",
                     (float)processedCount / totalToProcess
                 );
+
                 ResizeSprite(spriteInfo);
                 processedCount++;
             }
 
             EditorUtility.ClearProgressBar();
             _processingComplete = true;
+
             EditorUtility.DisplayDialog("Sprite Resizer",
                 processedCount > 0
                     ? $"Successfully processed {processedCount} sprite{(processedCount != 1 ? "s" : "")}!"
-                    : "No sprites needed resizing!", "OK");
+                    : "No sprites needed resizing!",
+                "OK");
         }
 
         private void ResizeSprite(SpriteResizeInfo spriteInfo)
         {
-            var sourceTexture = spriteInfo.sprite.texture;
+            var sourceTexture = spriteInfo.Sprite.texture;
 
-            var renderTexture = new RenderTexture((int)spriteInfo.newSize.x, (int)spriteInfo.newSize.y, 0);
+            var renderTexture = new RenderTexture(
+                (int)spriteInfo.NewSize.x,
+                (int)spriteInfo.NewSize.y,
+                0);
+
             active = renderTexture;
             Graphics.Blit(sourceTexture, renderTexture);
-            var newTexture = new Texture2D((int)spriteInfo.newSize.x, (int)spriteInfo.newSize.y);
-            newTexture.ReadPixels(new Rect(0, 0, (int)spriteInfo.newSize.x, (int)spriteInfo.newSize.y), 0, 0);
+
+            var newTexture = new Texture2D(
+                (int)spriteInfo.NewSize.x,
+                (int)spriteInfo.NewSize.y);
+
+            newTexture.ReadPixels(
+                new Rect(0, 0, (int)spriteInfo.NewSize.x, (int)spriteInfo.NewSize.y), 0, 0);
+
             newTexture.Apply();
             active = null;
             renderTexture.Release();
 
             var bytes = newTexture.EncodeToPNG();
-            File.WriteAllBytes(spriteInfo.path, bytes);
-            AssetDatabase.ImportAsset(spriteInfo.path);
+            File.WriteAllBytes(spriteInfo.Path, bytes);
+            AssetDatabase.ImportAsset(spriteInfo.Path);
 
-            if (AssetImporter.GetAtPath(spriteInfo.path) is not TextureImporter importer)
+            if (AssetImporter.GetAtPath(spriteInfo.Path) is not TextureImporter importer)
                 return;
 
             importer.textureType = TextureImporterType.Sprite;
