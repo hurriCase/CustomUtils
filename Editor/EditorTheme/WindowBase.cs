@@ -114,7 +114,7 @@ namespace CustomUtils.Editor.EditorTheme
 
         private void OnDisable()
         {
-            _progressTracker.Dispose();
+            _progressTracker?.Dispose();
 
             CleanupWindow();
             SaveWindowPreferences();

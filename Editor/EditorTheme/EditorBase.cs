@@ -121,7 +121,7 @@ namespace CustomUtils.Editor.EditorTheme
         {
             CleanupEditor();
 
-            _progressTracker.Dispose();
+            _progressTracker?.Dispose();
 
             var targetTypeName = target.GetType().Name;
             EditorPrefs.SetBool($"{PrefPrefix}{targetTypeName}{DefaultInspectorPostfix}", _showDefaultInspector);
