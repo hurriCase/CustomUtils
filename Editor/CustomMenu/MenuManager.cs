@@ -35,12 +35,12 @@ namespace CustomUtils.Editor.CustomMenu
 
         private static string GenerateMenuItemsScriptContentFromSettings(CustomMenuSettings settings)
         {
-            var content = @"using CustomMenu.Editor.MenuItems.Helpers;
+            var content = @"using CustomUtils.Editor.CustomMenu.MenuItems.Helpers;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace CustomMenu.Scripts.Editor
+namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 {
     internal static class GeneratedMenuItems
     {";
