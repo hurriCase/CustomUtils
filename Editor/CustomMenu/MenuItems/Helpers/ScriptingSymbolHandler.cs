@@ -102,9 +102,9 @@ namespace CustomUtils.Editor.CustomMenu.MenuItems.Helpers
 
             var definesList = currentDefines.Split(';');
 
-            var updatedDefines =
-                string.Join(";", definesList.AsValueEnumerable()
-                    .Where(defineSymbol => defineSymbol != symbolToRemove));
+            var updatedDefines = string.Join(";", definesList.AsValueEnumerable()
+                .Where(defineSymbol => defineSymbol != symbolToRemove)
+                .ToArray());
 
             PlayerSettings.SetScriptingDefineSymbols(currentBuildTarget, updatedDefines);
         }
