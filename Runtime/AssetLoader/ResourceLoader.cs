@@ -1,40 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.AssetLoader
 {
-    public static class ResourceLoader<T> where T : Object
+    /// <summary>
+    /// Generic utility class for loading Unity resources with automatic caching capabilities.
+    /// </summary>
+    /// <typeparam name="TResource">The type of resource to load, must inherit from UnityEngine.Object.</typeparam>
+    public static class ResourceLoader<TResource> where TResource : Object
     {
-        private static readonly Dictionary<string, T> _resourceCache = new();
-        private static readonly Dictionary<string, T[]> _resourceArrayCache = new();
+        private static readonly Dictionary<string, TResource> _resourceCache = new();
+        private static readonly Dictionary<string, TResource[]> _resourceArrayCache = new();
 
-        public static T Load(string path = null)
+        /// <summary>
+        /// Loads a resource of type TResource from the specified path with caching support.
+        /// If no path is provided, it will attempt to determine the path from ResourceAttribute.
+        /// </summary>
+        /// <param name="path">The path to load the resource from. If null, path is determined from ResourceAttribute.</param>
+        /// <returns>The loaded resource or null if the resource could not be found.</returns>
+        public static TResource Load(string path = null)
         {
             var cacheKey = GetCacheKey(path ?? GetPath());
 
             if (_resourceCache.TryGetValue(cacheKey, out var cached))
                 return cached;
 
-            var resource = Resources.Load<T>(path ?? GetPath());
-            if (resource is null)
+            var resource = Resources.Load<TResource>(path ?? GetPath());
+            if (!resource)
                 Debug.LogWarning($"[ResourceLoader::Load] Failed to load resource at path: {path ?? GetPath()}");
 
             _resourceCache[cacheKey] = resource;
             return resource;
         }
 
-        public static bool TryLoad(out T resource, string path = null)
+        /// <summary>
+        /// Attempts to load a resource and returns whether the operation was successful.
+        /// </summary>
+        /// <param name="resource">When this method returns, contains the loaded resource if found; otherwise, the default value for the type.</param>
+        /// <param name="path">The path to load the resource from. If null, path is determined from ResourceAttribute.</param>
+        /// <returns>True if the resource was successfully loaded; otherwise, false.</returns>
+        public static bool TryLoad(out TResource resource, string path = null)
             => resource = Load(path);
 
-        public static T[] LoadAll(string path)
+        /// <summary>
+        /// Loads all resources of type TResource from the specified path with caching support.
+        /// </summary>
+        /// <param name="path">The path to load the resources from.</param>
+        /// <returns>An array of loaded resources or null if no resources were found.</returns>
+        public static TResource[] LoadAll(string path)
         {
             if (_resourceArrayCache.TryGetValue(path, out var cached))
                 return cached;
 
-            var resources = Resources.LoadAll<T>(path);
+            var resources = Resources.LoadAll<TResource>(path);
             if (resources == null || resources.Length == 0)
             {
                 Debug.LogWarning($"[ResourceLoader::LoadAll] No resources found at path: {path}");
@@ -45,15 +68,54 @@ namespace CustomUtils.Runtime.AssetLoader
             return resources;
         }
 
-        public static bool TryLoadAll(string path, out T[] resources)
+        /// <summary>
+        /// Attempts to load all resources of type TResource from the specified path.
+        /// </summary>
+        /// <param name="path">The path to load the resources from.</param>
+        /// <param name="resources">When this method returns, contains the loaded resources if found; otherwise, null.</param>
+        /// <returns>True if resources were successfully loaded; otherwise, false.</returns>
+        public static bool TryLoadAll(string path, out TResource[] resources)
             => (resources = LoadAll(path)) != null;
 
+        /// <summary>
+        /// Asynchronously loads a resource of type TResource from the specified path with caching support.
+        /// If no path is provided, it will attempt to determine the path from ResourceAttribute.
+        /// </summary>
+        /// <param name="path">The path to load the resource from. If null, path is determined from ResourceAttribute.</param>
+        /// <param name="cancellationToken"> Optional cancellation token to stop loading</param>
+        /// <returns>A UniTask that represents the asynchronous load operation.
+        /// The result contains the loaded resource or null if not found.</returns>
+        public static async UniTask<TResource> LoadAsync(string path = null, CancellationToken cancellationToken = default)
+        {
+            var cacheKey = GetCacheKey(path ?? GetPath());
+
+            if (_resourceCache.TryGetValue(cacheKey, out var cached))
+                return cached;
+
+            var resourceRequest = Resources.LoadAsync<TResource>(path ?? GetPath());
+
+            await resourceRequest.ToUniTask(cancellationToken: cancellationToken);
+
+            var resource = resourceRequest.asset as TResource;
+            if (!resource)
+                Debug.LogWarning($"[ResourceLoader::LoadAsync] Failed to load resource at path: {path ?? GetPath()}");
+
+            _resourceCache[cacheKey] = resource;
+            return resource;
+        }
+
+        /// <summary>
+        /// Clears all cached resources, both individual and arrays.
+        /// </summary>
         public static void ClearCache()
         {
             _resourceCache.Clear();
             _resourceArrayCache.Clear();
         }
 
+        /// <summary>
+        /// Removes the default resource (determined by ResourceAttribute) from both caches.
+        /// </summary>
         public static void RemoveFromCache()
         {
             var cacheKey = GetCacheKey(GetPath());
@@ -63,7 +125,7 @@ namespace CustomUtils.Runtime.AssetLoader
         }
 
         private static string GetCacheKey(string path) =>
-            $"{typeof(T).Name}:{ValidatePath(path)}";
+            $"{typeof(TResource).Name}:{ValidatePath(path)}";
 
         private static string ValidatePath(string path)
         {
@@ -82,10 +144,10 @@ namespace CustomUtils.Runtime.AssetLoader
 
         private static string GetPath()
         {
-            var type = typeof(T);
+            var type = typeof(TResource);
 
             if (Attribute.GetCustomAttribute(type, typeof(ResourceAttribute)) is ResourceAttribute attribute)
-                return attribute.TryGetFullResourcePath(out var fullResourcePath) ? fullResourcePath : typeof(T).Name;
+                return attribute.TryGetFullResourcePath(out var fullResourcePath) ? fullResourcePath : typeof(TResource).Name;
 
             Debug.LogWarning($"[ResourceLoaderBase::Load] No ResourceAttribute found on type {type.Name}");
             return null;
