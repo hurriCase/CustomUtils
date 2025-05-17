@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -44,8 +45,7 @@ namespace CustomUtils.Runtime.AssetLoader
         /// <param name="resource">When this method returns, contains the loaded resource if found; otherwise, the default value for the type.</param>
         /// <param name="path">The path to load the resource from. If null, path is determined from ResourceAttribute.</param>
         /// <returns>True if the resource was successfully loaded; otherwise, false.</returns>
-        public static bool TryLoad(out TResource resource, string path = null)
-            => resource = Load(path);
+        public static bool TryLoad(out TResource resource, string path = null) => resource = Load(path);
 
         /// <summary>
         /// Loads all resources of type TResource from the specified path with caching support.
@@ -85,7 +85,8 @@ namespace CustomUtils.Runtime.AssetLoader
         /// <param name="cancellationToken"> Optional cancellation token to stop loading</param>
         /// <returns>A UniTask that represents the asynchronous load operation.
         /// The result contains the loaded resource or null if not found.</returns>
-        public static async UniTask<TResource> LoadAsync(string path = null, CancellationToken cancellationToken = default)
+        public static async UniTask<TResource> LoadAsync(string path = null,
+            CancellationToken cancellationToken = default)
         {
             var cacheKey = GetCacheKey(path ?? GetPath());
 
@@ -107,6 +108,7 @@ namespace CustomUtils.Runtime.AssetLoader
         /// <summary>
         /// Clears all cached resources, both individual and arrays.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ClearCache()
         {
             _resourceCache.Clear();
@@ -119,14 +121,27 @@ namespace CustomUtils.Runtime.AssetLoader
         public static void RemoveFromCache()
         {
             var cacheKey = GetCacheKey(GetPath());
-
             _resourceCache.Remove(cacheKey);
             _resourceArrayCache.Remove(cacheKey);
+
+#if UNITY_EDITOR
+            _resourceCache.Remove($"Editor:{cacheKey}");
+#endif
         }
 
-        private static string GetCacheKey(string path) =>
-            $"{typeof(TResource).Name}:{ValidatePath(path)}";
+        /// <summary>
+        /// Gets a cache key for the specified path.
+        /// </summary>
+        /// <param name="path">The resource path.</param>
+        /// <returns>A cache key string.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static string GetCacheKey(string path) => $"{typeof(TResource).Name}:{ValidatePath(path)}";
 
+        /// <summary>
+        /// Validates the specified path.
+        /// </summary>
+        /// <param name="path">The path to validate.</param>
+        /// <returns>The validated path or null if invalid.</returns>
         private static string ValidatePath(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -142,14 +157,20 @@ namespace CustomUtils.Runtime.AssetLoader
             return null;
         }
 
+        /// <summary>
+        /// Gets the resource path based on the ResourceAttribute of TResource.
+        /// </summary>
+        /// <returns>The resource path or null if no ResourceAttribute is found.</returns>
         private static string GetPath()
         {
             var type = typeof(TResource);
 
             if (Attribute.GetCustomAttribute(type, typeof(ResourceAttribute)) is ResourceAttribute attribute)
-                return attribute.TryGetFullResourcePath(out var fullResourcePath) ? fullResourcePath : typeof(TResource).Name;
+                return attribute.TryGetFullResourcePath(out var fullResourcePath)
+                    ? fullResourcePath
+                    : typeof(TResource).Name;
 
-            Debug.LogWarning($"[ResourceLoaderBase::Load] No ResourceAttribute found on type {type.Name}");
+            Debug.LogWarning($"[ResourceLoader::GetPath] No ResourceAttribute found on type {type.Name}");
             return null;
         }
     }
