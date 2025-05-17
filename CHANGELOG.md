@@ -10,17 +10,17 @@
 ## [2.0.0] – 2025-05-11
 ### Feature
 - Complete architecture overhaul with proper namespace organization
-- Added Resource management system with ResourceLoader<T> and caching
-- Added Asset loading framework with configuration system
-- Added Audio framework with AudioHandler, AudioDatabase and pooling
-- Added Storage system with multiple providers (Binary, Firebase, PlayerPrefs)
-- Added Enhanced editor tools with consistent UI theming
-- Added Object pooling system with PoolHandler<T>
-- Added Custom menu framework for editor menu items
-- Added Singleton implementations (multiple variants)
-- Added Extension methods for Unity components
-- Added Custom attribute system with drawers
-- Added Assembly reference analyzer
+- Resource management system with ResourceLoader<T> and caching
+- Asset loading framework with configuration system
+- Audio framework with AudioHandler, AudioDatabase and pooling
+- Storage system with multiple providers (Binary, Firebase, PlayerPrefs)
+- Enhanced editor tools with consistent UI theming
+- Object pooling system with PoolHandler<T>
+- Custom menu framework for editor menu items
+- Singleton implementations (multiple variants)
+- Extension methods for Unity components
+- Custom attribute system with drawers
+- Assembly reference analyzer
 - Enhanced all original tools with improved UI and functionality
 ## [2.0.1] – 2025-05-11
 ### Fix
@@ -33,3 +33,11 @@
 ### Refactor
 - Suppress some IDE warning.
 - Moved from linq to zlinq
+## [2.1.0] – 2025-05-17
+### Feature
+- CancellationSourceHelper.
+- EditorProgressTracker to show the progress of the asynchronous operations.
+- LockInspector toggles both the Unity Inspector's lock state and the "Constrain Proportions" setting on Transform components through shortcuts.
+- Added LoadAsync and xml comments for ResourceLoader
+### Refactor
+- Replaced ReSharper disable to UsedImplicitly attribute
