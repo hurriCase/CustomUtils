@@ -5,6 +5,7 @@ using UnityEditor;
 // ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.EditorTheme
 {
+    /// <inheritdoc />
     /// <summary>
     /// Base class for all custom editors with enhanced GUI capabilities
     /// </summary>
@@ -16,12 +17,31 @@ namespace CustomUtils.Editor.EditorTheme
         protected EditorStateControls EditorStateControls => _editorGUI ??= new EditorStateControls(target);
         private EditorStateControls _editorGUI;
 
+        /// <summary>
+        /// Access to the progress tracker for handling long-running operations.
+        /// </summary>
+        protected EditorProgressTracker ProgressTracker => _progressTracker ??= new EditorProgressTracker();
+        private EditorProgressTracker _progressTracker;
+
         private const string DefaultInspectorLabelName = "Default Inspector";
         private const string PrefPrefix = "AbstractEditor_";
         private const string DefaultInspectorPostfix = "_DefaultInspector";
 
         private readonly Dictionary<string, bool> _foldoutStates = new();
         private bool _showDefaultInspector;
+
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            DrawProgressIfNeeded();
+
+            DrawCustomSections();
+
+            DrawDefaultInspectorSection();
+
+            serializedObject.ApplyModifiedProperties();
+        }
 
         /// <summary>
         /// Override this method in derived classes to draw custom inspector sections.
@@ -49,16 +69,19 @@ namespace CustomUtils.Editor.EditorTheme
         /// </summary>
         protected virtual void CleanupEditor() { }
 
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
+        /// <summary>
+        /// Updates the progress information and triggers a repaint of the inspector
+        /// </summary>
+        /// <param name="operation">Name of the operation</param>
+        /// <param name="info">Additional information</param>
+        /// <param name="progress">Progress value between 0 and 1</param>
+        protected void UpdateProgress(string operation, string info, float progress)
+            => ProgressTracker.UpdateProgress(operation, info, progress);
 
-            DrawCustomSections();
-
-            DrawDefaultInspectorSection();
-
-            serializedObject.ApplyModifiedProperties();
-        }
+        /// <summary>
+        /// Completes the current operation and resets progress tracking
+        /// </summary>
+        protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
 
         /// <summary>
         /// Draw a custom section with a foldout header.
@@ -94,15 +117,11 @@ namespace CustomUtils.Editor.EditorTheme
             InitializeEditor();
         }
 
-        private void DrawDefaultInspectorSection()
-        {
-            EditorVisualControls.DrawBoxWithFoldout(DefaultInspectorLabelName, ref _showDefaultInspector,
-                () => DrawDefaultInspector());
-        }
-
         private void OnDisable()
         {
             CleanupEditor();
+
+            _progressTracker.Dispose();
 
             var targetTypeName = target.GetType().Name;
             EditorPrefs.SetBool($"{PrefPrefix}{targetTypeName}{DefaultInspectorPostfix}", _showDefaultInspector);
@@ -115,6 +134,14 @@ namespace CustomUtils.Editor.EditorTheme
                 );
             }
         }
+
+        private void DrawDefaultInspectorSection()
+        {
+            EditorVisualControls.DrawBoxWithFoldout(DefaultInspectorLabelName, ref _showDefaultInspector,
+                () => DrawDefaultInspector());
+        }
+
+        private void DrawProgressIfNeeded() => ProgressTracker.DrawProgressIfNeeded();
 
         private string SanitizeKey(string key, bool reverse = false)
             => reverse ? key.Replace("_", " ").Replace("__", ".") : key.Replace(" ", "_").Replace(".", "__");

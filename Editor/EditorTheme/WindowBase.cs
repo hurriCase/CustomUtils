@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
 // ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.EditorTheme
@@ -27,35 +26,14 @@ namespace CustomUtils.Editor.EditorTheme
         protected EditorStateControls EditorStateControls => _editorGUI ??= new EditorStateControls(this);
         private EditorStateControls _editorGUI;
 
+        /// <summary>
+        /// Access to the progress tracker for handling long-running operations.
+        /// </summary>
+        protected EditorProgressTracker ProgressTracker => _progressTracker ??= new EditorProgressTracker();
+        private EditorProgressTracker _progressTracker;
+
         private const string PrefPrefix = "WindowBase_";
         private readonly Dictionary<string, bool> _foldoutStates = new();
-
-        /// <summary>
-        /// Called when the window is enabled or opened.
-        /// </summary>
-        /// <remarks>
-        /// Loads saved window preferences and initializes state. Override this method in derived classes
-        /// to perform custom initialization, but be sure to call the base implementation first.
-        /// </remarks>
-        private void OnEnable()
-        {
-            _foldoutStates.Clear();
-
-            InitializeWindow();
-        }
-
-        /// <summary>
-        /// Called when the window is disabled or closed.
-        /// </summary>
-        /// <remarks>
-        /// Saves all window states to EditorPrefs. Override this method in derived classes
-        /// to perform additional cleanup, but be sure to call the base implementation last.
-        /// </remarks>
-        private void OnDisable()
-        {
-            CleanupWindow();
-            SaveWindowPreferences();
-        }
 
         /// <summary>
         /// Initializes the window. This method is called during OnEnable and should be overridden
@@ -68,18 +46,6 @@ namespace CustomUtils.Editor.EditorTheme
         /// by derived classes to perform any custom cleanup operations.
         /// </summary>
         protected virtual void CleanupWindow() { }
-
-        /// <summary>
-        /// Called when the GUI should be drawn.
-        /// </summary>
-        /// <remarks>
-        /// This implementation sets up the necessary styling and calls DrawWindowContent()
-        /// for the actual content rendering.
-        /// </remarks>
-        private void OnGUI()
-        {
-            DrawWindowContent();
-        }
 
         /// <summary>
         /// Override this method in derived classes to draw the window's content.
@@ -117,17 +83,48 @@ namespace CustomUtils.Editor.EditorTheme
         /// </remarks>
         /// <param name="title">Title of the section to display in the header.</param>
         /// <param name="drawContent">Action to execute when drawing the section content.</param>
-        protected void DrawSection(string title, Action drawContent)
-        {
-            EditorVisualControls.DrawBoxedSection(title, drawContent);
-        }
+        protected static void DrawSection(string title, Action drawContent)
+            => EditorVisualControls.DrawBoxedSection(title, drawContent);
 
         /// <summary>
-        /// Saves window preferences to EditorPrefs.
+        /// Updates the progress information and triggers a repaint of the window
         /// </summary>
-        /// <remarks>
-        /// Persists foldout states and other window-specific preferences.
-        /// </remarks>
+        /// <param name="operation">Name of the operation</param>
+        /// <param name="info">Additional information</param>
+        /// <param name="progress">Progress value between 0 and 1</param>
+        protected void UpdateProgress(string operation, string info, float progress)
+            => ProgressTracker.UpdateProgress(operation, info, progress);
+
+        /// <summary>
+        /// Draws the progress bar if an operation is in progress
+        /// </summary>
+        protected void DrawProgressIfNeeded() => ProgressTracker.DrawProgressIfNeeded();
+
+        /// <summary>
+        /// Completes the current operation and resets progress tracking
+        /// </summary>
+        protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
+
+        private void OnEnable()
+        {
+            _foldoutStates.Clear();
+
+            InitializeWindow();
+        }
+
+        private void OnDisable()
+        {
+            _progressTracker.Dispose();
+
+            CleanupWindow();
+            SaveWindowPreferences();
+        }
+
+        private void OnGUI()
+        {
+            DrawWindowContent();
+        }
+
         private void SaveWindowPreferences()
         {
             var windowTypeName = GetType().Name;
@@ -141,12 +138,6 @@ namespace CustomUtils.Editor.EditorTheme
             }
         }
 
-        /// <summary>
-        /// Sanitizes a string key for use in EditorPrefs.
-        /// </summary>
-        /// <param name="key">The key to sanitize.</param>
-        /// <param name="reverse">Whether to reverse the sanitization process.</param>
-        /// <returns>A sanitized string suitable for use as an EditorPrefs key.</returns>
         private string SanitizeKey(string key, bool reverse = false)
             => reverse ? key.Replace("_", " ").Replace("__", ".") : key.Replace(" ", "_").Replace(".", "__");
     }
