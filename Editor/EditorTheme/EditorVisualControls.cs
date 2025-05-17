@@ -1,9 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
 // ReSharper disable MemberCanBeInternal
-// ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 namespace CustomUtils.Editor.EditorTheme
 {
@@ -14,6 +14,7 @@ namespace CustomUtils.Editor.EditorTheme
     /// Provides consistent styling and layout methods for creating uniform editor UI elements.
     /// All methods use the centralized theme settings from <see cref="ThemeEditorSettings"/>.
     /// </remarks>
+    [UsedImplicitly]
     public static class EditorVisualControls
     {
         private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
@@ -25,6 +26,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Creates a header with spacing, font size, style, and alignment defined in the theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawSectionHeader(string title)
         {
             var headerStyle = CreateTextStyle(
@@ -44,6 +46,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Adds consistent spacing before and after the content based on theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawPanel(Action drawContent)
         {
             EditorGUILayout.Space(Settings.PanelSpacing);
@@ -59,6 +62,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Uses consistent height for property fields defined in theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawPropertyFieldWithLabel(SerializedProperty property, string label)
         {
             EditorGUILayout.PropertyField(property, new GUIContent(label), GUILayout.Height(Settings.PropertyHeight));
@@ -71,6 +75,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Useful for displaying related properties side-by-side to save vertical space.
         /// </remarks>
+        [UsedImplicitly]
         public static void HorizontalProperties(params (SerializedProperty property, string label)[] properties)
         {
             EditorGUILayout.BeginHorizontal();
@@ -88,6 +93,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Adds consistent spacing before and after the warning box based on theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void WarningBox(string message)
         {
             EditorGUILayout.Space(Settings.MessageBoxSpacing);
@@ -102,6 +108,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Adds consistent spacing before and after the info box based on theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void InfoBox(string message)
         {
             EditorGUILayout.Space(Settings.MessageBoxSpacing);
@@ -117,6 +124,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Adds consistent spacing before and after the help box based on theme settings.
         /// Uses MessageType.None to display a box without an icon.
         /// </remarks>
+        [UsedImplicitly]
         public static void HelpBox(string message)
         {
             EditorGUILayout.Space(Settings.MessageBoxSpacing);
@@ -131,6 +139,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// Adds consistent spacing before and after the error box based on theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void ErrorBox(string message)
         {
             EditorGUILayout.Space(Settings.MessageBoxSpacing);
@@ -147,6 +156,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Creates a visually distinct boxed area with consistent padding and spacing.
         /// The box styling, title font, and spacing are all defined in theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawBoxedSection(string title, Action drawContent)
         {
             EditorGUILayout.Space(Settings.BoxSpacingBefore);
@@ -193,6 +203,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Creates a collapsible section with consistent styling. The foldout state parameter
         /// allows the calling code to persist the expanded/collapsed state between draws.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawBoxWithFoldout(string title, ref bool foldout, Action drawContent)
         {
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingBefore);
@@ -227,12 +238,14 @@ namespace CustomUtils.Editor.EditorTheme
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingAfter);
         }
 
+        [UsedImplicitly]
         public static bool Button(string text, params GUILayoutOption[] options)
         {
             var buttonStyle = CreateTextStyle(GUI.skin.button, Settings.ButtonFontSize, Settings.ButtonFontStyle);
             return GUILayout.Button(text, buttonStyle, options);
         }
 
+        [UsedImplicitly]
         public static bool Foldout(bool foldout, string title, bool toggleOnLabelClick = true)
         {
             var foldoutStyle = CreateTextStyle(
@@ -251,6 +264,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies the largest heading style based on theme settings.
         /// Use for main section titles or page headers.
         /// </remarks>
+        [UsedImplicitly]
         public static void H1Label(string text)
         {
             var headerStyle = CreateTextStyle(
@@ -274,6 +288,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies medium-sized heading styling based on theme settings.
         /// Use for section headers within a larger content area.
         /// </remarks>
+        [UsedImplicitly]
         public static void H2Label(string text)
         {
             var headerStyle = CreateTextStyle(
@@ -297,6 +312,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies smaller heading styling based on theme settings.
         /// Use for subsection headers or group titles.
         /// </remarks>
+        [UsedImplicitly]
         public static void H3Label(string text)
         {
             var headerStyle = CreateTextStyle(
@@ -320,6 +336,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies standard text styling based on theme settings.
         /// Use for regular text content that needs consistent styling.
         /// </remarks>
+        [UsedImplicitly]
         public static void LabelField(string text)
         {
             var labelStyle = CreateTextStyle(
@@ -339,6 +356,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies both the theme's standard text styling and any custom styles provided.
         /// Use when you need a consistently styled label with additional custom styling.
         /// </remarks>
+        [UsedImplicitly]
         public static void LabelField(string text, GUIStyle style)
         {
             var combinedStyle = new GUIStyle(style)
@@ -357,6 +375,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Adds a visual separator between UI elements with spacing above and below.
         /// The divider height, color, and spacing are defined in theme settings.
         /// </remarks>
+        [UsedImplicitly]
         public static void DrawHorizontalLine()
         {
             EditorGUILayout.Space(Settings.DividerSpacing);
@@ -379,6 +398,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// This utility method is used internally to create consistent text styles throughout the editor.
         /// </remarks>
+        [UsedImplicitly]
         public static GUIStyle CreateTextStyle(GUIStyle baseStyle, int? fontSize = null, FontStyle? fontStyle = null,
             TextAnchor? alignment = null)
         {
@@ -405,6 +425,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <remarks>
         /// This utility method is used internally to create consistent box styles throughout the editor.
         /// </remarks>
+        [UsedImplicitly]
         public static GUIStyle CreateBoxStyle(int paddingLeft, int paddingRight, int paddingTop, int paddingBottom)
         {
             var style = new GUIStyle(EditorStyles.helpBox)
@@ -417,6 +438,27 @@ namespace CustomUtils.Editor.EditorTheme
             };
 
             return style;
+        }
+
+        /// <summary>
+        /// Draws a progress bar with title and progress value
+        /// </summary>
+        /// <param name="title">Title of the progress operation</param>
+        /// <param name="info">Additional information to display</param>
+        /// <param name="progress">Progress value between 0 and 1</param>
+        [UsedImplicitly]
+        public static void DrawProgressBar(string title, string info, float progress)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+            if (string.IsNullOrEmpty(info) is false)
+                EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
+
+            var progressRect = EditorGUILayout.GetControlRect(false, 20);
+            EditorGUI.ProgressBar(progressRect, Mathf.Clamp01(progress), $"{Mathf.RoundToInt(progress * 100)}%");
+
+            EditorGUILayout.EndVertical();
         }
     }
 }

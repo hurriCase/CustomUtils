@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using UnityEditor;
 
 // ReSharper disable MemberCanBeInternal
-// ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.Extensions
 {
     public static class StringExtensionsEditor
@@ -11,6 +11,7 @@ namespace CustomUtils.Editor.Extensions
         /// Creates a folder structure in the Unity project based on the provided path.
         /// </summary>
         /// <param name="path">The path where the folders should be created, using forward slashes (/) as separators.</param>
+        [UsedImplicitly]
         public static void CreateFolder(this string path)
         {
             var folders = path.Split('/');

@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
 
 // ReSharper disable MemberCanBeInternal
-// ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.Extensions
 {
     public static class SerializedPropertyExtensions

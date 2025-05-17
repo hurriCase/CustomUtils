@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using ZLinq;
 
-// ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBeInternal
-// ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.Extensions
 {
     /// <summary>
@@ -29,6 +28,7 @@ namespace CustomUtils.Editor.Extensions
         /// This method is useful when you need to reference a field by name in serialized properties
         /// but want to avoid hardcoding strings. Throws an exception if no matching field is found.
         /// </remarks>
+        [UsedImplicitly]
         public static string GetFieldName<TClass, TField>(this TClass _,
             BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance)
             where TClass : class =>
@@ -50,6 +50,7 @@ namespace CustomUtils.Editor.Extensions
         /// This method is useful when you need to reference a List field by name in serialized properties
         /// but want to avoid hardcoding strings. Throws an exception if no matching field is found.
         /// </remarks>
+        [UsedImplicitly]
         public static string GetListFieldName<TClass, TElement>(this TClass _,
             BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance)
             where TClass : class =>

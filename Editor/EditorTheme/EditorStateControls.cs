@@ -5,14 +5,13 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
-// ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMethodReturnValue.Global
 namespace CustomUtils.Editor.EditorTheme
 {
     /// <summary>
     /// Enhanced GUI system for editor inspectors with automatic undo support.
     /// </summary>
+    [UsedImplicitly]
     public sealed class EditorStateControls
     {
         private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
@@ -23,6 +22,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// </summary>
         /// <param name="target">The Unity object to track for undo operations. Must not be null.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="target"/> is null.</exception>
+        [UsedImplicitly]
         public EditorStateControls([NotNull] Object target) => _target = target;
 
         /// <summary>
@@ -32,6 +32,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="value">The current color value.</param>
         /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
         /// <returns>The modified color value.</returns>
+        [UsedImplicitly]
         public Color ColorField(string label, Color value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
@@ -45,6 +46,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="value">The current gradient value.</param>
         /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
         /// <returns>The modified gradient value.</returns>
+        [UsedImplicitly]
         public Gradient GradientField(string label, Gradient value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
@@ -56,9 +58,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current object reference.</param>
-        /// <param name="objectType">The type of object that can be assigned.</param>
         /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is true.</param>
-        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
         /// <returns>The modified object reference.</returns>
         public Sprite SpriteField(string label, Sprite value, bool allowSceneObjects = false) =>
             HandleValueChange(label, value, () =>
@@ -77,6 +77,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current float value.</param>
         /// <returns>The modified float value.</returns>
+        [UsedImplicitly]
         public float FloatField(string label, float value) =>
             HandleValueChange(label, value, () => EditorGUILayout.FloatField(label, value));
 
@@ -86,6 +87,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current int value.</param>
         /// <returns>The modified int value.</returns>
+        [UsedImplicitly]
         public int IntField(string label, int value) =>
             HandleValueChange(label, value, () => EditorGUILayout.IntField(label, value));
 
@@ -96,6 +98,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current enum value.</param>
         /// <returns>The modified enum value.</returns>
+        [UsedImplicitly]
         public T EnumField<T>(string label, T value) where T : Enum =>
             HandleValueChange(label, value, () => (T)EditorGUILayout.EnumPopup(label, value));
 
@@ -105,6 +108,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <typeparam name="T">The enum type.</typeparam>
         /// <param name="value">The current enum value.</param>
         /// <returns>The modified enum value.</returns>
+        [UsedImplicitly]
         public T EnumField<T>(T value) where T : Enum =>
             HandleValueChange(nameof(T), value, () => (T)EditorGUILayout.EnumPopup(value));
 
@@ -115,6 +119,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="property">The serialized property to modify.</param>
         /// <param name="includeChildren">Whether to include children of the property. Default is false.</param>
         /// <returns>True if the property was modified, false otherwise.</returns>
+        [UsedImplicitly]
         public bool PropertyField(SerializedProperty property, string label, bool includeChildren = false)
         {
             EditorGUI.BeginChangeCheck();
@@ -134,6 +139,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="property">The serialized property to modify.</param>
         /// <param name="includeChildren">Whether to include children of the property. Default is false.</param>
         /// <returns>True if the property was modified, false otherwise.</returns>
+        [UsedImplicitly]
         public bool PropertyField(SerializedProperty property, bool includeChildren = false)
             => PropertyField(property, property.displayName, includeChildren);
 
@@ -145,6 +151,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="options">Array of option strings to display.</param>
         /// <param name="indented">Whether to indent the dropdown. Default is true.</param>
         /// <returns>The index of the selected option.</returns>
+        [UsedImplicitly]
         public int Dropdown(string label, int selectedIndex, string[] options, bool indented = true)
         {
             var dropdownStyle = EditorVisualControls.CreateTextStyle(
@@ -176,6 +183,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="isSelected">Whether the button is currently selected.</param>
         /// <param name="highlightColor">Optional color to use when the button is selected. If null, use the default from settings.</param>
         /// <returns>The newly selected state of the button.</returns>
+        [UsedImplicitly]
         public bool ToggleButton(string label, bool isSelected, Color? highlightColor = null)
         {
             var buttonStyle = EditorVisualControls.CreateTextStyle(
@@ -206,6 +214,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="labels">Array of button labels to display.</param>
         /// <param name="selectedIndex">The currently selected button index.</param>
         /// <returns>The index of the newly selected button.</returns>
+        [UsedImplicitly]
         public int ToggleButtonGroup(string[] labels, int selectedIndex)
         {
             EditorGUILayout.BeginHorizontal();
@@ -233,6 +242,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the toggle.</param>
         /// <param name="value">The current toggle state.</param>
         /// <returns>The new toggle state.</returns>
+        [UsedImplicitly]
         public bool Toggle(string label, bool value) =>
             HandleValueChange(label, value, () => EditorGUILayout.Toggle(label, value));
 
@@ -247,6 +257,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="toggle2">Reference to the second toggle's state.</param>
         /// <param name="label1">The label for the first toggle.</param>
         /// <param name="label2">The label for the second toggle.</param>
+        [UsedImplicitly]
         public void ExclusiveToggles(ref bool toggle1, ref bool toggle2, string label1, string label2)
         {
             EditorGUI.BeginChangeCheck();
@@ -295,6 +306,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display above the text area.</param>
         /// <param name="value">The current text content.</param>
         /// <returns>The modified text content.</returns>
+        [UsedImplicitly]
         public string TextArea(string label, string value)
         {
             EditorGUILayout.LabelField(label);
@@ -307,6 +319,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current text content.</param>
         /// <returns>The modified text content.</returns>
+        [UsedImplicitly]
         public string TextField(string label, string value) =>
             HandleValueChange(label, value, () => EditorGUILayout.TextField(label, value));
 
@@ -318,6 +331,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="leftValue">The minimum value (left end of slider).</param>
         /// <param name="rightValue">The maximum value (right end of slider).</param>
         /// <returns>The modified float value.</returns>
+        [UsedImplicitly]
         public float Slider(string label, float value, float leftValue, float rightValue) =>
             HandleValueChange(label, value, () => EditorGUILayout.Slider(label, value, leftValue, rightValue));
 
@@ -329,6 +343,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="leftValue">The minimum value (left end of slider).</param>
         /// <param name="rightValue">The maximum value (right end of slider).</param>
         /// <returns>The modified int value.</returns>
+        [UsedImplicitly]
         public int IntSlider(string label, int value, int leftValue, int rightValue) =>
             HandleValueChange(label, value, () => EditorGUILayout.IntSlider(label, value, leftValue, rightValue));
 
