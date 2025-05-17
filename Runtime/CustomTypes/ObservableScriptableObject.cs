@@ -1,8 +1,10 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes
 {
+    /// <inheritdoc />
     /// <summary>
     /// Base class for ScriptableObjects that can notify subscribers when their values change.
     /// </summary>
@@ -15,12 +17,12 @@ namespace CustomUtils.Runtime.CustomTypes
         /// <remarks>
         /// Subscribers receive the changed ScriptableObject instance as a parameter.
         /// </remarks>
-        public event Action<T> OnValueChanged;
+        [UsedImplicitly] public event Action<T> OnValueChanged;
 
         /// <summary>
         /// Notifies subscribers that a value has changed.
         /// </summary>
         /// <param name="value">The updated ScriptableObject instance.</param>
-        protected void NotifyValueChanged(T value) => OnValueChanged?.Invoke(value);
+        [UsedImplicitly] protected void NotifyValueChanged(T value) => OnValueChanged?.Invoke(value);
     }
 }

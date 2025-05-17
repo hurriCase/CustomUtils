@@ -1,8 +1,10 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes.Singletons
 {
+    /// <inheritdoc />
     /// <summary>
     /// Base class for MonoBehaviours that follow the Singleton pattern.
     /// Ensures only one instance exists and automatically handles cleanup.
@@ -10,7 +12,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
     /// <typeparam name="T">The type of MonoBehaviour to make a singleton.</typeparam>
     public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     {
-        public static T Instance { get; private set; }
+        [UsedImplicitly] public static T Instance { get; private set; }
 
         public static event Action OnDestroyed;
 

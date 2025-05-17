@@ -1,10 +1,12 @@
 using System;
 using CustomUtils.Runtime.AssetLoader;
+using JetBrains.Annotations;
 using UnityEngine;
 
 // ReSharper disable StaticMemberInGenericType
 namespace CustomUtils.Runtime.CustomTypes.Singletons
 {
+    /// <inheritdoc />
     /// <summary>
     /// Base class for MonoBehaviours that follow the Singleton pattern and persist between scenes.
     /// Can be instantiated from a prefab in Resources folder or created dynamically.
@@ -14,7 +16,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
     {
         private static T _instance;
 
-        public static T Instance
+        [UsedImplicitly] public static T Instance
         {
             get
             {

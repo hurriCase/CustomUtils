@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes.Singletons
@@ -12,7 +13,8 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
     {
         private static T _instance;
 
-        public static T Instance => _instance = _instance ?? (_instance = Activator.CreateInstance(typeof(T)) as T);
+        [UsedImplicitly] public static T Instance
+            => _instance = _instance ?? (_instance = Activator.CreateInstance(typeof(T)) as T);
 
 #if UNITY_EDITOR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
