@@ -8,7 +8,11 @@ using UnityEngine;
 
 namespace CustomUtils.Editor.CustomMenu
 {
-    [Resource(fullPath: ResourcePaths.CustomMenuPath, name: ResourcePaths.CustomMenuSettingsFileName)]
+    [Resource(
+        fullPath: ResourcePaths.CustomMenuPath,
+        name: ResourcePaths.CustomMenuSettingsFileName,
+        isEditorResource: true
+    )]
     internal sealed class CustomMenuSettings : SingletonScriptableObject<CustomMenuSettings>
     {
         [field: SerializeField] internal SceneAsset DefaultSceneAsset { get; private set; }
