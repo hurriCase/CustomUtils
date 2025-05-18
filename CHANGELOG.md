@@ -41,3 +41,11 @@
 - Added LoadAsync and xml comments for ResourceLoader
 ### Refactor
 - Replaced ReSharper disable to UsedImplicitly attribute
+## [2.1.1] – 2025-05-18
+### Feature
+- ScriptableObjectLoader.
+- DrawWrappedSelectableLabel for EditorVisualControls.
+### Refactor
+- Xml comments for ResourceLoader.
+### Fix
+- SingletonScriptableObject wasn't loaded from Default Editor Resources.
