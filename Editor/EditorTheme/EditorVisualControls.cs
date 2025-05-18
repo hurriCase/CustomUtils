@@ -369,6 +369,25 @@ namespace CustomUtils.Editor.EditorTheme
         }
 
         /// <summary>
+        /// Creates a selectable label that wraps text and automatically adjusts its height based on content.
+        /// </summary>
+        /// <param name="text">The text to display in the selectable label.</param>
+        /// <param name="style">The base style to use for the label. If null, EditorStyles.label will be used.</param>
+        public static void DrawWrappedSelectableLabel(string text, GUIStyle style = null)
+        {
+            style = style ?? EditorStyles.label;
+
+            var wrappedStyle = new GUIStyle(style)
+            {
+                wordWrap = true
+            };
+
+            var height = wrappedStyle.CalcHeight(new GUIContent(text), EditorGUIUtility.currentViewWidth);
+
+            EditorGUILayout.SelectableLabel(text, wrappedStyle, GUILayout.Height(height));
+        }
+
+        /// <summary>
         /// Creates a horizontal line (divider) with consistent styling.
         /// </summary>
         /// <remarks>
