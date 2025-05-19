@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Helpers;
 using Cysharp.Threading.Tasks;
 using PrimeTween;
