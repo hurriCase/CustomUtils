@@ -2,16 +2,22 @@
 {
     internal static class ResourcePaths
     {
-        internal const string CustomMenuPath = "CustomMenu";
-        internal const string CustomMenuSettingsFileName = "CustomMenuSettings";
+        internal const string CustomMenuResourcePath = "CustomMenu";
+        internal const string CustomMenuSettingsAssetName = "CustomMenuSettings";
+
+        internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
+        internal const string LocalizationSettingsFullPath = ResourcesPath + LocalizationSettingsResourcesPath;
+        internal const string LocalizationSettingsAssetName = "LocalizationSettings";
 
         internal const string LocalizationsFolderPath = "CustomLocalization/Localization";
 
-        internal const string LocalizationSettingsResourcePath = "CustomLocalization";
-        internal const string LocalizationSettingsFullPath = "Assets/Resources" + LocalizationSettingsResourcePath;
-        internal const string LocalizationSettingsAssetName = "LocalizationSettings";
+        internal const string LoggerSettingsResourcesPath = "Logger";
+        internal const string LoggerSettingsFullPath = ResourcesPath + LoggerSettingsResourcesPath;
+        internal const string LoggerSettingsAssetName = "LogCollectorSettings";
 
         internal const string DontDestroyOnLoadPath = "DontDestroyOnLoad";
         internal const string PrefabPrefix = "P_";
+
+        private const string ResourcesPath = "Assets/Resources";
     }
 }

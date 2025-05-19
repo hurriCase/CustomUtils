@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomUtils.Editor.EditorTheme.Scopes;
+using CustomUtils.Editor.Extensions;
 using UnityEditor;
 
 // ReSharper disable UnusedMember.Global
@@ -31,6 +33,8 @@ namespace CustomUtils.Editor.EditorTheme
         /// </summary>
         protected EditorProgressTracker ProgressTracker => _progressTracker ??= new EditorProgressTracker();
         private EditorProgressTracker _progressTracker;
+
+        protected SerializedObject serializedObject;
 
         private const string PrefPrefix = "WindowBase_";
         private readonly Dictionary<string, bool> _foldoutStates = new();
@@ -87,6 +91,16 @@ namespace CustomUtils.Editor.EditorTheme
             => EditorVisualControls.DrawBoxedSection(title, drawContent);
 
         /// <summary>
+        /// Begins a section with the specified title, designed to be used with 'using' statement.
+        /// </summary>
+        /// <param name="title">Title of the section to display in the header.</param>
+        /// <returns>A disposable section scope object.</returns>
+        /// <remarks>
+        /// Use this with the 'using' statement to create a section with auto-closing.
+        /// </remarks>
+        protected static SectionScope BeginSection(string title) => EditorVisualControls.BeginSection(title);
+
+        /// <summary>
         /// Updates the progress information and triggers a repaint of the window
         /// </summary>
         /// <param name="operation">Name of the operation</param>
@@ -104,6 +118,9 @@ namespace CustomUtils.Editor.EditorTheme
         /// Completes the current operation and resets progress tracking
         /// </summary>
         protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
+
+        protected void PropertyField(string fieldName, bool includeChildren = false)
+            => EditorStateControls.PropertyField(serializedObject.FindField(fieldName), includeChildren);
 
         private void OnEnable()
         {

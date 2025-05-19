@@ -9,8 +9,8 @@ using UnityEngine;
 namespace CustomUtils.Editor.CustomMenu
 {
     [Resource(
-        fullPath: ResourcePaths.CustomMenuPath,
-        name: ResourcePaths.CustomMenuSettingsFileName,
+        ResourcePaths.CustomMenuResourcePath,
+        ResourcePaths.CustomMenuSettingsAssetName,
         isEditorResource: true
     )]
     internal sealed class CustomMenuSettings : SingletonScriptableObject<CustomMenuSettings>

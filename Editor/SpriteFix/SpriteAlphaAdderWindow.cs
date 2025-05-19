@@ -5,6 +5,8 @@ using UnityEditor;
 using System.Collections.Generic;
 using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
+using CustomUtils.Runtime.Extensions;
+using Cysharp.Threading.Tasks;
 
 namespace CustomUtils.Editor.SpriteFix
 {
@@ -28,14 +30,20 @@ namespace CustomUtils.Editor.SpriteFix
 
         protected override void DrawWindowContent()
         {
+            DrawProgressIfNeeded();
+
+            GUI.enabled = ProgressTracker.HasOperation is false;
+
             DrawSection("Project Scanner", DrawScan);
             DrawSection("Manual Sprite Processing", DrawManualSelection);
+
+            GUI.enabled = true;
         }
 
         private void DrawScan()
         {
             if (EditorVisualControls.Button("Scan Project for Problematic Sprites"))
-                FindProblematicSprites();
+                FindProblematicSpritesAsync().Forget();
 
             if (_problematicSprites.Count <= 0)
                 return;
@@ -59,7 +67,7 @@ namespace CustomUtils.Editor.SpriteFix
             EditorGUILayout.EndScrollView();
 
             if (EditorVisualControls.Button("Fix All", GUILayout.Height(25)))
-                FixAllSprites();
+                FixAllSpritesAsync().Forget();
         }
 
         private void DrawSpriteEntry(TextureImporter importer)
@@ -81,7 +89,9 @@ namespace CustomUtils.Editor.SpriteFix
             }
 
             if (EditorVisualControls.Button("Fix", GUILayout.Width(40)))
-                AddAlphaPixel(importer);
+                AddAlphaPixelAsync(importer).Forget();
+
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawManualSelection()
@@ -101,125 +111,247 @@ namespace CustomUtils.Editor.SpriteFix
                 EditorVisualControls.DrawPanel(() =>
                 {
                     if (EditorVisualControls.Button("Add Alpha Pixel", GUILayout.Height(25)))
-                        AddAlphaPixel(importer);
+                        AddAlphaPixelAsync(importer).Forget();
                 });
             else
                 EditorVisualControls.WarningBox("This sprite already has an alpha channel.");
         }
 
-        private void FindProblematicSprites()
+        private async UniTaskVoid FindProblematicSpritesAsync()
+        {
+            await ProgressTracker.CreateProgressAsync(
+                "Scanning Project",
+                "Searching for problematic sprites...",
+                ScanForProblematicSprites);
+        }
+
+        private async UniTask<string> ScanForProblematicSprites(
+            IProgress<float> progress, System.Threading.CancellationToken cancellationToken)
         {
             _problematicSprites.Clear();
-
-            EditorVisualControls.DrawBoxedSection("Scan Progress",
-                () => { EditorVisualControls.LabelField("Scanning project textures..."); });
-
             var guids = AssetDatabase.FindAssets("t:texture2d");
+            var totalCount = guids.Length;
+            var processedCount = 0;
+
             foreach (var guid in guids)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-                if (AssetImporter.GetAtPath(path) is not TextureImporter
-                    {
-                        textureType: TextureImporterType.Sprite
-                    } importer)
+                if (!IsProblematicSprite(path, out var importer))
+                {
+                    UpdateScanProgress(ref processedCount, totalCount, progress);
                     continue;
-
-                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-                if (!texture)
-                    continue;
-
-                var isNPOT = IsPowerOfTwo(texture.width) is false && IsPowerOfTwo(texture.height) is false;
-                var isRGB8 = importer.DoesSourceTextureHaveAlpha() is false;
-                var hasCrunchEnabled = importer.crunchedCompression;
-
-                if (isNPOT is false || isRGB8 is false || hasCrunchEnabled is false)
-                    continue;
+                }
 
                 _problematicSprites.Add(importer);
-                Debug.Log($"Found problematic sprite: {path} ({texture.width}x{texture.height})");
+                UpdateScanProgress(ref processedCount, totalCount, progress);
             }
 
-            Debug.Log($"Found {_problematicSprites.Count} problematic sprites");
-
-            if (_problematicSprites.Count > 0)
-                EditorVisualControls.InfoBox(
-                    $"Found {_problematicSprites.Count} problematic sprites that need alpha channel fixes.");
-            else
-                EditorGUILayout.HelpBox("No problematic sprites found. All sprites have proper alpha channels.",
-                    MessageType.Info);
+            return _problematicSprites.Count > 0
+                ? $"Found {_problematicSprites.Count} problematic sprites that need alpha channel fixes."
+                : "No problematic sprites found. All sprites have proper alpha channels.";
         }
 
-        private bool IsPowerOfTwo(int x) => x != 0 && (x & (x - 1)) == 0;
-
-        private void FixAllSprites()
+        private bool IsProblematicSprite(string path, out TextureImporter importer)
         {
-            var showProgress = false;
-            EditorVisualControls.DrawBoxWithFoldout("Processing Progress", ref showProgress, () =>
+            importer = null;
+
+            if (AssetImporter.GetAtPath(path) is not TextureImporter textureImporter ||
+                textureImporter.textureType != TextureImporterType.Sprite)
+                return false;
+
+            importer = textureImporter;
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (!texture)
+                return false;
+
+            var isNPOT = texture.width.IsPowerOfTwo() is false && texture.height.IsPowerOfTwo() is false;
+            var isRGB8 = importer.DoesSourceTextureHaveAlpha() is false;
+            var hasCrunchEnabled = importer.crunchedCompression;
+
+            return isNPOT && isRGB8 && hasCrunchEnabled;
+        }
+
+        private void UpdateScanProgress(ref int processedCount, int totalCount, IProgress<float> progress)
+        {
+            processedCount++;
+            progress.Report((float)processedCount / totalCount);
+        }
+
+        private async UniTaskVoid FixAllSpritesAsync()
+        {
+            await ProgressTracker.CreateProgressAsync(
+                "Fixing Sprites",
+                "Processing problematic sprites...",
+                ProcessAllSprites);
+        }
+
+        private async UniTask<string> ProcessAllSprites(
+            IProgress<float> progress, System.Threading.CancellationToken cancellationToken)
+        {
+            var totalCount = _problematicSprites.Count;
+            var processedCount = 0;
+            var successCount = 0;
+            var errorCount = 0;
+
+            foreach (var importer in _problematicSprites)
             {
-                foreach (var importer in _problematicSprites)
-                {
-                    EditorVisualControls.LabelField($"Processing: {Path.GetFileName(importer.assetPath)}");
-                    AddAlphaPixel(importer);
-                }
-            });
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var result = await ProcessSpriteTexture(importer, progress, cancellationToken);
+                if (result.success)
+                    successCount++;
+                else
+                    errorCount++;
+
+                processedCount++;
+                progress.Report((float)processedCount / totalCount);
+            }
 
             _problematicSprites.Clear();
+
+            return $"Successfully fixed {successCount} sprites" +
+                   (errorCount > 0 ? $" with {errorCount} errors." : ".");
         }
 
-        private void AddAlphaPixel(TextureImporter textureImporter)
+        private async UniTaskVoid AddAlphaPixelAsync(TextureImporter textureImporter)
         {
             if (!textureImporter)
                 return;
 
-            var path = textureImporter.assetPath;
+            await ProgressTracker.CreateProgressAsync(
+                "Processing Sprite",
+                $"Adding alpha pixel to {Path.GetFileName(textureImporter.assetPath)}...",
+                async (progress, cancellationToken) =>
+                {
+                    var result = await ProcessSpriteTexture(textureImporter, progress, cancellationToken);
+                    return result.success
+                        ? "Alpha pixel added successfully"
+                        : $"Failed to add alpha pixel: {result.message}";
+                });
+        }
 
+        private async UniTask<(bool success, string message)> ProcessSpriteTexture(
+            TextureImporter textureImporter,
+            IProgress<float> progress,
+            System.Threading.CancellationToken cancellationToken)
+        {
+            if (!textureImporter)
+                return (false, "No texture importer provided");
+
+            var path = textureImporter.assetPath;
             var originalSettings = new TextureImporterSettings();
             textureImporter.ReadTextureSettings(originalSettings);
+
+            progress.Report(0.2f);
+
             try
             {
-                textureImporter.isReadable = true;
-                textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
-                textureImporter.alphaIsTransparency = true;
+                var prepareResult = await PrepareTextureForEditing(textureImporter, path, cancellationToken);
+                if (!prepareResult.success)
+                {
+                    RestoreOriginalSettings(textureImporter, originalSettings, path);
+                    return prepareResult;
+                }
 
-                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+                progress.Report(0.4f);
 
-                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                var modifyResult = await ModifyTextureAlpha(path, cancellationToken);
+                if (!modifyResult.success)
+                {
+                    RestoreOriginalSettings(textureImporter, originalSettings, path);
+                    return modifyResult;
+                }
 
-                var newTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
-                var pixels = texture.GetPixels();
+                progress.Report(0.7f);
 
-                var lastPixel = (texture.width * texture.height) - 1;
-                pixels[lastPixel] = new Color(
-                    pixels[lastPixel].r,
-                    pixels[lastPixel].g,
-                    pixels[lastPixel].b,
-                    0.99f
-                );
-                newTexture.SetPixels(pixels);
-                newTexture.Apply();
+                var finalizeResult =
+                    await FinalizeTextureSettings(textureImporter, originalSettings, path, cancellationToken);
+                if (!finalizeResult.success)
+                {
+                    RestoreOriginalSettings(textureImporter, originalSettings, path);
+                    return finalizeResult;
+                }
 
-                var pngData = newTexture.EncodeToPNG();
-                File.WriteAllBytes(path, pngData);
+                progress.Report(1.0f);
 
-                DestroyImmediate(newTexture);
-
-                textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
-                textureImporter.alphaIsTransparency = true;
-                textureImporter.isReadable = originalSettings.readable;
-                textureImporter.textureType = TextureImporterType.Sprite;
-                textureImporter.sRGBTexture = true;
-
-                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-                Debug.Log($"Alpha pixel added successfully to {path}");
+                return (true, "Alpha pixel added successfully");
             }
             catch (Exception e)
             {
-                EditorVisualControls.ErrorBox($"Error processing {Path.GetFileName(path)}: {e.Message}");
-                Debug.LogError($"Error adding alpha pixel to {path}: {e.Message}");
-
-                textureImporter.SetTextureSettings(originalSettings);
-                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+                RestoreOriginalSettings(textureImporter, originalSettings, path);
+                return (false, e.Message);
             }
+        }
+
+        private void RestoreOriginalSettings(TextureImporter importer, TextureImporterSettings settings, string path)
+        {
+            importer.SetTextureSettings(settings);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        }
+
+        private async UniTask<(bool success, string message)> PrepareTextureForEditing(
+            TextureImporter importer, string path, System.Threading.CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            importer.isReadable = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.alphaIsTransparency = true;
+
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            await UniTask.Yield(cancellationToken);
+
+            return (true, string.Empty);
+        }
+
+        private async UniTask<(bool success, string message)> ModifyTextureAlpha(
+            string path, System.Threading.CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (texture == null)
+                return (false, "Failed to load texture");
+
+            var newTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+            var pixels = texture.GetPixels();
+            var lastPixel = (texture.width * texture.height) - 1;
+
+            pixels[lastPixel] = new Color(
+                pixels[lastPixel].r,
+                pixels[lastPixel].g,
+                pixels[lastPixel].b,
+                0.99f
+            );
+
+            newTexture.SetPixels(pixels);
+            newTexture.Apply();
+            var pngData = newTexture.EncodeToPNG();
+            File.WriteAllBytes(path, pngData);
+            DestroyImmediate(newTexture);
+
+            await UniTask.Yield(cancellationToken);
+            return (true, string.Empty);
+        }
+
+        private async UniTask<(bool success, string message)> FinalizeTextureSettings(
+            TextureImporter importer, TextureImporterSettings originalSettings,
+            string path, System.Threading.CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.alphaIsTransparency = true;
+            importer.isReadable = originalSettings.readable;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.sRGBTexture = true;
+
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            await UniTask.Yield(cancellationToken);
+
+            return (true, string.Empty);
         }
     }
 }

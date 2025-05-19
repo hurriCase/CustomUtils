@@ -7,68 +7,59 @@ namespace CustomUtils.Editor.CustomMenu.Window
 {
     internal sealed class CustomMenuWindow : WindowBase
     {
-        private SerializedObject _serializedObject;
-        private CustomMenuSettings Settings => CustomMenuSettings.Instance;
-
-        private SerializedProperty _defaultSceneAssetProperty;
-        private SerializedProperty _sceneMenuItemsProperty;
-        private SerializedProperty _assetMenuItemsProperty;
-        private SerializedProperty _methodExecutionItemsProperty;
-        private SerializedProperty _scriptingSymbolsProperty;
-
         private Vector2 _scrollPosition;
+
+        protected override void InitializeWindow()
+        {
+            serializedObject = new SerializedObject(CustomMenuSettings.Instance);
+        }
 
         [MenuItem(MenuItemNames.CustomMenuSettingsMenuName)]
         internal static void ShowWindow()
         {
-            var window = GetWindow<CustomMenuWindow>(nameof(CustomMenuWindow).ToSpacedWords());
-            window.minSize = new Vector2(450, 600);
-            window.Show();
-        }
-
-        protected override void InitializeWindow()
-        {
-            _serializedObject = new SerializedObject(Settings);
-
-            _defaultSceneAssetProperty = _serializedObject.FindField(nameof(Settings.DefaultSceneAsset));
-            _sceneMenuItemsProperty = _serializedObject.FindField(nameof(Settings.SceneMenuItems));
-            _assetMenuItemsProperty = _serializedObject.FindField(nameof(Settings.AssetMenuItems));
-            _methodExecutionItemsProperty = _serializedObject.FindField(nameof(Settings.MethodExecutionItems));
-            _scriptingSymbolsProperty = _serializedObject.FindField(nameof(Settings.ScriptingSymbols));
+            GetWindow<CustomMenuWindow>(nameof(CustomMenuWindow).ToSpacedWords());
         }
 
         protected override void DrawWindowContent()
         {
-            EditorVisualControls.LabelField("Custom Menu Settings", EditorStyles.boldLabel);
+            EditorVisualControls.H1Label("Custom Menu Settings");
 
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+            DrawPropertyFields();
 
-            EditorStateControls.PropertyField(_defaultSceneAssetProperty, "DefaultScene");
-            EditorStateControls.PropertyField(_sceneMenuItemsProperty, true);
-            EditorStateControls.PropertyField(_assetMenuItemsProperty, true);
-            EditorStateControls.PropertyField(_methodExecutionItemsProperty, true);
-            EditorStateControls.PropertyField(_scriptingSymbolsProperty, true);
+            DrawGenerateMenuItems();
 
-            EditorGUILayout.EndScrollView();
+            if (serializedObject.ApplyModifiedProperties())
+                EditorUtility.SetDirty(CustomMenuSettings.Instance);
+        }
 
+        private void DrawPropertyFields()
+        {
+            using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
+
+            PropertyField(nameof(CustomMenuSettings.DefaultSceneAsset));
+            PropertyField(nameof(CustomMenuSettings.SceneMenuItems), true);
+            PropertyField(nameof(CustomMenuSettings.AssetMenuItems), true);
+            PropertyField(nameof(CustomMenuSettings.MethodExecutionItems), true);
+            PropertyField(nameof(CustomMenuSettings.ScriptingSymbols), true);
+        }
+
+        private void DrawGenerateMenuItems()
+        {
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
             if (EditorVisualControls.Button("Generate Menu Items", GUILayout.Width(150), GUILayout.Height(30)))
             {
-                _serializedObject.ApplyModifiedProperties();
-                MenuManager.GenerateMenuItemsScriptFromSettings(Settings);
-                EditorUtility.SetDirty(Settings);
+                serializedObject.ApplyModifiedProperties();
+
+                MenuManager.GenerateMenuItemsScriptFromSettings(CustomMenuSettings.Instance);
+
+                EditorUtility.SetDirty(CustomMenuSettings.Instance);
                 AssetDatabase.SaveAssets();
             }
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(5);
-
-            if (_serializedObject.ApplyModifiedProperties())
-                EditorUtility.SetDirty(Settings);
         }
     }
 }

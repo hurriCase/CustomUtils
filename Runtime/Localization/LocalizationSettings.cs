@@ -21,7 +21,7 @@ namespace CustomUtils.Runtime.Localization
     [Resource(
         ResourcePaths.LocalizationSettingsFullPath,
         ResourcePaths.LocalizationSettingsAssetName,
-        ResourcePaths.LocalizationSettingsResourcePath
+        ResourcePaths.LocalizationSettingsResourcesPath
     )]
     internal sealed class LocalizationSettings : SingletonScriptableObject<LocalizationSettings>
     {
