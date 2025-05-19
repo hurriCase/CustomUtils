@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using CustomUtils.Editor.EditorTheme.Scopes;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
+using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
 // ReSharper disable MemberCanBePrivate.Global
@@ -194,6 +198,21 @@ namespace CustomUtils.Editor.EditorTheme
         }
 
         /// <summary>
+        /// Creates a section scope that can be used with the 'using' statement.
+        /// </summary>
+        /// <param name="title">Title of the section to display in the header.</param>
+        /// <returns>A disposable section scope.</returns>
+        /// <remarks>
+        /// Use this with the 'using' statement to create a section with clearly defined boundaries.
+        /// </remarks>
+        [UsedImplicitly]
+        public static SectionScope BeginSection(string title)
+        {
+            EditorGUILayout.Space(Settings.BoxSpacingBefore);
+            return new SectionScope(title);
+        }
+
+        /// <summary>
         /// Creates a boxed section with a foldout header for collapsible content.
         /// </summary>
         /// <param name="title">The title to display in the foldout header.</param>
@@ -369,10 +388,31 @@ namespace CustomUtils.Editor.EditorTheme
         }
 
         /// <summary>
+        /// Creates a standard label with consistent styling from theme settings.
+        /// </summary>
+        /// <param name="text">The text to display in the label.</param>
+        /// <param name="style">Additional style to apply to the label.</param>
+        /// <remarks>
+        /// This method applies both the theme's standard text styling and any custom styles provided.
+        /// Use when you need a consistently styled label with additional custom styling.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void LabelField(string text, GUILayoutOption style)
+        {
+            var labelStyle = CreateTextStyle(
+                EditorStyles.label,
+                Settings.LabelFontSize,
+                Settings.LabelFontStyle);
+
+            EditorGUILayout.LabelField(text, labelStyle, style);
+        }
+
+        /// <summary>
         /// Creates a selectable label that wraps text and automatically adjusts its height based on content.
         /// </summary>
         /// <param name="text">The text to display in the selectable label.</param>
         /// <param name="style">The base style to use for the label. If null, EditorStyles.label will be used.</param>
+        [UsedImplicitly]
         public static void DrawWrappedSelectableLabel(string text, GUIStyle style = null)
         {
             style = style ?? EditorStyles.label;
@@ -386,6 +426,16 @@ namespace CustomUtils.Editor.EditorTheme
 
             EditorGUILayout.SelectableLabel(text, wrappedStyle, GUILayout.Height(height));
         }
+
+        /// <summary>
+        /// Creates a scrollable area for the content defined in the action.
+        /// Uses the 'using' pattern for automatic cleanup.
+        /// </summary>
+        /// <param name="scrollPosition">Reference to the scroll position Vector2.</param>
+        /// <param name="drawContent">Action containing the GUI code to be scrolled.</param>
+        /// <returns>A disposable scroll scope that handles Begin/End scroll view pairs.</returns>
+        [UsedImplicitly]
+        public static ScrollScope CreateScrollView(ref Vector2 scrollPosition) => new(ref scrollPosition);
 
         /// <summary>
         /// Creates a horizontal line (divider) with consistent styling.
@@ -457,6 +507,58 @@ namespace CustomUtils.Editor.EditorTheme
             };
 
             return style;
+        }
+
+        /// <summary>
+        /// Creates a drag area that accepts Unity Objects.
+        /// </summary>
+        /// <param name="height">Height of the drop area in pixels.</param>
+        /// <param name="message">Message to display in the drop area.</param>
+        /// <param name="droppedObject"></param>
+        /// <returns>True if objects were dropped in this frame, false otherwise.</returns>
+        /// <remarks>
+        /// Creates a visual drop area where users can drag Unity Objects.
+        /// When objects are dropped, the provided callback is invoked with the list of objects.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool DrawObjectDropArea(float height, string message, in List<Object> droppedObject)
+        {
+            var dropArea = GUILayoutUtility.GetRect(0.0f, height, GUILayout.ExpandWidth(true));
+            GUI.Box(dropArea, message);
+
+            var currentEditorEvent = Event.current;
+
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+            switch (currentEditorEvent.type)
+            {
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                    if (dropArea.Contains(currentEditorEvent.mousePosition) is false)
+                        break;
+
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+                    if (currentEditorEvent.type == EventType.DragPerform)
+                    {
+                        DragAndDrop.AcceptDrag();
+
+                        if (DragAndDrop.objectReferences.Length > 0)
+                        {
+                            foreach (var draggedObject in DragAndDrop.objectReferences)
+                            {
+                                if (draggedObject && droppedObject.AsValueEnumerable().Contains(draggedObject) is false)
+                                    droppedObject.Add(draggedObject);
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    currentEditorEvent.Use();
+                    break;
+            }
+
+            return false;
         }
 
         /// <summary>
