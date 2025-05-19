@@ -1,10 +1,11 @@
 ﻿using System;
+using CustomUtils.Editor.InputDialog;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace CustomUtils.Editor.PasswordInject
+namespace CustomUtils.Editor
 {
     internal sealed class EnvironmentVariableInjector : IPreprocessBuildWithReport
     {
