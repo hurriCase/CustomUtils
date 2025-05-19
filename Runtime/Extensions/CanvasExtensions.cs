@@ -1,12 +1,11 @@
-﻿using UnityEngine;
+﻿using JetBrains.Annotations;
+using UnityEngine;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 namespace CustomUtils.Runtime.Extensions
 {
-    /// <summary>
-    /// Extension methods for Unity's CanvasGroup component.
-    /// </summary>
+    [UsedImplicitly]
     public static class CanvasExtensions
     {
         /// <summary>
@@ -16,6 +15,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <remarks>
         /// Sets alpha to 0 and disables both interactable and blocksRaycasts properties.
         /// </remarks>
+        [UsedImplicitly]
         public static void Hive(this CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 0f;
@@ -30,6 +30,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <remarks>
         /// Sets alpha to 1 and enables both interactable and blocksRaycasts properties.
         /// </remarks>
+        [UsedImplicitly]
         public static void Show(this CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 1f;
