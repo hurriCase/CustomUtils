@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Threading;
 using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.Extensions;
@@ -21,11 +22,6 @@ namespace CustomUtils.Editor.SpriteFix
         internal static void ShowWindow()
         {
             GetWindow<SpriteAlphaAdderWindow>(nameof(SpriteAlphaAdderWindow).ToSpacedWords());
-        }
-
-        protected override void InitializeWindow()
-        {
-            _showProblematicSprites = false;
         }
 
         protected override void DrawWindowContent()
@@ -48,20 +44,20 @@ namespace CustomUtils.Editor.SpriteFix
             if (_problematicSprites.Count <= 0)
                 return;
 
-            _showProblematicSprites = EditorVisualControls
-                .Foldout(_showProblematicSprites, $"Problematic Sprites Found: {_problematicSprites.Count}");
+            _showProblematicSprites = EditorVisualControls.Foldout(
+                $"Problematic Sprites Found: {_problematicSprites.Count}",
+                ref _showProblematicSprites,
+                DrawProblematicSprites);
+        }
 
-            if (_showProblematicSprites is false)
-                return;
-
+        private void DrawProblematicSprites()
+        {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             EditorVisualControls.DrawPanel(() =>
             {
                 foreach (var importer in _problematicSprites)
-                {
                     DrawSpriteEntry(importer);
-                }
             });
 
             EditorGUILayout.EndScrollView();
@@ -75,12 +71,14 @@ namespace CustomUtils.Editor.SpriteFix
             EditorGUILayout.BeginHorizontal();
 
             var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(importer.assetPath);
-            if (texture)
-                GUILayout.Label(AssetPreview.GetAssetPreview(texture),
-                    GUILayout.Width(50), GUILayout.Height(50));
+            if (!texture)
+                return;
+
+            EditorVisualControls.Label(AssetPreview.GetAssetPreview(texture),
+                GUILayout.Width(50), GUILayout.Height(50));
 
             EditorVisualControls.LabelField(Path.GetFileName(importer.assetPath));
-            EditorVisualControls.LabelField($"Size: {texture?.width}x{texture?.height}", EditorStyles.miniLabel);
+            EditorVisualControls.LabelField($"Size: {texture.width}x{texture.height}", EditorStyles.miniLabel);
 
             if (EditorVisualControls.Button("Select", GUILayout.Width(60)))
             {
@@ -117,16 +115,14 @@ namespace CustomUtils.Editor.SpriteFix
                 EditorVisualControls.WarningBox("This sprite already has an alpha channel.");
         }
 
-        private async UniTaskVoid FindProblematicSpritesAsync()
-        {
+        private async UniTaskVoid FindProblematicSpritesAsync() =>
             await ProgressTracker.CreateProgressAsync(
                 "Scanning Project",
                 "Searching for problematic sprites...",
                 ScanForProblematicSprites);
-        }
 
         private async UniTask<string> ScanForProblematicSprites(
-            IProgress<float> progress, System.Threading.CancellationToken cancellationToken)
+            IProgress<float> progress, CancellationToken cancellationToken)
         {
             _problematicSprites.Clear();
             var guids = AssetDatabase.FindAssets("t:texture2d");
@@ -135,17 +131,17 @@ namespace CustomUtils.Editor.SpriteFix
 
             foreach (var guid in guids)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                await UniTask.Yield(cancellationToken);
 
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!IsProblematicSprite(path, out var importer))
+                if (IsProblematicSprite(path, out var importer) is false)
                 {
-                    UpdateScanProgress(ref processedCount, totalCount, progress);
+                    progress.UpdateProgress(ref processedCount, totalCount);
                     continue;
                 }
 
                 _problematicSprites.Add(importer);
-                UpdateScanProgress(ref processedCount, totalCount, progress);
+                progress.UpdateProgress(ref processedCount, totalCount);
             }
 
             return _problematicSprites.Count > 0
@@ -157,8 +153,10 @@ namespace CustomUtils.Editor.SpriteFix
         {
             importer = null;
 
-            if (AssetImporter.GetAtPath(path) is not TextureImporter textureImporter ||
-                textureImporter.textureType != TextureImporterType.Sprite)
+            if (AssetImporter.GetAtPath(path) is not TextureImporter
+                {
+                    textureType: TextureImporterType.Sprite
+                } textureImporter)
                 return false;
 
             importer = textureImporter;
@@ -173,12 +171,6 @@ namespace CustomUtils.Editor.SpriteFix
             return isNPOT && isRGB8 && hasCrunchEnabled;
         }
 
-        private void UpdateScanProgress(ref int processedCount, int totalCount, IProgress<float> progress)
-        {
-            processedCount++;
-            progress.Report((float)processedCount / totalCount);
-        }
-
         private async UniTaskVoid FixAllSpritesAsync()
         {
             await ProgressTracker.CreateProgressAsync(
@@ -187,8 +179,7 @@ namespace CustomUtils.Editor.SpriteFix
                 ProcessAllSprites);
         }
 
-        private async UniTask<string> ProcessAllSprites(
-            IProgress<float> progress, System.Threading.CancellationToken cancellationToken)
+        private async UniTask<string> ProcessAllSprites(IProgress<float> progress, CancellationToken cancellationToken)
         {
             var totalCount = _problematicSprites.Count;
             var processedCount = 0;
@@ -200,13 +191,12 @@ namespace CustomUtils.Editor.SpriteFix
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var result = await ProcessSpriteTexture(importer, progress, cancellationToken);
-                if (result.success)
+                if (result.Success)
                     successCount++;
                 else
                     errorCount++;
 
-                processedCount++;
-                progress.Report((float)processedCount / totalCount);
+                progress.UpdateProgress(ref processedCount, totalCount);
             }
 
             _problematicSprites.Clear();
@@ -226,19 +216,19 @@ namespace CustomUtils.Editor.SpriteFix
                 async (progress, cancellationToken) =>
                 {
                     var result = await ProcessSpriteTexture(textureImporter, progress, cancellationToken);
-                    return result.success
+                    return result.Success
                         ? "Alpha pixel added successfully"
-                        : $"Failed to add alpha pixel: {result.message}";
+                        : $"Failed to add alpha pixel: {result.Message}";
                 });
         }
 
-        private async UniTask<(bool success, string message)> ProcessSpriteTexture(
+        private async UniTask<ResultData> ProcessSpriteTexture(
             TextureImporter textureImporter,
             IProgress<float> progress,
-            System.Threading.CancellationToken cancellationToken)
+            CancellationToken cancellationToken)
         {
             if (!textureImporter)
-                return (false, "No texture importer provided");
+                return new ResultData { Message = "No texture importer provided" };
 
             var path = textureImporter.assetPath;
             var originalSettings = new TextureImporterSettings();
@@ -249,7 +239,7 @@ namespace CustomUtils.Editor.SpriteFix
             try
             {
                 var prepareResult = await PrepareTextureForEditing(textureImporter, path, cancellationToken);
-                if (!prepareResult.success)
+                if (prepareResult.Success is false)
                 {
                     RestoreOriginalSettings(textureImporter, originalSettings, path);
                     return prepareResult;
@@ -258,7 +248,7 @@ namespace CustomUtils.Editor.SpriteFix
                 progress.Report(0.4f);
 
                 var modifyResult = await ModifyTextureAlpha(path, cancellationToken);
-                if (!modifyResult.success)
+                if (modifyResult.Success is false)
                 {
                     RestoreOriginalSettings(textureImporter, originalSettings, path);
                     return modifyResult;
@@ -268,7 +258,7 @@ namespace CustomUtils.Editor.SpriteFix
 
                 var finalizeResult =
                     await FinalizeTextureSettings(textureImporter, originalSettings, path, cancellationToken);
-                if (!finalizeResult.success)
+                if (finalizeResult.Success is false)
                 {
                     RestoreOriginalSettings(textureImporter, originalSettings, path);
                     return finalizeResult;
@@ -276,12 +266,16 @@ namespace CustomUtils.Editor.SpriteFix
 
                 progress.Report(1.0f);
 
-                return (true, "Alpha pixel added successfully");
+                return new ResultData
+                {
+                    Success = true,
+                    Message = "Alpha pixel added successfully"
+                };
             }
             catch (Exception e)
             {
                 RestoreOriginalSettings(textureImporter, originalSettings, path);
-                return (false, e.Message);
+                return new ResultData { Message = e.Message };
             }
         }
 
@@ -291,8 +285,8 @@ namespace CustomUtils.Editor.SpriteFix
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
         }
 
-        private async UniTask<(bool success, string message)> PrepareTextureForEditing(
-            TextureImporter importer, string path, System.Threading.CancellationToken cancellationToken)
+        private async UniTask<ResultData> PrepareTextureForEditing(
+            TextureImporter importer, string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -303,21 +297,21 @@ namespace CustomUtils.Editor.SpriteFix
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             await UniTask.Yield(cancellationToken);
 
-            return (true, string.Empty);
+            return new ResultData { Success = true };
         }
 
-        private async UniTask<(bool success, string message)> ModifyTextureAlpha(
-            string path, System.Threading.CancellationToken cancellationToken)
+        private async UniTask<ResultData> ModifyTextureAlpha(
+            string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (texture == null)
-                return (false, "Failed to load texture");
+            if (!texture)
+                return new ResultData { Message = "Failed to load texture" };
 
             var newTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
             var pixels = texture.GetPixels();
-            var lastPixel = (texture.width * texture.height) - 1;
+            var lastPixel = texture.width * texture.height - 1;
 
             pixels[lastPixel] = new Color(
                 pixels[lastPixel].r,
@@ -329,16 +323,18 @@ namespace CustomUtils.Editor.SpriteFix
             newTexture.SetPixels(pixels);
             newTexture.Apply();
             var pngData = newTexture.EncodeToPNG();
-            File.WriteAllBytes(path, pngData);
+
+            await File.WriteAllBytesAsync(path, pngData, cancellationToken);
+
             DestroyImmediate(newTexture);
 
             await UniTask.Yield(cancellationToken);
-            return (true, string.Empty);
+            return new ResultData { Success = true };
         }
 
-        private async UniTask<(bool success, string message)> FinalizeTextureSettings(
+        private async UniTask<ResultData> FinalizeTextureSettings(
             TextureImporter importer, TextureImporterSettings originalSettings,
-            string path, System.Threading.CancellationToken cancellationToken)
+            string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -351,7 +347,7 @@ namespace CustomUtils.Editor.SpriteFix
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             await UniTask.Yield(cancellationToken);
 
-            return (true, string.Empty);
+            return new ResultData { Success = true };
         }
     }
 }
