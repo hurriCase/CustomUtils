@@ -179,19 +179,13 @@ namespace CustomUtils.Editor.EditorTheme
 
             EditorGUILayout.BeginVertical(boxStyle);
 
-            if (string.IsNullOrEmpty(title) is false)
-            {
-                EditorGUILayout.Space(Settings.BoxTitleSpacing);
-                EditorGUILayout.LabelField(title, headerStyle);
-                EditorGUILayout.Space(Settings.BoxTitleSpacing);
-            }
+            EditorGUILayout.Space(Settings.BoxTitleSpacing);
+            EditorGUILayout.LabelField(title, headerStyle);
+            EditorGUILayout.Space(Settings.BoxTitleSpacing);
 
-            if (drawContent != null)
-            {
-                EditorGUILayout.Space(Settings.BoxContentSpacing);
-                drawContent();
-                EditorGUILayout.Space(Settings.BoxContentSpacing);
-            }
+            EditorGUILayout.Space(Settings.BoxContentSpacing);
+            drawContent();
+            EditorGUILayout.Space(Settings.BoxContentSpacing);
 
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(Settings.BoxSpacingAfter);
@@ -218,12 +212,13 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="title">The title to display in the foldout header.</param>
         /// <param name="foldout">Reference to a boolean that tracks the expanded/collapsed state.</param>
         /// <param name="drawContent">Action to execute for drawing the box content when expanded.</param>
+        /// <param name="withFoldout"></param>
         /// <remarks>
         /// Creates a collapsible section with consistent styling. The foldout state parameter
         /// allows the calling code to persist the expanded/collapsed state between draws.
         /// </remarks>
         [UsedImplicitly]
-        public static void DrawBoxWithFoldout(string title, ref bool foldout, Action drawContent)
+        public static void DrawBoxWithFoldout(string title, ref bool foldout, Action drawContent, bool withFoldout = true)
         {
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingBefore);
 
@@ -241,38 +236,80 @@ namespace CustomUtils.Editor.EditorTheme
             EditorGUILayout.BeginVertical(boxStyle);
             EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
 
-            foldout = EditorGUILayout.Foldout(foldout, title, true, foldoutStyle);
-
-            if (foldout && drawContent != null)
-            {
-                EditorGUILayout.Space(Settings.FoldoutContentSpacing);
-                EditorGUILayout.BeginVertical();
-                drawContent();
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.Space(Settings.FoldoutContentSpacing);
-            }
+            FoldoutWithContent(title, ref foldout, drawContent, foldoutStyle);
 
             EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingAfter);
         }
 
+        /// <summary>
+        /// Creates a simple foldout with wrapped content display without styling.
+        /// </summary>
+        /// <param name="title">The title to display next to the foldout arrow.</param>
+        /// <param name="foldout">Current expanded state of the foldout.</param>
+        /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
+        /// <param name="foldoutStyle">The GUIStyle to use for rendering the foldout control.</param>
+        /// <returns>The new expanded state of the foldout.</returns>
+        /// <remarks>
+        /// This method provides a simple foldout mechanism that ensures content is properly wrapped
+        /// without any truncation. No custom styling is applied.
+        /// </remarks>
         [UsedImplicitly]
-        public static bool Button(string text, params GUILayoutOption[] options)
+        public static bool FoldoutWithContent(string title, ref bool foldout, Action drawContent, GUIStyle foldoutStyle = null)
         {
-            var buttonStyle = CreateTextStyle(GUI.skin.button, Settings.ButtonFontSize, Settings.ButtonFontStyle);
-            return GUILayout.Button(text, buttonStyle, options);
+            foldout = EditorGUILayout.Foldout(foldout, title, true, foldoutStyle);
+
+            if (foldout is false || drawContent == null)
+                return foldout;
+
+            EditorGUILayout.BeginVertical();
+            drawContent();
+            EditorGUILayout.EndVertical();
+
+            return true;
         }
 
+        /// <summary>
+        /// Creates a foldout control with consistent text styling from theme settings.
+        /// </summary>
+        /// <param name="title">The title to display next to the foldout arrow.</param>
+        /// <param name="foldout">Current expanded state of the foldout.</param>
+        /// /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
+        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
+        /// <returns>The new expanded state of the foldout.</returns>
+        /// <remarks>
+        /// This method applies consistent font size and style from theme settings to maintain UI consistency.
+        /// </remarks>
         [UsedImplicitly]
-        public static bool Foldout(bool foldout, string title, bool toggleOnLabelClick = true)
+        public static bool Foldout(string title, ref bool foldout, Action drawContent, bool toggleOnLabelClick = true)
         {
             var foldoutStyle = CreateTextStyle(
                 EditorStyles.foldout,
                 Settings.FoldoutFontSize,
                 Settings.FoldoutFontStyle);
 
-            return EditorGUILayout.Foldout(foldout, title, toggleOnLabelClick, foldoutStyle);
+            var isExpanded = EditorGUILayout.Foldout(foldout, title, toggleOnLabelClick, foldoutStyle);
+            if (isExpanded)
+                drawContent.Invoke();
+
+            return isExpanded;
+        }
+
+        /// <summary>
+        /// Creates a custom styled button with consistent text formatting.
+        /// </summary>
+        /// <param name="text">The text to display on the button.</param>
+        /// <param name="options">Optional GUILayout options to apply to the button.</param>
+        /// <returns>True if the button was clicked, false otherwise.</returns>
+        /// <remarks>
+        /// This method applies font size and style from theme settings to maintain UI consistency.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool Button(string text, params GUILayoutOption[] options)
+        {
+            var buttonStyle = CreateTextStyle(GUI.skin.button, Settings.ButtonFontSize, Settings.ButtonFontStyle);
+            return GUILayout.Button(text, buttonStyle, options);
         }
 
         /// <summary>
@@ -369,6 +406,68 @@ namespace CustomUtils.Editor.EditorTheme
         /// <summary>
         /// Creates a standard label with consistent styling from theme settings.
         /// </summary>
+        /// <param name="image">The texture to display on the label.</param>
+        /// <remarks>
+        /// This method applies standard text styling based on theme settings.
+        /// Use for regular text content that needs consistent styling.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void Label(Texture image)
+        {
+            var labelStyle = CreateTextStyle(
+                EditorStyles.label,
+                Settings.LabelFontSize,
+                Settings.LabelFontStyle);
+
+            GUILayout.Label(image, labelStyle);
+        }
+
+        /// <summary>
+        /// Creates a standard label with consistent styling from theme settings.
+        /// </summary>
+        /// <param name="image">The texture to display on the label.</param>
+        /// <param name="options">Additional layout options to apply to the label.</param>
+        /// <remarks>
+        /// This method applies both the theme's standard text styling and any custom styles provided.
+        /// Use when you need a consistently styled label with additional custom styling.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void Label(Texture image, params GUILayoutOption[] options)
+        {
+            var combinedStyle = new GUIStyle()
+            {
+                fontSize = Settings.LabelFontSize,
+                fontStyle = Settings.LabelFontStyle
+            };
+
+            GUILayout.Label(image, combinedStyle, options);
+        }
+
+        /// <summary>
+        /// Creates a standard label with consistent styling from theme settings.
+        /// </summary>
+        /// <param name="image">The texture to display on the label.</param>
+        /// <param name="style">Additional style to apply to the label</param>
+        /// <param name="options">Additional layout options to apply to the label.</param>
+        /// <remarks>
+        /// This method applies both the theme's standard text styling and any custom styles provided.
+        /// Use when you need a consistently styled label with additional custom styling.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void Label(Texture image, GUIStyle style, params GUILayoutOption[] options)
+        {
+            var combinedStyle = new GUIStyle(style)
+            {
+                fontSize = Settings.LabelFontSize,
+                fontStyle = Settings.LabelFontStyle
+            };
+
+            GUILayout.Label(image, combinedStyle, options);
+        }
+
+        /// <summary>
+        /// Creates a standard label with consistent styling from theme settings.
+        /// </summary>
         /// <param name="text">The text to display in the label.</param>
         /// <param name="style">Additional style to apply to the label.</param>
         /// <remarks>
@@ -432,7 +531,6 @@ namespace CustomUtils.Editor.EditorTheme
         /// Uses the 'using' pattern for automatic cleanup.
         /// </summary>
         /// <param name="scrollPosition">Reference to the scroll position Vector2.</param>
-        /// <param name="drawContent">Action containing the GUI code to be scrolled.</param>
         /// <returns>A disposable scroll scope that handles Begin/End scroll view pairs.</returns>
         [UsedImplicitly]
         public static ScrollScope CreateScrollView(ref Vector2 scrollPosition) => new(ref scrollPosition);
