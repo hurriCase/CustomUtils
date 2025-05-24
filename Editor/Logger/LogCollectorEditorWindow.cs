@@ -1,5 +1,5 @@
 ﻿using CustomUtils.Editor.EditorTheme;
-using CustomUtils.Editor.Extensions;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Logger;
 using UnityEditor;
 

@@ -30,14 +30,6 @@ namespace CustomUtils.Editor.Extensions
         }
 
         /// <summary>
-        /// Converts a camelCase or PascalCase string to a spaced string.
-        /// </summary>
-        /// <param name="text">The camelCase or PascalCase string to convert.</param>
-        /// <returns>A string with spaces between words.</returns>
-        public static string ToSpacedWords(this string text) =>
-            string.IsNullOrEmpty(text) ? text : Regex.Replace(text, "([a-z])([A-Z])", "$1 $2");
-
-        /// <summary>
         /// Converts a property name to its backing field representation
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
