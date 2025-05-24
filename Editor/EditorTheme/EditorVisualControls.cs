@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.EditorTheme.Scopes;
+using CustomUtils.Runtime.Extensions;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -210,7 +211,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Creates a boxed section with a foldout header for collapsible content.
         /// </summary>
         /// <param name="title">The title to display in the foldout header.</param>
-        /// <param name="foldout">Reference to a boolean that tracks the expanded/collapsed state.</param>
+        /// <param name="showFoldout">Reference to a boolean that tracks the expanded/collapsed state.</param>
         /// <param name="drawContent">Action to execute for drawing the box content when expanded.</param>
         /// <param name="withFoldout"></param>
         /// <remarks>
@@ -218,7 +219,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// allows the calling code to persist the expanded/collapsed state between draws.
         /// </remarks>
         [UsedImplicitly]
-        public static void DrawBoxWithFoldout(string title, ref bool foldout, Action drawContent, bool withFoldout = true)
+        public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent, bool withFoldout = true)
         {
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingBefore);
 
@@ -236,7 +237,7 @@ namespace CustomUtils.Editor.EditorTheme
             EditorGUILayout.BeginVertical(boxStyle);
             EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
 
-            FoldoutWithContent(title, ref foldout, drawContent, foldoutStyle);
+            FoldoutWithContent(title, ref showFoldout, drawContent, foldoutStyle);
 
             EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
             EditorGUILayout.EndVertical();
@@ -247,7 +248,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Creates a simple foldout with wrapped content display without styling.
         /// </summary>
         /// <param name="title">The title to display next to the foldout arrow.</param>
-        /// <param name="foldout">Current expanded state of the foldout.</param>
+        /// <param name="showFoldout">Current expanded state of the foldout.</param>
         /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
         /// <param name="foldoutStyle">The GUIStyle to use for rendering the foldout control.</param>
         /// <returns>The new expanded state of the foldout.</returns>
@@ -256,12 +257,12 @@ namespace CustomUtils.Editor.EditorTheme
         /// without any truncation. No custom styling is applied.
         /// </remarks>
         [UsedImplicitly]
-        public static bool FoldoutWithContent(string title, ref bool foldout, Action drawContent, GUIStyle foldoutStyle = null)
+        public static bool FoldoutWithContent(string title, ref bool showFoldout, Action drawContent, GUIStyle foldoutStyle = null)
         {
-            foldout = EditorGUILayout.Foldout(foldout, title, true, foldoutStyle);
+            showFoldout = EditorGUILayout.Foldout(showFoldout, title, true, foldoutStyle);
 
-            if (foldout is false || drawContent == null)
-                return foldout;
+            if (showFoldout is false || drawContent == null)
+                return showFoldout;
 
             EditorGUILayout.BeginVertical();
             drawContent();
@@ -274,7 +275,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// Creates a foldout control with consistent text styling from theme settings.
         /// </summary>
         /// <param name="title">The title to display next to the foldout arrow.</param>
-        /// <param name="foldout">Current expanded state of the foldout.</param>
+        /// <param name="showFoldout">Current expanded state of the foldout.</param>
         /// /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
         /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
         /// <returns>The new expanded state of the foldout.</returns>
@@ -282,18 +283,48 @@ namespace CustomUtils.Editor.EditorTheme
         /// This method applies consistent font size and style from theme settings to maintain UI consistency.
         /// </remarks>
         [UsedImplicitly]
-        public static bool Foldout(string title, ref bool foldout, Action drawContent, bool toggleOnLabelClick = true)
+        public static bool Foldout(string title, ref bool showFoldout, Action drawContent, bool toggleOnLabelClick = true)
         {
             var foldoutStyle = CreateTextStyle(
                 EditorStyles.foldout,
                 Settings.FoldoutFontSize,
                 Settings.FoldoutFontStyle);
 
-            var isExpanded = EditorGUILayout.Foldout(foldout, title, toggleOnLabelClick, foldoutStyle);
-            if (isExpanded)
+            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, foldoutStyle);
+            if (showFoldout)
                 drawContent.Invoke();
 
-            return isExpanded;
+            return showFoldout;
+        }
+
+        /// <summary>
+        /// Creates a foldout section with styled header and expandable content.
+        /// </summary>
+        /// <param name="title">The title text to display in the foldout header.</param>
+        /// <param name="showFoldouts">List of boolean values tracking the expanded state of multiple foldouts.</param>
+        /// <param name="index">The index in the showFoldouts list for this specific foldout.</param>
+        /// <param name="drawContent">Action to execute when the foldout is expanded.</param>
+        /// <param name="toggleOnLabelClick">Whether clicking on the label toggles the foldout state.</param>
+        /// <returns>The updated list of foldout states.</returns>
+        /// <remarks>
+        /// Uses theme settings for consistent font size and style across the editor interface.
+        /// </remarks>
+        [UsedImplicitly]
+        public static List<bool> Foldout(string title, in List<bool> showFoldouts, int index, Action drawContent, bool toggleOnLabelClick = true)
+        {
+            var foldoutStyle = CreateTextStyle(
+                EditorStyles.foldout,
+                Settings.FoldoutFontSize,
+                Settings.FoldoutFontStyle);
+
+            var showDetail = showFoldouts.GetOrCreate(index);
+            showDetail = EditorGUILayout.Foldout(showDetail, title, toggleOnLabelClick, foldoutStyle);
+            if (showDetail)
+                drawContent.Invoke();
+
+            showFoldouts[index] = showDetail;
+
+            return showFoldouts;
         }
 
         /// <summary>
