@@ -44,7 +44,7 @@ namespace CustomUtils.Editor.SpriteFix
             if (_problematicSprites.Count <= 0)
                 return;
 
-            _showProblematicSprites = EditorVisualControls.Foldout(
+            EditorVisualControls.Foldout(
                 $"Problematic Sprites Found: {_problematicSprites.Count}",
                 ref _showProblematicSprites,
                 DrawProblematicSprites);
