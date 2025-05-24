@@ -17,9 +17,6 @@ namespace CustomUtils.Tests.Runtime.CustomUtils.Tests.Runtime
             var testCustomConfig = new TestCustomConfig();
             AssetLoaderInitializer.Init(testCustomConfig);
             AutoPersistent.MakePersistent();
-
-            ResourceLoader<GameObject>.ClearCache();
-            ResourceLoader<AssetLoaderConfig>.ClearCache();
         }
 
         [UnityTest]
