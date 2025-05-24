@@ -536,6 +536,54 @@ namespace CustomUtils.Editor.EditorTheme
         public static ScrollScope CreateScrollView(ref Vector2 scrollPosition) => new(ref scrollPosition);
 
         /// <summary>
+        /// Creates a horizontal group and executes the provided action within it.
+        /// </summary>
+        /// <param name="drawContent">Action to execute inside the horizontal group.</param>
+        /// <param name="options">Optional GUILayout options.</param>
+        [UsedImplicitly]
+        public static void DrawHorizontalGroup(Action drawContent, params GUILayoutOption[] options)
+        {
+            EditorGUILayout.BeginHorizontal(options);
+            drawContent?.Invoke();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Creates a horizontal group with a specified style and executes the provided action within it.
+        /// </summary>
+        /// <param name="style">The GUIStyle to use for the horizontal group.</param>
+        /// <param name="drawContent">Action to execute inside the horizontal group.</param>
+        /// <param name="options">Optional GUILayout options.</param>
+        [UsedImplicitly]
+        public static void DrawHorizontalGroup(GUIStyle style, Action drawContent, params GUILayoutOption[] options)
+        {
+            EditorGUILayout.BeginHorizontal(style, options);
+            drawContent?.Invoke();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Creates a horizontal group within a box and executes the provided action within it.
+        /// </summary>
+        /// <param name="drawContent">Action to execute inside the horizontal group.</param>
+        /// <param name="options">Optional GUILayout options.</param>
+        [UsedImplicitly]
+        public static void DrawHorizontalBoxGroup(Action drawContent, params GUILayoutOption[] options)
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox, options);
+            drawContent?.Invoke();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Creates a disposable horizontal group scope for use with 'using' statements.
+        /// </summary>
+        /// <param name="options">Optional GUILayout options.</param>
+        /// <returns>A disposable scope object.</returns>
+        [UsedImplicitly]
+        public static HorizontalScope CreateHorizontalGroup(params GUILayoutOption[] options) => new(options);
+
+        /// <summary>
         /// Creates a horizontal line (divider) with consistent styling.
         /// </summary>
         /// <remarks>
