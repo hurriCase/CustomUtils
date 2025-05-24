@@ -49,3 +49,12 @@
 - Xml comments for ResourceLoader.
 ### Fix
 - SingletonScriptableObject wasn't loaded from Default Editor Resources.
+## [2.2.0] – 2025-05-24
+### Feature
+- StartUp.
+- More custom editor stuff for EditorVisualControls. 
+- ListExtensions/ProgressExtensions/(TryGetFileVersion/TryGetFileContentHash for StringExtensionsEditor)
+- Logger, to see logs on build through game ui.
+- EditorLoader, to load resources that existed only in the editor
+### Refactor
+- Resource Loader.

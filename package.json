@@ -1,6 +1,6 @@
 {
   "name": "com.firsttry.customutils",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "displayName": "Custom Utils",
   "unity": "2022.1",
   "dependencies": {
