@@ -620,6 +620,16 @@ namespace CustomUtils.Editor.EditorTheme
         public static HorizontalScope CreateHorizontalGroup(params GUILayoutOption[] options) => new(options);
 
         /// <summary>
+        /// Creates a disposable horizontal group scope for use with 'using' statements.
+        /// </summary>
+        /// <param name="style">The GUIStyle to use for the horizontal group.</param>
+        /// <param name="options">Optional GUILayout options.</param>
+        /// <returns>A disposable scope object.</returns>
+        [UsedImplicitly]
+        public static HorizontalScope CreateHorizontalGroup(GUIStyle style, params GUILayoutOption[] options)
+            => new(style, options);
+
+        /// <summary>
         /// Creates a horizontal line (divider) with consistent styling.
         /// </summary>
         /// <remarks>
