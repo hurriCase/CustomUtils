@@ -37,7 +37,7 @@ namespace CustomUtils.Runtime.AssetLoader
 
             var resource = EditorGUIUtility.Load(resourcePath) as TResource;
 
-            if (resource || ResourceLoader<TResource>.TryLoad(out resource, resourcePath))
+            if (resource || ResourceLoader<TResource>.TryLoad(out resource, Path.GetFileNameWithoutExtension(resourcePath)))
                 return resource;
 
             if (string.IsNullOrEmpty(fullPath) is false)
