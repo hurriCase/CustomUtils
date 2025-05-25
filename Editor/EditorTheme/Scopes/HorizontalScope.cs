@@ -14,7 +14,7 @@ namespace CustomUtils.Editor.EditorTheme.Scopes
             EditorGUILayout.BeginHorizontal(options);
         }
 
-        public HorizontalScope(GUIStyle style, params GUILayoutOption[] options)
+        internal HorizontalScope(GUIStyle style, params GUILayoutOption[] options)
         {
             EditorGUILayout.BeginHorizontal(style, options);
         }
