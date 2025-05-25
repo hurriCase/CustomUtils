@@ -328,19 +328,24 @@ namespace CustomUtils.Editor.EditorTheme
         }
 
         /// <summary>
-        /// Creates a custom styled button with consistent text formatting.
+        /// Creates a standard button with consistent styling.
         /// </summary>
         /// <param name="text">The text to display on the button.</param>
-        /// <param name="options">Optional GUILayout options to apply to the button.</param>
-        /// <returns>True if the button was clicked, false otherwise.</returns>
-        /// <remarks>
-        /// This method applies font size and style from theme settings to maintain UI consistency.
-        /// </remarks>
+        /// <param name="options">Optional GUILayout options for customizing button appearance and behavior.</param>
+        /// <returns>True if the button was clicked in this frame, false otherwise.</returns>
         [UsedImplicitly]
-        public static bool Button(string text, params GUILayoutOption[] options)
+        public static bool Button(string text, params GUILayoutOption[] options) => GUILayout.Button(text, options);
+
+        /// <summary>
+        /// Creates a button that executes an action when clicked.
+        /// </summary>
+        /// <param name="text">The text to display on the button.</param>
+        /// <param name="drawContent">Action to execute when the button is clicked. Can be null.</param>
+        /// <param name="options">Optional GUILayout options for customizing button appearance and behavior.</param>
+        public static void Button(string text, Action drawContent, params GUILayoutOption[] options)
         {
-            var buttonStyle = CreateTextStyle(GUI.skin.button, Settings.ButtonFontSize, Settings.ButtonFontStyle);
-            return GUILayout.Button(text, buttonStyle, options);
+            if (GUILayout.Button(text, options))
+                drawContent?.Invoke();
         }
 
         /// <summary>
@@ -758,5 +763,63 @@ namespace CustomUtils.Editor.EditorTheme
 
             EditorGUILayout.EndVertical();
         }
+
+        /// <summary>
+        /// Creates a clickable text label with hover cursor indication that executes an action when clicked.
+        /// Text automatically wraps to multiple lines if it exceeds the available width.
+        /// </summary>
+        /// <param name="text">The text to display as a clickable label.</param>
+        /// <param name="onClick">Action to execute when the text is clicked. Can be null.</param>
+        /// <returns>True if the text was clicked, false otherwise.</returns>
+        /// <remarks>
+        /// The text appears as a standard label with hand cursor on hover and executes the provided action when clicked.
+        /// Uses consistent text styling from theme settings with enhanced user interaction feedback.
+        /// Text automatically wraps to new lines when it exceeds the available width, and the control height adjusts accordingly.
+        /// This is a wrapper around the URL-opening version that provides more flexibility for custom actions.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool ClickableTextWithCursor(string text, Action onClick)
+        {
+            var labelStyle = CreateTextStyle(
+                EditorStyles.label,
+                Settings.LabelFontSize,
+                Settings.LabelFontStyle);
+
+            labelStyle.wordWrap = true;
+
+            var content = new GUIContent(text);
+            var availableWidth = EditorGUIUtility.currentViewWidth - GUI.skin.box.padding.horizontal;
+            var height = labelStyle.CalcHeight(content, availableWidth);
+
+            var rect = GUILayoutUtility.GetRect(content, labelStyle, GUILayout.Height(height));
+
+            if (GUI.Button(rect, text, labelStyle))
+            {
+                onClick?.Invoke();
+                return true;
+            }
+
+            if (rect.Contains(Event.current.mousePosition))
+                EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creates a clickable text label with hover cursor indication that opens a URL when clicked.
+        /// Text automatically wraps to multiple lines if it exceeds the available width.
+        /// </summary>
+        /// <param name="text">The text to display as a clickable label.</param>
+        /// <param name="url">The URL to open when the text is clicked.</param>
+        /// <returns>True if the text was clicked, false otherwise.</returns>
+        /// <remarks>
+        /// The text appears as a standard label with hand cursor on hover and opens the URL when clicked.
+        /// Uses consistent text styling from theme settings with enhanced user interaction feedback.
+        /// Text automatically wraps to new lines when it exceeds the available width, and the control height adjusts accordingly.
+        /// This is a convenience wrapper around the action-based version for URL opening specifically.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool ClickableTextWithCursor(string text, string url)
+            => ClickableTextWithCursor(text, () => Application.OpenURL(url));
     }
 }
