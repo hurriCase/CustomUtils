@@ -32,7 +32,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="value">The current color value.</param>
         /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
         /// <returns>The modified color value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public Color ColorField(string label, Color value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
@@ -46,7 +46,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="value">The current gradient value.</param>
         /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
         /// <returns>The modified gradient value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public Gradient GradientField(string label, Gradient value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
@@ -60,11 +60,13 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="value">The current object reference.</param>
         /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is true.</param>
         /// <returns>The modified object reference.</returns>
+        [UsedImplicitly, MustUseReturnValue]
         public Sprite SpriteField(string label, Sprite value, bool allowSceneObjects = false) =>
             HandleValueChange(label, value, () =>
                 (Sprite)EditorGUILayout.ObjectField(label, value, typeof(Sprite), allowSceneObjects,
                     GUILayout.Height(Settings.ObjectFieldHeight)));
 
+        [UsedImplicitly, MustUseReturnValue]
         public Object ObjectField(string label, Object value, Type type, bool allowSceneObjects = false,
             bool expandWidth = true) =>
             HandleValueChange(label, value, () =>
@@ -77,7 +79,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current float value.</param>
         /// <returns>The modified float value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public float FloatField(string label, float value) =>
             HandleValueChange(label, value, () => EditorGUILayout.FloatField(label, value));
 
@@ -87,7 +89,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current int value.</param>
         /// <returns>The modified int value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public int IntField(string label, int value) =>
             HandleValueChange(label, value, () => EditorGUILayout.IntField(label, value));
 
@@ -98,7 +100,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current enum value.</param>
         /// <returns>The modified enum value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public T EnumField<T>(string label, T value) where T : Enum =>
             HandleValueChange(label, value, () => (T)EditorGUILayout.EnumPopup(label, value));
 
@@ -108,7 +110,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <typeparam name="T">The enum type.</typeparam>
         /// <param name="value">The current enum value.</param>
         /// <returns>The modified enum value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public T EnumField<T>(T value) where T : Enum =>
             HandleValueChange(nameof(T), value, () => (T)EditorGUILayout.EnumPopup(value));
 
@@ -151,7 +153,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="options">Array of option strings to display.</param>
         /// <param name="indented">Whether to indent the dropdown. Default is true.</param>
         /// <returns>The index of the selected option.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public int Dropdown(string label, int selectedIndex, string[] options, bool indented = true)
         {
             var dropdownStyle = EditorVisualControls.CreateTextStyle(
@@ -183,7 +185,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="isSelected">Whether the button is currently selected.</param>
         /// <param name="highlightColor">Optional color to use when the button is selected. If null, use the default from settings.</param>
         /// <returns>The newly selected state of the button.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public bool ToggleButton(string label, bool isSelected, Color? highlightColor = null)
         {
             var buttonStyle = EditorVisualControls.CreateTextStyle(
@@ -214,7 +216,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="labels">Array of button labels to display.</param>
         /// <param name="selectedIndex">The currently selected button index.</param>
         /// <returns>The index of the newly selected button.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public int ToggleButtonGroup(string[] labels, int selectedIndex)
         {
             EditorGUILayout.BeginHorizontal();
@@ -242,7 +244,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the toggle.</param>
         /// <param name="value">The current toggle state.</param>
         /// <returns>The new toggle state.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public bool Toggle(string label, bool value) =>
             HandleValueChange(label, value, () => EditorGUILayout.Toggle(label, value));
 
@@ -306,7 +308,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display above the text area.</param>
         /// <param name="value">The current text content.</param>
         /// <returns>The modified text content.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public string TextArea(string label, string value)
         {
             EditorGUILayout.LabelField(label);
@@ -319,7 +321,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current text content.</param>
         /// <returns>The modified text content.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public string TextField(string label, string value) =>
             HandleValueChange(label, value, () => EditorGUILayout.TextField(label, value));
 
@@ -331,7 +333,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="leftValue">The minimum value (left end of slider).</param>
         /// <param name="rightValue">The maximum value (right end of slider).</param>
         /// <returns>The modified float value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public float Slider(string label, float value, float leftValue, float rightValue) =>
             HandleValueChange(label, value, () => EditorGUILayout.Slider(label, value, leftValue, rightValue));
 
@@ -343,7 +345,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="leftValue">The minimum value (left end of slider).</param>
         /// <param name="rightValue">The maximum value (right end of slider).</param>
         /// <returns>The modified int value.</returns>
-        [UsedImplicitly]
+        [UsedImplicitly, MustUseReturnValue]
         public int IntSlider(string label, int value, int leftValue, int rightValue) =>
             HandleValueChange(label, value, () => EditorGUILayout.IntSlider(label, value, leftValue, rightValue));
 
