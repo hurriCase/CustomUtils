@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
-using UnityEngine;
-using ZLinq;
 using Object = UnityEngine.Object;
 
 namespace CustomUtils.Runtime.AssetLoader
@@ -70,77 +68,6 @@ namespace CustomUtils.Runtime.AssetLoader
         {
             resource = Load(resourcePath, fullPath);
             return resource;
-        }
-
-        /// <summary>
-        /// Loads all resources of type TResource from the specified path.
-        /// Searches in Editor Default Resources or use AssetDatabase to find assets in the specified directory.
-        /// </summary>
-        /// <param name="path">The path to load the resources from.</param>
-        /// <returns>An array of loaded resources or null if no resources were found.</returns>
-        [UsedImplicitly]
-        public static TResource[] LoadAll(string path)
-        {
-            var resources = LoadAllFromEditorResources(path);
-
-            if (resources != null && resources.Length != 0)
-                return resources;
-
-            Debug.LogWarning($"[EditorLoader::LoadAll] No editor resources found at path: {path}");
-            return null;
-        }
-
-        /// <summary>
-        /// Attempts to load all resources of type TResource from the specified path.
-        /// </summary>
-        /// <param name="resourcePath">The path to load the resources from.</param>
-        /// <param name="resources">When this method returns, contains the loaded resources if found; otherwise, null.</param>
-        /// <returns>True if resources were successfully loaded; otherwise, false.</returns>
-        [UsedImplicitly]
-        public static bool TryLoadAll(string resourcePath, out TResource[] resources)
-            => (resources = LoadAll(resourcePath)) != null;
-
-        /// <summary>
-        /// Internal method to load all resources from either a specific directory path or Editor Default Resources.
-        /// If fullPath exists as a directory, search within that directory.
-        /// Otherwise, searches in Editor Default Resources for assets matching the resourcePath.
-        /// </summary>
-        /// <param name="resourcePath">The resource path to search for within Editor Default Resources.</param>
-        /// <param name="fullPath">Optional full directory path to search within. If null, searches Editor Default Resources.</param>
-        /// <returns>Array of loaded resources or null if none found.</returns>
-        private static TResource[] LoadAllFromEditorResources(string resourcePath, string fullPath = null)
-        {
-            if (PathUtility.TryGetResourcePath<TResource>(ref resourcePath) is false)
-                return null;
-
-            var resources = new List<TResource>();
-
-            if (Directory.Exists(fullPath))
-            {
-                var assetGuids = AssetDatabase.FindAssets($"t:{typeof(TResource).Name}", new[] { fullPath });
-
-                resources.AddRange(assetGuids.AsValueEnumerable()
-                    .Select(AssetDatabase.GUIDToAssetPath)
-                    .Select(AssetDatabase.LoadAssetAtPath<TResource>)
-                    .Where(asset => asset)
-                    .ToArray());
-            }
-            else
-            {
-                var searchPaths = new[] { "Assets/Editor Default Resources" };
-                var assetGuids = AssetDatabase.FindAssets($"t:{typeof(TResource).Name}", searchPaths);
-
-                resources.AddRange(assetGuids
-                    .AsValueEnumerable()
-                    .Select(AssetDatabase.GUIDToAssetPath)
-                    .Where(assetPathFromGuid =>
-                        assetPathFromGuid.Contains(resourcePath, StringComparison.OrdinalIgnoreCase))
-                    .Select(AssetDatabase.LoadAssetAtPath<TResource>)
-                    .Where(asset => asset)
-                    .ToArray());
-            }
-
-            return resources.Count > 0 ? resources.ToArray() : null;
         }
     }
 }
