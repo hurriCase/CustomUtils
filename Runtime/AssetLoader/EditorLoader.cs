@@ -1,8 +1,6 @@
 ﻿// Put in the runtime assembly due to SingletonScriptableObject
 
 #if UNITY_EDITOR
-using System;
-using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -26,8 +24,15 @@ namespace CustomUtils.Runtime.AssetLoader
         /// then tries AssetDatabase.LoadAssetAtPath with the provided full path,
         /// and finally searches the entire project for assets of the specified type.
         /// </summary>
-        /// <param name="resourcePath">The resource path. If null, a path is determined from ResourceAttribute.</param>
-        /// <param name="fullPath">The complete asset path including file extension for AssetDatabase loading.</param>
+        /// <param name="resourcePath">
+        /// The resource path WITH file extension, relative to Editor Default Resources folder.
+        /// Examples: "UI/Icons/settings.png", "Audio/music_track.wav", "Materials/stone.mat".
+        /// If null, path is determined from ResourceAttribute on TResource type.
+        /// </param>
+        /// <param name="fullPath">
+        /// The complete asset path WITH file extension, relative to the project root.
+        /// Examples: "Assets/UI/Icons/settings.png", "Assets/Prefabs/Player.prefab".
+        /// </param>
         /// <returns>The loaded resource or null if the resource could not be found.</returns>
         [UsedImplicitly]
         public static TResource Load(string resourcePath = null, string fullPath = null)
@@ -60,8 +65,15 @@ namespace CustomUtils.Runtime.AssetLoader
         /// Attempts to load a resource using the same multi-strategy approach as Load().
         /// </summary>
         /// <param name="resource">When this method returns, contains the loaded resource if found; otherwise, the default value for the type.</param>
-        /// <param name="resourcePath">The resource path without file extension. If null, a path is determined from ResourceAttribute.</param>
-        /// <param name="fullPath">The complete asset path including file extension for AssetDatabase loading.</param>
+        /// <param name="resourcePath">
+        /// The resource path WITH file extension, relative to Editor Default Resources folder.
+        /// Examples: "UI/Icons/settings.png", "Audio/music_track.wav", "Materials/stone.mat".
+        /// If null, path is determined from ResourceAttribute on TResource type.
+        /// </param>
+        /// <param name="fullPath">
+        /// The complete asset path WITH file extension, relative to the project root.
+        /// Examples: "Assets/UI/Icons/settings.png", "Assets/Prefabs/Player.prefab".
+        /// </param>
         /// <returns>True if the resource was successfully loaded; otherwise, false.</returns>
         [UsedImplicitly]
         public static bool TryLoad(out TResource resource, string resourcePath = null, string fullPath = null)
