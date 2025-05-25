@@ -326,6 +326,21 @@ namespace CustomUtils.Editor.EditorTheme
             HandleValueChange(label, value, () => EditorGUILayout.TextField(label, value));
 
         /// <summary>
+        /// Creates a single-line text field with undo support using a reference parameter.
+        /// </summary>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">Reference to the text content that will be modified directly.</param>
+        [UsedImplicitly]
+        public void TextField(string label, ref string value)
+        {
+            var cashedValue = value;
+            var newValue =
+                HandleValueChange(label, value, () => EditorGUILayout.TextField(label, cashedValue));
+
+            value = newValue;
+        }
+
+        /// <summary>
         /// Creates a float slider with undo support.
         /// </summary>
         /// <param name="label">The label to display next to the slider.</param>
