@@ -19,10 +19,10 @@ namespace CustomUtils.Runtime.UI
         {
             _rectTransform = GetComponent<RectTransform>();
             _textComponent = GetComponent<TextMeshProUGUI>();
-            _parentRectTransform = transform.parent ? transform.parent.GetComponent<RectTransform>() : null;
 
-            if (_parentRectTransform)
-                _lastParentSize = _parentRectTransform.rect.size;
+            if (transform.parent)
+                if (transform.parent.TryGetComponent(out _parentRectTransform))
+                    _lastParentSize = _parentRectTransform.rect.size;
 
 #if UNITY_EDITOR
             EditorApplication.delayCall += OptimizeTextSize;
