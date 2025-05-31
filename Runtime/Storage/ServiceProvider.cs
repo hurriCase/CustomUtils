@@ -3,9 +3,12 @@ using CustomUtils.Runtime.Storage.Providers;
 
 namespace CustomUtils.Runtime.Storage
 {
-    public sealed class SaveManager
+    internal static class ServiceProvider
     {
-        public static IStorageProvider GetProvider()
+        internal static IStorageProvider Provider => _provider ?? (_provider = GetProvider());
+        private static IStorageProvider _provider;
+
+        private static IStorageProvider GetProvider()
         {
             return
 #if YANDEX && !UNITY_EDITOR && UNITY_WEBGL
