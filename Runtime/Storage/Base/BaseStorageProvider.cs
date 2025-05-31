@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using MemoryPack;
 using UnityEngine;
 
@@ -12,51 +13,64 @@ namespace CustomUtils.Runtime.Storage.Base
         private readonly Dictionary<string, byte[]> _cache = new();
         private readonly IDataTransformer _dataTransformer;
 
-        protected BaseStorageProvider(IDataTransformer dataTransformer)
+        internal BaseStorageProvider(IDataTransformer dataTransformer)
         {
             _dataTransformer = dataTransformer;
         }
 
-        public async UniTask<bool> SaveAsync<T>(string key, T data, CancellationToken cancellationToken)
+        public async UniTask<bool> TrySaveAsync<TData>(string key, TData data, CancellationToken cancellationToken)
         {
             try
             {
                 var serialized = MemoryPackSerializer.Serialize(data);
                 _cache[key] = serialized;
 
-                var transformedData = await _dataTransformer.TransformForStorage(serialized, cancellationToken);
+                var transformedData = _dataTransformer.TransformForStorage(serialized);
 
                 await PlatformSaveAsync(key, transformedData, cancellationToken);
+
+#if IS_TEST
+                Debug.Log($"[{GetType().Name}::SaveAsync] Saved data for key '{key}'");
+#endif
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[BaseStorageProvider::SaveAsync] Error saving data: {ex.Message}");
+                Debug.LogError($"[{GetType().Name}::SaveAsync] Error during saving data: {ex.Message}");
+
                 return false;
             }
         }
 
-        public async UniTask<T> LoadAsync<T>(string key, CancellationToken cancellationToken)
+        public async UniTask<TData> LoadAsync<TData>(string key, CancellationToken cancellationToken)
         {
             try
             {
                 if (_cache.TryGetValue(key, out var cachedData))
-                    return MemoryPackSerializer.Deserialize<T>(cachedData);
+                    return MemoryPackSerializer.Deserialize<TData>(cachedData);
 
                 var storedData = await PlatformLoadAsync(key, cancellationToken);
                 if (storedData == null)
                     return default;
 
-                var buffer = await _dataTransformer.TransformFromStorage(storedData, cancellationToken);
+                var buffer = _dataTransformer.TransformFromStorage(storedData);
                 if (buffer == null || buffer.Length == 0)
                     return default;
 
                 _cache[key] = buffer;
-                return MemoryPackSerializer.Deserialize<T>(buffer);
+
+                var data = MemoryPackSerializer.Deserialize<TData>(buffer);
+
+#if IS_TEST
+                Debug.Log("[{GetType().Name}::LoadAsync] " +
+                          "Loaded data for key '{key}' with type '{typeof(TData).Name}' and value '{data}'");
+#endif
+
+                return data;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[BaseStorageProvider::LoadAsync] Error loading data: {ex.Message}");
+                Debug.LogError($"[{GetType().Name}::LoadAsync] Error loading data: {ex.Message}");
                 return default;
             }
         }
@@ -75,11 +89,16 @@ namespace CustomUtils.Runtime.Storage.Base
             {
                 _cache.Remove(key);
                 await PlatformDeleteKeyAsync(key, cancellationToken);
+
+#if IS_TEST
+                Debug.Log($"[{GetType().Name}::TryDeleteKeyAsync] Deleted key '{key}'");
+#endif
+
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[BaseStorageProvider::TryDeleteKeyAsync] Error deleting key: {ex.Message}");
+                Debug.LogError($"[{GetType().Name}::TryDeleteKeyAsync] Error deleting key: {ex.Message}");
                 return false;
             }
         }

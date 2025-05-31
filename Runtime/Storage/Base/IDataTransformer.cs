@@ -1,12 +1,8 @@
-﻿using System.Threading;
-using Cysharp.Threading.Tasks;
-
-namespace CustomUtils.Runtime.Storage.Base
+﻿namespace CustomUtils.Runtime.Storage.Base
 {
-    public interface IDataTransformer
+    internal interface IDataTransformer
     {
-        UniTask<object> TransformForStorage(byte[] data, CancellationToken cancellationToken);
-
-        UniTask<byte[]> TransformFromStorage(object storedData, CancellationToken cancellationToken);
+        object TransformForStorage(byte[] data);
+        byte[] TransformFromStorage(object storedData);
     }
 }

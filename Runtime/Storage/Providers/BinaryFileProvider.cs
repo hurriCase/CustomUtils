@@ -3,26 +3,27 @@ using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using CustomUtils.Runtime.Storage.DataTransformers;
 using Cysharp.Threading.Tasks;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Providers
 {
-    [UsedImplicitly]
-    public sealed class BinaryFileProvider : BaseStorageProvider
+    // ReSharper disable once UnusedType.Global
+    internal sealed class BinaryFileProvider : BaseStorageProvider
     {
         private readonly string _saveDirectory;
 
-        public BinaryFileProvider() : base(new IdentityDataTransformer())
+        internal BinaryFileProvider() : base(new IdentityDataTransformer())
         {
             _saveDirectory = Path.Combine(Application.persistentDataPath, "SaveData");
+
             if (Directory.Exists(_saveDirectory) is false)
                 Directory.CreateDirectory(_saveDirectory);
         }
 
         private string GetFilePath(string key) => Path.Combine(_saveDirectory, $"{key}.dat");
 
-        protected override async UniTask PlatformSaveAsync(string key, object transformData, CancellationToken cancellationToken)
+        protected override async UniTask PlatformSaveAsync(string key, object transformData,
+            CancellationToken cancellationToken)
         {
             if (transformData is byte[] byteData)
                 await File.WriteAllBytesAsync(GetFilePath(key), byteData, cancellationToken);
@@ -31,6 +32,7 @@ namespace CustomUtils.Runtime.Storage.Providers
         protected override async UniTask<object> PlatformLoadAsync(string key, CancellationToken cancellationToken)
         {
             var filePath = GetFilePath(key);
+
             if (File.Exists(filePath) is false)
                 return null;
 
@@ -43,14 +45,17 @@ namespace CustomUtils.Runtime.Storage.Providers
 
         protected override UniTask PlatformDeleteKeyAsync(string key, CancellationToken cancellationToken)
         {
-            return UniTask.RunOnThreadPool(() =>
-            {
-                var filePath = GetFilePath(key);
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
+            var filePath = GetFilePath(key);
 
-                return UniTask.CompletedTask;
-            }, cancellationToken: cancellationToken);
+            return UniTask.RunOnThreadPool(
+                static path =>
+                {
+                    if (File.Exists((string)path))
+                        File.Delete((string)path);
+                },
+                filePath,
+                configureAwait: true,
+                cancellationToken: cancellationToken);
         }
     }
 }

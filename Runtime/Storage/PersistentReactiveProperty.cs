@@ -9,7 +9,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Storage
 {
     [UsedImplicitly]
-    public sealed class PersistentReactiveProperty<TProperty> : IDisposable, IPersistentProperty
+    public sealed class PersistentReactiveProperty<TProperty> : IDisposable
     {
         private readonly string _key;
         private readonly IStorageProvider _provider;
@@ -67,17 +67,7 @@ namespace CustomUtils.Runtime.Storage
         /// </summary>
         /// <returns>Task representing the save operation</returns>
         [UsedImplicitly]
-        public async UniTask SaveAsync()
-        {
-            try
-            {
-                await _provider.SaveAsync(_key, _property.Value);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[PersistentReactiveProperty::SaveAsync] Failed to save key '{_key}': {ex.Message}");
-            }
-        }
+        public async UniTask SaveAsync() => await _provider.TrySaveAsync(_key, _property.Value);
 
         private async UniTask Initialize()
         {

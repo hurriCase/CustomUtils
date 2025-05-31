@@ -6,19 +6,20 @@ using CustomUtils.Runtime.Storage.DataTransformers;
 using Cysharp.Threading.Tasks;
 using Firebase.Extensions;
 using Firebase.Storage;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Providers
 {
-    [UsedImplicitly]
-    public sealed class FirebaseStorageProvider : BaseStorageProvider
+    // ReSharper disable once UnusedType.Global
+    internal sealed class FirebaseStorageProvider : BaseStorageProvider
     {
+        private const long MaxDownloadSize = 5 * 1024 * 1024;
+
         private readonly FirebaseStorage _firebaseStorage;
         private readonly string _storagePath;
         private readonly Dictionary<string, byte[]> _memoryCache = new();
 
-        public FirebaseStorageProvider(string userId = null) : base(new IdentityDataTransformer())
+        internal FirebaseStorageProvider(string userId = null) : base(new IdentityDataTransformer())
         {
             _firebaseStorage = FirebaseStorage.DefaultInstance;
 
@@ -26,7 +27,7 @@ namespace CustomUtils.Runtime.Storage.Providers
 
             _storagePath = $"users/{userId}";
 
-            Debug.Log($"[FirebaseStorageProvider] Initialized with user ID: {userId}");
+            Debug.Log($"[FirebaseStorageProvider::FirebaseStorageProvider] Initialized with user ID: {userId}");
         }
 
         private StorageReference GetFileReference(string key)
@@ -45,23 +46,12 @@ namespace CustomUtils.Runtime.Storage.Providers
                 var reference = GetFileReference(key);
 
                 await reference.PutBytesAsync(byteData, cancelToken: cancellationToken)
-                    .ContinueWithOnMainThread(task =>
-                    {
-                        if (task.IsFaulted || task.IsCanceled)
-                        {
-                            Debug.LogError($"[FirebaseStorageProvider] Upload failed for key {key}: {task.Exception}");
-
-                            if (task.Exception != null)
-                                throw task.Exception;
-                        }
-
-                        Debug.Log($"[FirebaseStorageProvider] Successfully uploaded data for key {key}");
-                    }).AsUniTask().AttachExternalCancellation(cancellationToken);
+                    .AsUniTask().AttachExternalCancellation(cancellationToken);
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[FirebaseStorageProvider] Error saving data for key {key}: {ex.Message}");
-                throw;
+                Debug.LogError("[FirebaseStorageProvider::PlatformSaveAsync] " +
+                               $"Error saving data for key {key}: {ex.Message}");
             }
         }
 
@@ -77,20 +67,8 @@ namespace CustomUtils.Runtime.Storage.Providers
                 if (await PlatformHasKeyAsync(key, cancellationToken) is false)
                     return null;
 
-                const long maxDownloadSize = 5 * 1024 * 1024;
-                var downloadTask = await reference.GetBytesAsync(maxDownloadSize)
-                    .ContinueWithOnMainThread(task =>
-                    {
-                        if (task.IsFaulted || task.IsCanceled)
-                        {
-                            Debug.LogError(
-                                $"[FirebaseStorageProvider] Download failed for key {key}: {task.Exception}");
-                            return null;
-                        }
-
-                        Debug.Log($"[FirebaseStorageProvider] Successfully downloaded data for key {key}");
-                        return task.Result;
-                    }).AsUniTask().AttachExternalCancellation(cancellationToken);
+                var downloadTask = await reference.GetBytesAsync(MaxDownloadSize)
+                    .AsUniTask().AttachExternalCancellation(cancellationToken);
 
                 if (downloadTask == null || downloadTask.Length == 0)
                     return null;
@@ -101,7 +79,8 @@ namespace CustomUtils.Runtime.Storage.Providers
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[FirebaseStorageProvider] Error loading data for key {key}: {ex.Message}");
+                Debug.LogError("[FirebaseStorageProvider::PlatformLoadAsync] " +
+                               $"Error loading data for key {key}: {ex.Message}");
                 return null;
             }
         }
@@ -138,18 +117,12 @@ namespace CustomUtils.Runtime.Storage.Providers
                 if (await PlatformHasKeyAsync(key, cancellationToken) is false)
                     return;
 
-                await reference.DeleteAsync()
-                    .ContinueWithOnMainThread(task =>
-                    {
-                        if (task.IsFaulted || task.IsCanceled)
-                            Debug.LogError($"[FirebaseStorageProvider] Delete failed for key {key}: {task.Exception}");
-                        else
-                            Debug.Log($"[FirebaseStorageProvider] Successfully deleted data for key {key}");
-                    }, cancellationToken).AsUniTask().AttachExternalCancellation(cancellationToken);
+                await reference.DeleteAsync().AsUniTask().AttachExternalCancellation(cancellationToken);
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[FirebaseStorageProvider] Error deleting key {key}: {ex.Message}");
+                Debug.LogError("[FirebaseStorageProvider::PlatformDeleteKeyAsync] " +
+                               $"Error deleting key {key}: {ex.Message}");
             }
         }
     }

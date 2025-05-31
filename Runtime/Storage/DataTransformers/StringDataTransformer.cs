@@ -3,20 +3,13 @@ using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using Cysharp.Threading.Tasks;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Storage.DataTransformers
 {
-    public sealed class StringDataTransformer : IDataTransformer
+    internal sealed class StringDataTransformer : IDataTransformer
     {
-        public UniTask<object> TransformForStorage(byte[] data, CancellationToken cancellationToken)
-            => UniTask.FromResult<object>(Convert.ToBase64String(data));
+        public object TransformForStorage(byte[] data) => Convert.ToBase64String(data);
 
-        public UniTask<byte[]> TransformFromStorage(object storedData, CancellationToken cancellationToken)
-        {
-            if (storedData is string base64String && string.IsNullOrEmpty(base64String) is false)
-                return UniTask.FromResult(Convert.FromBase64String(base64String));
-
-            return UniTask.FromResult(Array.Empty<byte>());
-        }
+        public byte[] TransformFromStorage(object storedData)
+            => storedData is string str ? Convert.FromBase64String(str) : Array.Empty<byte>();
     }
 }
