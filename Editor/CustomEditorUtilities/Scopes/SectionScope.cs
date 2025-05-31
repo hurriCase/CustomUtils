@@ -10,7 +10,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
     /// </summary>
     public sealed class SectionScope : IDisposable
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
+        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
 
         private readonly Action _drawContent;
         private readonly bool _endVertical;

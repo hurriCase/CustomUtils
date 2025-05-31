@@ -5,6 +5,9 @@
         internal const string CustomMenuResourcePath = "CustomMenu";
         internal const string CustomMenuSettingsAssetName = "CustomMenuSettings";
 
+        internal const string EditorThemeResourcePath = "EditorTheme";
+        internal const string EditorThemeSettingsAssetName = "EditorThemeSettings";
+
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
         internal const string LocalizationSettingsFullPath = ResourcesPath + LocalizationSettingsResourcesPath;
         internal const string LocalizationSettingsAssetName = "LocalizationSettings";

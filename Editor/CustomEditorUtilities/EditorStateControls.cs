@@ -16,7 +16,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
     [UsedImplicitly]
     public sealed class EditorStateControls
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
+        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
         private readonly Object _target;
         private readonly SerializedObject _serializedObject;
 

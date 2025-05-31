@@ -23,7 +23,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
     [UsedImplicitly]
     public static class EditorVisualControls
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
+        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
 
         /// <summary>
         /// Draws a section header with consistent styling.

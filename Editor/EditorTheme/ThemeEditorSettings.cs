@@ -1,10 +1,16 @@
-﻿using System.IO;
-using UnityEditor;
+﻿using CustomUtils.Runtime;
+using CustomUtils.Runtime.AssetLoader;
+using CustomUtils.Runtime.CustomTypes.Singletons;
 using UnityEngine;
 
 namespace CustomUtils.Editor.EditorTheme
 {
-    internal sealed class ThemeEditorSettings : ScriptableObject
+    [Resource(
+        ResourcePaths.EditorThemeResourcePath,
+        ResourcePaths.EditorThemeSettingsAssetName,
+        isEditorResource: true
+    )]
+    internal sealed class ThemeEditorSettings : SingletonScriptableObject<ThemeEditorSettings>
     {
         [field: SerializeField] internal float HeaderSpacing { get; set; } = 10f;
         [field: SerializeField] internal int HeaderFontSize { get; set; } = 14;
@@ -68,25 +74,5 @@ namespace CustomUtils.Editor.EditorTheme
         [field: SerializeField] internal float H3SpacingAfter { get; set; }
         [field: SerializeField] internal int LabelFontSize { get; set; } = 12;
         [field: SerializeField] internal FontStyle LabelFontStyle { get; set; } = FontStyle.Normal;
-
-        private const string SettingsPath = "Assets/Resources/CustomMenu/Editor/Settings/ThemeEditorSettings.asset";
-
-        internal static ThemeEditorSettings GetOrCreateSettings()
-        {
-            var settings = AssetDatabase.LoadAssetAtPath<ThemeEditorSettings>(SettingsPath);
-            if (settings)
-                return settings;
-
-            settings = CreateInstance<ThemeEditorSettings>();
-
-            var directory = Path.GetDirectoryName(SettingsPath);
-            if (string.IsNullOrEmpty(directory) is false && Directory.Exists(directory) is false)
-                Directory.CreateDirectory(directory);
-
-            AssetDatabase.CreateAsset(settings, SettingsPath);
-            AssetDatabase.SaveAssets();
-
-            return settings;
-        }
     }
 }
