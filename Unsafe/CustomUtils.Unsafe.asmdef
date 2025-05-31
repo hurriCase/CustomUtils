@@ -1,0 +1,14 @@
+{
+    "name": "CustomUtils.Unsafe",
+    "rootNamespace": "CustomUtils.Unsafe",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
