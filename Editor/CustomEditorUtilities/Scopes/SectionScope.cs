@@ -1,7 +1,8 @@
 ﻿using System;
+using CustomUtils.Editor.EditorTheme;
 using UnityEditor;
 
-namespace CustomUtils.Editor.EditorTheme.Scopes
+namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
 {
     /// <inheritdoc />
     /// <summary>

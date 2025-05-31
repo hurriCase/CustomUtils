@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomUtils.Editor.EditorTheme.Scopes;
+using CustomUtils.Editor.CustomEditorUtilities.Scopes;
+using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Runtime.Extensions;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -10,7 +11,7 @@ using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
 // ReSharper disable MemberCanBePrivate.Global
-namespace CustomUtils.Editor.EditorTheme
+namespace CustomUtils.Editor.CustomEditorUtilities
 {
     /// <summary>
     /// Static utility class for editor layout operations that don't require undo support.
@@ -342,6 +343,7 @@ namespace CustomUtils.Editor.EditorTheme
         /// <param name="text">The text to display on the button.</param>
         /// <param name="drawContent">Action to execute when the button is clicked. Can be null.</param>
         /// <param name="options">Optional GUILayout options for customizing button appearance and behavior.</param>
+        [UsedImplicitly]
         public static void Button(string text, Action drawContent, params GUILayoutOption[] options)
         {
             if (GUILayout.Button(text, options))

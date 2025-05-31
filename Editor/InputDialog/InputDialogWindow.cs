@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.CustomEditorUtilities;
 using JetBrains.Annotations;
 using UnityEditor;
 

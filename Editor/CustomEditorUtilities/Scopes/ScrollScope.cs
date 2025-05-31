@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CustomUtils.Editor.EditorTheme.Scopes
+namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
 {
     /// <inheritdoc />
     /// <summary>

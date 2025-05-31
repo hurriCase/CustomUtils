@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomUtils.Editor.EditorTheme;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
 // ReSharper disable MemberCanBePrivate.Global
-namespace CustomUtils.Editor.EditorTheme
+namespace CustomUtils.Editor.CustomEditorUtilities
 {
     /// <summary>
     /// Enhanced GUI system for editor inspectors with automatic undo support.
