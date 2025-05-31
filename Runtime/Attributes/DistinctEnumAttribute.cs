@@ -4,6 +4,7 @@ using UnityEngine;
 // ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Attributes
 {
+    /// <inheritdoc />
     /// <summary>
     /// Attribute that makes an enum field contains only distinct values.
     /// </summary>

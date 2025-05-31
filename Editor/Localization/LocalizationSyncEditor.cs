@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace CustomUtils.Editor.Localization
 {
+    /// <inheritdoc />
     /// <summary>
     ///     Adds "Sync" button to LocalizationSync script.
     /// </summary>

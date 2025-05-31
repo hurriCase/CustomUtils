@@ -4,6 +4,7 @@ using UnityEngine;
 // ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Attributes
 {
+    /// <inheritdoc />
     /// <summary>
     /// Marks a field as required. Fields with this attribute must be assigned in the Unity Inspector.
     /// </summary>
