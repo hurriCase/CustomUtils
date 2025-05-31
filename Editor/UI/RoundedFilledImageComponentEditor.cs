@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine.UI;
 
-namespace CustomUtils.Editor
+namespace CustomUtils.Editor.UI
 {
     [CustomEditor(typeof(RoundedFilledImageComponent), true)]
     [CanEditMultipleObjects]

@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CustomUtils.Editor
+namespace CustomUtils.Editor.UI
 {
     [InitializeOnLoad]
     public class TextMeshProDefaultSettings
