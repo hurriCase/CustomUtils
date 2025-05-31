@@ -18,8 +18,8 @@ namespace CustomUtils.Runtime.Audio
     /// <typeparam name="TMusicType">Enum type for music categories</typeparam>
     /// <typeparam name="TSoundType">Enum type for sound effect categories</typeparam>
     [UsedImplicitly]
-    public abstract class AudioHandler<TMusicType, TSoundType> :
-        PersistentSingletonBehavior<AudioHandler<TMusicType, TSoundType>>
+    public abstract class AudioHandlerBase<TMusicType, TSoundType> :
+        PersistentSingletonBehavior<AudioHandlerBase<TMusicType, TSoundType>>
         where TMusicType : unmanaged, Enum
         where TSoundType : unmanaged, Enum
     {
