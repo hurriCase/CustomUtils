@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Editor.EditorTheme;
+using CustomUtils.Editor.Extensions;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
     {
         private static ThemeEditorSettings Settings => ThemeEditorSettings.GetOrCreateSettings();
         private readonly Object _target;
+        private readonly SerializedObject _serializedObject;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EditorStateControls"/> class with a target object for undo support.
@@ -24,7 +26,11 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="target">The Unity object to track for undo operations. Must not be null.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="target"/> is null.</exception>
         [UsedImplicitly]
-        public EditorStateControls([NotNull] Object target) => _target = target;
+        public EditorStateControls([NotNull] Object target, SerializedObject serializedObject = null)
+        {
+            _target = target;
+            _serializedObject = serializedObject;
+        }
 
         /// <summary>
         /// Creates a color field with consistent styling and undo support.
@@ -145,6 +151,35 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         [UsedImplicitly]
         public bool PropertyField(SerializedProperty property, bool includeChildren = false)
             => PropertyField(property, property.displayName, includeChildren);
+
+        /// <summary>
+        /// Creates a property field with undo support using property name
+        /// </summary>
+        /// <param name="propertyName">Name of the serialized property to modify</param>
+        /// <param name="includeChildren">Whether to include children of the property</param>
+        /// <returns>Tuple containing whether the property was modified and the property reference</returns>
+        [UsedImplicitly]
+        public (bool, SerializedProperty) PropertyField(string propertyName, bool includeChildren = false)
+        {
+            var property = _serializedObject.FindField(propertyName);
+            return (PropertyField(property, property.displayName, includeChildren), property);
+        }
+
+        /// <summary>
+        /// Creates a property field with undo support that can be conditionally disabled
+        /// </summary>
+        /// <param name="isDisabled">Whether the property field should be disabled</param>
+        /// <param name="propertyName">Name of the serialized property to modify</param>
+        /// <param name="includeChildren">Whether to include children of the property</param>
+        /// <returns>True if the property was modified, false otherwise</returns>
+        [UsedImplicitly]
+        public bool PropertyFieldIf(bool isDisabled, string propertyName, bool includeChildren = false)
+        {
+            using var disabledScope = new EditorGUI.DisabledScope(isDisabled);
+
+            var property = _serializedObject.FindField(propertyName);
+            return PropertyField(property, property.displayName, includeChildren);
+        }
 
         /// <summary>
         /// Creates a dropdown with undo support.
