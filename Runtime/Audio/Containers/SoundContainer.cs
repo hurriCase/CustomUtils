@@ -1,14 +1,11 @@
 ﻿using System;
-using CustomUtils.Runtime.Attributes;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Audio.Containers
 {
     [Serializable]
-    public sealed class SoundContainer
+    public sealed class SoundContainer<T> : AudioContainerBase<T> where T : unmanaged, Enum
     {
-        [field: SerializeField, DistinctEnum] public SoundType SoundType { get; private set; }
         [field: SerializeField] public float Cooldown { get; private set; }
-        [field: SerializeField] public AudioData AudioData { get; private set; }
     }
 }
