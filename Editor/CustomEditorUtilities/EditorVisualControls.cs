@@ -61,6 +61,17 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a panel scope that can be used with the 'using' statement.
+        /// </summary>
+        /// <returns>A disposable panel scope.</returns>
+        /// <remarks>
+        /// Use this with the 'using' statement to create a panel with consistent spacing around content.
+        /// Adds spacing before and after the content based on theme settings.
+        /// </remarks>
+        [UsedImplicitly]
+        public static PanelScope BeginPanel() => new();
+
+        /// <summary>
         /// Creates a property field with consistent styling.
         /// </summary>
         /// <param name="property">The serialized property to display.</param>
@@ -192,6 +203,18 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(Settings.BoxSpacingAfter);
         }
+
+        /// <summary>
+        /// Creates a boxed scope that can be used with the 'using' statement.
+        /// </summary>
+        /// <param name="title">Optional title to display at the top of the box.</param>
+        /// <returns>A disposable boxed scope.</returns>
+        /// <remarks>
+        /// Use this with the 'using' statement to create a boxed section with clearly defined boundaries.
+        /// The box will have consistent styling, padding, and spacing based on theme settings.
+        /// </remarks>
+        [UsedImplicitly]
+        public static BoxedScope BeginBoxedSection(string title = null) => new(title);
 
         /// <summary>
         /// Creates a section scope that can be used with the 'using' statement.
@@ -833,5 +856,29 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         [UsedImplicitly]
         public static bool ClickableTextWithCursor(string text, string url)
             => ClickableTextWithCursor(text, () => Application.OpenURL(url));
+
+        /// <summary>
+        /// Creates a color field with consistent styling.
+        /// </summary>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The current color value.</param>
+        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        [UsedImplicitly]
+        public static void ColorField(string label, Color value, bool useConsistentHeight = true) =>
+            EditorGUILayout.ColorField(label, value, useConsistentHeight
+                ? GUILayout.Height(Settings.ColorFieldHeight)
+                : null);
+
+        /// <summary>
+        /// Creates a gradient field with consistent styling.
+        /// </summary>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The current gradient value.</param>
+        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        [UsedImplicitly]
+        public static void GradientField(string label, Gradient value, bool useConsistentHeight = true) =>
+            EditorGUILayout.GradientField(label, value, useConsistentHeight
+                ? GUILayout.Height(Settings.ColorFieldHeight)
+                : null);
     }
 }
