@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
 using JetBrains.Annotations;
@@ -181,6 +182,53 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             var property = _serializedObject.FindField(propertyName);
             return PropertyField(property, property.displayName, includeChildren);
         }
+
+        /// <summary>
+        /// Creates a dropdown with undo support using string value selection.
+        /// </summary>
+        /// <param name="label">The label to display next to the dropdown.</param>
+        /// <param name="selectedValue">The currently selected string value.</param>
+        /// <param name="options">List of option strings to display.</param>
+        /// <returns>The selected string value.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public string Dropdown(string label, string selectedValue, List<string> options)
+        {
+            var selectedIndex = options.IndexOf(selectedValue);
+            if (selectedIndex == -1)
+                selectedIndex = 0;
+
+            var newIndex = Dropdown(label, selectedIndex, options);
+            return newIndex < options.Count ? options[newIndex] : options[0];
+        }
+
+        /// <summary>
+        /// Creates a dropdown with undo support using string value selection.
+        /// </summary>
+        /// <param name="label">The label to display next to the dropdown.</param>
+        /// <param name="selectedValue">The currently selected string value.</param>
+        /// <param name="options">Array of option strings to display.</param>
+        /// <returns>The selected string value.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public string Dropdown(string label, string selectedValue, string[] options)
+        {
+            var selectedIndex = Array.IndexOf(options, selectedValue);
+            if (selectedIndex == -1)
+                selectedIndex = 0;
+
+            var newIndex = Dropdown(label, selectedIndex, options);
+            return newIndex < options.Length ? options[newIndex] : options[0];
+        }
+
+        /// <summary>
+        /// Creates a dropdown with undo support.
+        /// </summary>
+        /// <param name="label">The label to display next to the dropdown.</param>
+        /// <param name="selectedIndex">The currently selected index.</param>
+        /// <param name="options">List of option strings to display.</param>
+        /// <returns>The index of the selected option.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public int Dropdown(string label, int selectedIndex, List<string> options)
+            => Dropdown(label, selectedIndex, options.ToArray());
 
         /// <summary>
         /// Creates a dropdown with undo support.
