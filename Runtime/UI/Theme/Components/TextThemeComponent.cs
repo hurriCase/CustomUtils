@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
         {
             base.OnEnable();
 
-            _originalFontMaterial = _targetComponent.fontMaterial;
+            _originalFontMaterial = _targetComponent.fontSharedMaterial;
         }
 
         protected override bool ShouldUpdateColor()
