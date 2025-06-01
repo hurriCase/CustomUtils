@@ -121,7 +121,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 
             return string.IsNullOrEmpty(attribute.FullPath)
                 ? $"Assets/{resourceFolderName}/{attribute.Name}.asset"
-                : $"Assets/{resourceFolderName}/{attribute.FullPath}/{attribute.Name}.asset";
+                : $"{attribute.FullPath}/{attribute.Name}.asset";
         }
 
 #endif

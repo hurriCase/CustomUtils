@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 
 // ReSharper disable MemberCanBeInternal
@@ -45,8 +46,8 @@ namespace CustomUtils.Runtime.AssetLoader
         /// <param name="resourcePath">The resource path used for loading with Resources.Load.</param>
         /// <param name="isEditorResource">Indicates whether this resource is in the Editor Default Resources folder.</param>
         /// <param name="extension">The file extension for the resource (e.g., ".asset", ".png", ".prefab").</param>
-        public ResourceAttribute(string fullPath = "", string name = "", string resourcePath = "",
-            bool isEditorResource = false, string extension = null)
+        public ResourceAttribute(string fullPath = null, string name = null, string resourcePath = null,
+            string extension = null, bool isEditorResource = false)
         {
             FullPath = fullPath;
             Name = name;
@@ -66,8 +67,8 @@ namespace CustomUtils.Runtime.AssetLoader
             if (string.IsNullOrWhiteSpace(Name))
             {
                 fullResourcePath = null;
-                Debug.LogError(
-                    $"[ResourceAttribute::TryGetFullResourcePath] Resource name cannot be null or empty - {Name}");
+                Debug.LogError("[ResourceAttribute::TryGetFullResourcePath] " +
+                               $"Resource name cannot be null or empty - {Name}");
 
                 return false;
             }
@@ -81,11 +82,11 @@ namespace CustomUtils.Runtime.AssetLoader
             if (IsEditorResource)
                 fullResourcePath = string.IsNullOrWhiteSpace(FullPath)
                     ? nameWithExtension
-                    : $"{FullPath}/{nameWithExtension}";
+                    : Path.Combine(FullPath, nameWithExtension);
             else
                 fullResourcePath = string.IsNullOrWhiteSpace(ResourcePath)
                     ? Name
-                    : $"{ResourcePath}/{Name}";
+                    : Path.Combine(ResourcePath, Name);
 
             return true;
         }

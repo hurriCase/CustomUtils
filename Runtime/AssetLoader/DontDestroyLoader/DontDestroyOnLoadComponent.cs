@@ -2,6 +2,7 @@
 
 namespace CustomUtils.Runtime.AssetLoader.DontDestroyLoader
 {
+    /// <inheritdoc />
     /// <summary>
     /// Marker component to identify GameObjects that should persist between scenes.
     /// Add this component to any prefab that should be automatically instantiated

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CustomUtils.Runtime.AssetLoader.Config;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.AssetLoader.DontDestroyLoader
@@ -9,7 +8,7 @@ namespace CustomUtils.Runtime.AssetLoader.DontDestroyLoader
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         internal static void MakePersistent()
         {
-            if (ResourceLoader<GameObject>.TryLoadAll(AssetLoaderInitializer.LoaderConfig.DontDestroyPath,
+            if (ResourceLoader<GameObject>.TryLoadAll(AssetLoaderConfig.Instance.DontDestroyPath,
                     out var dontDestroyObjects) is false)
                 return;
 
