@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
@@ -18,27 +18,27 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         [field: SerializeField, NonReorderable] internal List<ThemeGradientColor> GradientColors { get; private set; }
         [field: SerializeField, NonReorderable] internal List<ThemeSharedColor> SharedColor { get; private set; }
 
-        internal string[] GetColorNames<TColor>() where TColor : IThemeColor
+        internal List<string> GetColorNames<TColor>() where TColor : IThemeColor
         {
             var colorList = GetColorList<TColor>();
             if (colorList == null || colorList.Count == 0)
-                return new[] { "No colors found" };
+                return null;
 
-            var names = new string[colorList.Count];
-            for (var i = 0; i < colorList.Count; i++)
-                names[i] = colorList[i].Name;
-
-            return names;
+            return colorList.Select(color => color.Name).ToList();
         }
 
-        internal int GetColorIndexByName(string name, ColorType colorType) =>
-            colorType switch
+        internal bool TryGetColorByName<TColor>(string name, out TColor color) where TColor : IThemeColor
+        {
+            var colorList = GetColorList<TColor>();
+            if (colorList == null || colorList.Count == 0)
             {
-                ColorType.Shared => SharedColor.FindIndex(color => color.Name == name),
-                ColorType.SolidColor => SolidColors.FindIndex(color => color.Name == name),
-                ColorType.Gradient => GradientColors.FindIndex(color => color.Name == name),
-                _ => throw new ArgumentOutOfRangeException(nameof(colorType), colorType, null)
-            };
+                color = default;
+                return false;
+            }
+
+            color = colorList.Find(color => color.Name == name);
+            return true;
+        }
 
         private List<TColor> GetColorList<TColor>() where TColor : IThemeColor
         {
