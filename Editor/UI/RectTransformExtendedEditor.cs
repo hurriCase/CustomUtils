@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if IS_REACTTRANSFORM_EXTENDED_ENABLED
+using System.Reflection;
 using CustomUtils.Editor.CustomEditorUtilities;
 using UnityEditor;
 using UnityEngine;
@@ -92,3 +93,4 @@ namespace CustomUtils.Editor.UI
         }
     }
 }
+#endif
