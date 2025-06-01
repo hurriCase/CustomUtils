@@ -102,7 +102,7 @@ namespace CustomUtils.Editor.Theme
 
             using var changeCheck = EditorVisualControls.BeginBoxedSection("Color");
 
-            _newIndex = EditorStateControls.Dropdown(nameof(_themeComponent.ColorType), index, names);
+            _newIndex = EditorStateControls.Dropdown(nameof(IThemeColor.Name), index, names);
 
             if (_newIndex != index)
                 UpdateColorAndPreview();

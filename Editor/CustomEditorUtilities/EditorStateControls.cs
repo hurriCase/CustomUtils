@@ -187,10 +187,9 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedIndex">The currently selected index.</param>
         /// <param name="options">Array of option strings to display.</param>
-        /// <param name="indented">Whether to indent the dropdown. Default is true.</param>
         /// <returns>The index of the selected option.</returns>
         [UsedImplicitly, MustUseReturnValue]
-        public int Dropdown(string label, int selectedIndex, string[] options, bool indented = true)
+        public int Dropdown(string label, int selectedIndex, string[] options)
         {
             var dropdownStyle = EditorVisualControls.CreateTextStyle(
                 EditorStyles.popup,
@@ -198,8 +197,6 @@ namespace CustomUtils.Editor.CustomEditorUtilities
                 Settings.DropdownFontStyle);
 
             var originalIndent = EditorGUI.indentLevel;
-            if (indented)
-                EditorGUI.indentLevel++;
 
             var result = HandleValueChange(label, selectedIndex, () =>
                 EditorGUILayout.Popup(
