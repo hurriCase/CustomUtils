@@ -84,19 +84,20 @@ namespace CustomUtils.Editor.Theme
 
         private void DrawColorSelector()
         {
-            var (names, currentColorName) = GetColorSelectorData(_themeComponent.ColorType);
+            var (colorNames, currentColorName) = GetColorSelectorData(_themeComponent.ColorType);
 
             using var changeCheck = EditorVisualControls.BeginBoxedSection("Color");
 
-            if (names is null || names.Count == 0 || names.Contains(currentColorName) is false)
+            if (colorNames is null || colorNames.Count == 0 || colorNames.Contains(currentColorName) is false)
             {
                 EditorVisualControls.LabelField("There is no colors in database or color name is invalid.");
                 return;
             }
 
-            var selectedColorName = EditorStateControls.Dropdown(nameof(IThemeColor.Name), currentColorName, names);
+            var selectedColorName =
+                EditorStateControls.Dropdown(nameof(IThemeColor.Name), currentColorName, colorNames);
 
-            if (selectedColorName == currentColorName)
+            if (selectedColorName != currentColorName)
                 UpdateColorFromName(selectedColorName);
 
             switch (_themeComponent.ColorType)
