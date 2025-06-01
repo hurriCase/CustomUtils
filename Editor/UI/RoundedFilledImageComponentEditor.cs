@@ -22,7 +22,7 @@ namespace CustomUtils.Editor.UI
             _typeProperty = serializedObject.FindProperty("m_Type");
             _fillMethodProperty = serializedObject.FindProperty("m_FillMethod");
 
-            _editorStateControls ??= new EditorStateControls(target);
+            _editorStateControls ??= new EditorStateControls(target, serializedObject);
         }
 
         public override void OnInspectorGUI()

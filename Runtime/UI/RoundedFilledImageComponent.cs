@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomUtils.Runtime.AssetLoader;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,16 @@ namespace CustomUtils.Runtime.UI
         [field: SerializeField, Range(0, 359)] internal float CustomFillOrigin { get; set; }
         [field: SerializeField] internal bool UseCustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] internal float ThicknessRatio { get; set; } = 0.2f;
+
+        protected override void Reset()
+        {
+            base.Reset();
+
+            var texture = ResourceLoader<Texture2D>.Load("T_Square");
+            sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            type = Type.Filled;
+            fillMethod = FillMethod.Radial360;
+        }
 
         protected override void OnEnable()
         {
