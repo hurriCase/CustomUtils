@@ -56,8 +56,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
                 var imageGradientShader = Shader.Find("Custom/ImageGradientShader");
                 if (!imageGradientShader)
                 {
-                    Debug.LogError("[GradientExtensions::ApplyGradient]" +
-                                   " Image GradientHelpers Shader not found in ShaderReferences.");
+                    Debug.LogError("[GradientExtensions::ApplyGradient] Image GradientHelpers Shader not found.");
                     return;
                 }
 
@@ -99,8 +98,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
                 var textGradientShader = Shader.Find("Custom/TextGradientShader");
                 if (!textGradientShader)
                 {
-                    Debug.LogError("[GradientExtensions::ApplyGradient]" +
-                                   " Text GradientHelpers Shader not found. Make sure it's properly included in your project.");
+                    Debug.LogError("[GradientExtensions::ApplyGradient] Text GradientHelpers Shader not found.");
                     return;
                 }
 
