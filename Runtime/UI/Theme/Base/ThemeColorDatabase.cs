@@ -7,7 +7,11 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
-    [Resource("Assets/Client/Scriptables/Resources/UI/Theme", nameof(ThemeColorDatabase), "UI/Theme")]
+    [Resource(
+        ResourcePaths.ThemeFullPath,
+        ResourcePaths.ThemeColorDatabaseAssetName,
+        ResourcePaths.ThemeResourcePath
+    )]
     internal sealed class ThemeColorDatabase : SingletonScriptableObject<ThemeColorDatabase>
     {
         [field: SerializeField, NonReorderable] internal List<ThemeSolidColor> SolidColors { get; private set; }
