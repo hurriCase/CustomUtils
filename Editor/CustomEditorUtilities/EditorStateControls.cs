@@ -24,6 +24,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// Initializes a new instance of the <see cref="EditorStateControls"/> class with a target object for undo support.
         /// </summary>
         /// <param name="target">The Unity object to track for undo operations. Must not be null.</param>
+        /// <param name="serializedObject">The serialized object which is used for operation where it is required (Like FindField() (Optional)</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="target"/> is null.</exception>
         [UsedImplicitly]
         public EditorStateControls([NotNull] Object target, SerializedObject serializedObject = null)
