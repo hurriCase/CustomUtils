@@ -1,4 +1,4 @@
-﻿#if IS_REACTTRANSFORM_EXTENDED_ENABLED
+﻿#if IS_RECTTRANSFORM_EXTENDED_ENABLED
 using System.Reflection;
 using CustomUtils.Editor.CustomEditorUtilities;
 using UnityEditor;
