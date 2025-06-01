@@ -8,6 +8,10 @@
         internal const string EditorThemeResourcePath = "EditorTheme";
         internal const string EditorThemeSettingsAssetName = "EditorThemeSettings";
 
+        internal const string ThemHandlerResourcePath = "Theme";
+        internal const string ThemeHandlerFullPath = ThemHandlerResourcePath + ThemeHandlerAssetName;
+        internal const string ThemeHandlerAssetName = "ThemeHandler";
+
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
         internal const string LocalizationSettingsFullPath = ResourcesPath + LocalizationSettingsResourcesPath;
         internal const string LocalizationSettingsAssetName = "LocalizationSettings";
