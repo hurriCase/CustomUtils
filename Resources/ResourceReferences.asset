@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 847cb209606c49569586c16df8ae5e42, type: 3}
   m_Name: ResourceReferences
   m_EditorClassIdentifier: 
-  <SquareSprite>k__BackingField: {fileID: 0}
+  <SquareSprite>k__BackingField: {fileID: 21300000, guid: 23411728a01d09c4589823aa6a5e74ce, type: 3}
