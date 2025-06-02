@@ -75,11 +75,35 @@ namespace CustomUtils.Editor.CustomEditorUtilities
                 (Sprite)EditorGUILayout.ObjectField(label, value, typeof(Sprite), allowSceneObjects,
                     GUILayout.Height(Settings.ObjectFieldHeight)));
 
+        /// <summary>
+        /// Creates an object field with consistent styling and undo support.
+        /// </summary>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The current object reference.</param>
+        /// <param name="type">The type of object that can be assigned to the field.</param>
+        /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is false.</param>
+        /// <param name="expandWidth">Whether the field should expand to fill available width. Default is true.</param>
+        /// <returns>The modified object reference.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public Object ObjectField(string label, Object value, Type type, bool allowSceneObjects = false,
             bool expandWidth = true) =>
             HandleValueChange(label, value, () =>
                 EditorGUILayout.ObjectField(label, value, type, allowSceneObjects,
+                    GUILayout.ExpandWidth(expandWidth)));
+
+        /// <summary>
+        /// Creates an object field with consistent styling and undo support using the object's name as the label.
+        /// </summary>
+        /// <param name="value">The current object reference whose name will be used as the label.</param>
+        /// <param name="type">The type of object that can be assigned to the field.</param>
+        /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is false.</param>
+        /// <param name="expandWidth">Whether the field should expand to fill available width. Default is true.</param>
+        /// <returns>The modified object reference.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public Object ObjectField(Object value, Type type, bool allowSceneObjects = false,
+            bool expandWidth = true) =>
+            HandleValueChange(value.name, value, () =>
+                EditorGUILayout.ObjectField(value.name, value, type, allowSceneObjects,
                     GUILayout.ExpandWidth(expandWidth)));
 
         /// <summary>
