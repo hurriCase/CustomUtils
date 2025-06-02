@@ -16,9 +16,9 @@ namespace CustomUtils.Editor.Theme
 
         private IBaseThemeComponent _themeComponent;
 
+        private SerializedProperty _gradientColorNameProperty;
         private SerializedProperty _sharedColorNameProperty;
         private SerializedProperty _solidColorNameProperty;
-        private SerializedProperty _gradientColorNameProperty;
 
         private bool _wasDarkTheme;
 
@@ -29,9 +29,9 @@ namespace CustomUtils.Editor.Theme
             if (_themeComponent == null)
                 return;
 
+            InitializeColorProperty(nameof(IBaseThemeComponent.ThemeGradientColor), out _gradientColorNameProperty);
             InitializeColorProperty(nameof(IBaseThemeComponent.ThemeSharedColor), out _sharedColorNameProperty);
             InitializeColorProperty(nameof(IBaseThemeComponent.ThemeSolidColor), out _solidColorNameProperty);
-            InitializeColorProperty(nameof(IBaseThemeComponent.ThemeGradientColor), out _gradientColorNameProperty);
         }
 
         private void InitializeColorProperty(string propertyName, out SerializedProperty colorNameProperty)
@@ -102,24 +102,24 @@ namespace CustomUtils.Editor.Theme
 
             switch (_themeComponent.ColorType)
             {
-                case ColorType.Shared:
-                    EditorVisualControls.ColorField("Preview", _themeComponent.ThemeSharedColor.Color);
-                    break;
-
-                case ColorType.SolidColor:
-                    var previewSolidColor = ThemeHandler.CurrentThemeType == ThemeType.Light
-                        ? _themeComponent.ThemeSolidColor.LightThemeColor
-                        : _themeComponent.ThemeSolidColor.DarkThemeColor;
-
-                    EditorVisualControls.ColorField("Preview", previewSolidColor);
-                    break;
-
                 case ColorType.Gradient:
                     var previewGradient = ThemeHandler.CurrentThemeType == ThemeType.Light
                         ? _themeComponent.ThemeGradientColor.LightThemeColor
                         : _themeComponent.ThemeGradientColor.DarkThemeColor;
 
                     EditorVisualControls.GradientField("Preview", previewGradient);
+                    break;
+
+                case ColorType.Shared:
+                    EditorVisualControls.ColorField("Preview", _themeComponent.ThemeSharedColor.Color);
+                    break;
+
+                case ColorType.Solid:
+                    var previewSolidColor = ThemeHandler.CurrentThemeType == ThemeType.Light
+                        ? _themeComponent.ThemeSolidColor.LightThemeColor
+                        : _themeComponent.ThemeSolidColor.DarkThemeColor;
+
+                    EditorVisualControls.ColorField("Preview", previewSolidColor);
                     break;
 
                 default:
@@ -130,12 +130,12 @@ namespace CustomUtils.Editor.Theme
         private (List<string>, string) GetColorSelectorData(ColorType colorType) =>
             colorType switch
             {
-                ColorType.Shared => (ThemeColorDatabase.GetColorNames<ThemeSharedColor>(),
-                    _themeComponent.ThemeSharedColor?.Name ?? string.Empty),
-                ColorType.SolidColor => (ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
-                    _themeComponent.ThemeSolidColor?.Name ?? string.Empty),
                 ColorType.Gradient => (ThemeColorDatabase.GetColorNames<ThemeGradientColor>(),
                     _themeComponent.ThemeGradientColor?.Name ?? string.Empty),
+                ColorType.Shared => (ThemeColorDatabase.GetColorNames<ThemeSharedColor>(),
+                    _themeComponent.ThemeSharedColor?.Name ?? string.Empty),
+                ColorType.Solid => (ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
+                    _themeComponent.ThemeSolidColor?.Name ?? string.Empty),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -143,6 +143,15 @@ namespace CustomUtils.Editor.Theme
         {
             switch (_themeComponent.ColorType)
             {
+                case ColorType.Gradient:
+                    if (ThemeColorDatabase.TryGetColorByName<ThemeGradientColor>(colorName, out var gradientColor))
+                    {
+                        _themeComponent.ThemeGradientColor = gradientColor;
+                        _gradientColorNameProperty.stringValue = gradientColor.Name;
+                    }
+
+                    break;
+
                 case ColorType.Shared:
                     if (ThemeColorDatabase.TryGetColorByName<ThemeSharedColor>(colorName, out var sharedColor))
                     {
@@ -151,21 +160,11 @@ namespace CustomUtils.Editor.Theme
                     }
 
                     break;
-
-                case ColorType.SolidColor:
+                case ColorType.Solid:
                     if (ThemeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
                     {
                         _themeComponent.ThemeSolidColor = solidColor;
                         _solidColorNameProperty.stringValue = solidColor.Name;
-                    }
-
-                    break;
-
-                case ColorType.Gradient:
-                    if (ThemeColorDatabase.TryGetColorByName<ThemeGradientColor>(colorName, out var gradientColor))
-                    {
-                        _themeComponent.ThemeGradientColor = gradientColor;
-                        _gradientColorNameProperty.stringValue = gradientColor.Name;
                     }
 
                     break;

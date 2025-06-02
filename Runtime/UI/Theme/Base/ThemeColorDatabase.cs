@@ -14,9 +14,9 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     )]
     internal sealed class ThemeColorDatabase : SingletonScriptableObject<ThemeColorDatabase>
     {
-        [field: SerializeField, NonReorderable] internal List<ThemeSolidColor> SolidColors { get; private set; }
         [field: SerializeField, NonReorderable] internal List<ThemeGradientColor> GradientColors { get; private set; }
         [field: SerializeField, NonReorderable] internal List<ThemeSharedColor> SharedColor { get; private set; }
+        [field: SerializeField, NonReorderable] internal List<ThemeSolidColor> SolidColors { get; private set; }
 
         internal List<string> GetColorNames<TColor>() where TColor : IThemeColor
         {
@@ -44,9 +44,9 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         {
             return typeof(TColor) switch
             {
-                var type when type == typeof(ThemeSolidColor) => SolidColors as List<TColor>,
                 var type when type == typeof(ThemeGradientColor) => GradientColors as List<TColor>,
                 var type when type == typeof(ThemeSharedColor) => SharedColor as List<TColor>,
+                var type when type == typeof(ThemeSolidColor) => SolidColors as List<TColor>,
                 _ => null
             };
         }

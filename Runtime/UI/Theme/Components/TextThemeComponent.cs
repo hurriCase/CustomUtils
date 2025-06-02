@@ -23,15 +23,14 @@ namespace CustomUtils.Runtime.UI.Theme.Components
         {
             switch (ColorType)
             {
-                case ColorType.Shared:
-                    return _targetComponent.color != ThemeSharedColor.Color;
-
-                case ColorType.SolidColor:
-                    return _targetComponent.color != GetCurrentSolidColor();
-
                 case ColorType.Gradient:
                     _targetComponent.CompareGradient(GetCurrentGradient());
                     return true;
+                case ColorType.Shared:
+                    return _targetComponent.color != ThemeSharedColor.Color;
+
+                case ColorType.Solid:
+                    return _targetComponent.color != GetCurrentSolidColor();
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -42,17 +41,18 @@ namespace CustomUtils.Runtime.UI.Theme.Components
         {
             switch (ColorType)
             {
+                case ColorType.Gradient:
+                    _targetComponent.ApplyGradient(GetCurrentGradient());
+                    break;
+
                 case ColorType.Shared:
                     _targetComponent.fontMaterial = _originalFontMaterial;
                     _targetComponent.color = ThemeSharedColor.Color;
                     break;
 
-                case ColorType.SolidColor:
+                case ColorType.Solid:
                     _targetComponent.fontMaterial = _originalFontMaterial;
                     _targetComponent.color = GetCurrentSolidColor();
-                    break;
-                case ColorType.Gradient:
-                    _targetComponent.ApplyGradient(GetCurrentGradient());
                     break;
 
                 default:

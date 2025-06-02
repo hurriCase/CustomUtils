@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     [ExecuteInEditMode]
     internal abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
     {
-        [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.SolidColor;
+        [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.Solid;
         [field: SerializeField] public ThemeSharedColor ThemeSharedColor { get; set; }
         [field: SerializeField] public ThemeSolidColor ThemeSolidColor { get; set; }
         [field: SerializeField] public ThemeGradientColor ThemeGradientColor { get; set; }
@@ -26,14 +26,14 @@ namespace CustomUtils.Runtime.UI.Theme.Base
 #if UNITY_EDITOR
         protected virtual void Reset()
         {
+            if (ThemeColorDatabase.GradientColors is { Count: > 0 })
+                ThemeGradientColor = ThemeColorDatabase.GradientColors[0];
+
             if (ThemeColorDatabase.SharedColor is { Count: > 0 })
                 ThemeSharedColor = ThemeColorDatabase.SharedColor[0];
 
             if (ThemeColorDatabase.SolidColors is { Count: > 0 })
                 ThemeSolidColor = ThemeColorDatabase.SolidColors[0];
-
-            if (ThemeColorDatabase.GradientColors is { Count: > 0 })
-                ThemeGradientColor = ThemeColorDatabase.GradientColors[0];
 
             OnApplyColor();
         }
@@ -52,22 +52,21 @@ namespace CustomUtils.Runtime.UI.Theme.Base
 
             switch (ColorType)
             {
+                case ColorType.Gradient:
+                    colorChanged = _previousGradientThemeColor != ThemeGradientColor;
+                    if (colorChanged)
+                        _previousGradientThemeColor = ThemeGradientColor;
+                    break;
                 case ColorType.Shared:
                     colorChanged = _previousSharedThemeColor != ThemeSharedColor;
                     if (colorChanged)
                         _previousSharedThemeColor = ThemeSharedColor;
                     break;
 
-                case ColorType.SolidColor:
+                case ColorType.Solid:
                     colorChanged = _previousSolidThemeColor != ThemeSolidColor;
                     if (colorChanged)
                         _previousSolidThemeColor = ThemeSolidColor;
-                    break;
-
-                case ColorType.Gradient:
-                    colorChanged = _previousGradientThemeColor != ThemeGradientColor;
-                    if (colorChanged)
-                        _previousGradientThemeColor = ThemeGradientColor;
                     break;
 
                 default:
