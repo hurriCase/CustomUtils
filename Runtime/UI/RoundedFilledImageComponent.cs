@@ -15,17 +15,11 @@ namespace CustomUtils.Runtime.UI
         [field: SerializeField] internal bool UseCustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] internal float ThicknessRatio { get; set; } = 0.2f;
 
-        private const string SquareMaterialName = "T_Square";
-
         protected override void Reset()
         {
             base.Reset();
 
-            var texture = ResourceLoader<Texture2D>.Load(SquareMaterialName);
-            var spriteTemp = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f));
-            spriteTemp.name = SquareMaterialName;
-            sprite = spriteTemp;
+            sprite = ResourceReferences.Instance.SquareSprite;
             type = Type.Filled;
             fillMethod = FillMethod.Radial360;
         }

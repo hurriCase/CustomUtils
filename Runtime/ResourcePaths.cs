@@ -21,6 +21,9 @@
         internal const string AssetLoaderConfigAssetName = "AssetLoaderConfig";
         internal const string AssetLoaderConfigResourcesPath = "AssetLoader";
 
+        internal const string ResourceReferencesFullPath = "Assets/CustomUtils/Resources";
+        internal const string ResourceReferencesAssetName = "ResourceReferences";
+
         internal const string LocalizationsFolderPath = "CustomLocalization/Localization";
 
         internal const string LoggerSettingsResourcesPath = "Logger";
