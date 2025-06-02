@@ -61,16 +61,17 @@ namespace CustomUtils.Editor
             if (_objectsToProcess.Count <= 0)
                 return;
 
-            using var section = BeginSection("Objects to Process");
+            using var sectionScope = BeginSection("Objects to Process");
 
             EditorVisualControls.LabelField($"Total: {_objectsToProcess.Count} objects");
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(150));
+
+            using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
 
             var itemsToRemove = new List<int>();
 
             for (var i = 0; i < _objectsToProcess.Count; i++)
             {
-                EditorGUILayout.BeginHorizontal();
+                using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
 
                 if (!_objectsToProcess[i])
                 {
@@ -78,20 +79,11 @@ namespace CustomUtils.Editor
                     EditorVisualControls.LabelField("Missing Object");
                 }
                 else
-                {
-                    _objectsToProcess[i] = EditorGUILayout.ObjectField(
-                        _objectsToProcess[i].name, _objectsToProcess[i], typeof(Object), false);
+                    _objectsToProcess[i] = EditorStateControls.ObjectField(_objectsToProcess[i], typeof(Object));
 
-                    EditorVisualControls.LabelField(_objectsToProcess[i].GetType().Name, GUILayout.Width(100));
-                }
-
-                if (EditorVisualControls.Button("Remove", GUILayout.Width(80)))
+                if (EditorVisualControls.Button("Remove"))
                     itemsToRemove.Add(i);
-
-                EditorGUILayout.EndHorizontal();
             }
-
-            EditorGUILayout.EndScrollView();
 
             for (var i = itemsToRemove.Count - 1; i >= 0; i--)
                 _objectsToProcess.RemoveAt(itemsToRemove[i]);
@@ -102,7 +94,7 @@ namespace CustomUtils.Editor
             if (_objectsToProcess.Count <= 0)
                 return;
 
-            EditorGUILayout.BeginHorizontal();
+            using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
 
             EditorGUI.BeginDisabledGroup(_objectsToProcess.Count == 0);
 
@@ -113,8 +105,6 @@ namespace CustomUtils.Editor
 
             if (EditorVisualControls.Button("Clear All", GUILayout.Height(30)))
                 _objectsToProcess.Clear();
-
-            EditorGUILayout.EndHorizontal();
         }
 
         private void MarkObjectsAsDirty()
