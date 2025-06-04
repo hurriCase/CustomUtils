@@ -78,8 +78,8 @@ namespace CustomUtils.Runtime.UI.Theme.Base
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (colorChanged is false && _previousThemeType == ThemeHandler.CurrentThemeType &&
-                _previousColorType == ColorType && ShouldUpdateColor() is false)
+            if (!_targetComponent || (colorChanged is false && _previousThemeType == ThemeHandler.CurrentThemeType &&
+                                      _previousColorType == ColorType && ShouldUpdateColor() is false))
                 return;
 
             ApplyColor();
