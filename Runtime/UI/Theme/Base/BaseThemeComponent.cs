@@ -9,11 +9,27 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     internal abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
     {
         [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.Solid;
-        [field: SerializeField] public ThemeSharedColor ThemeSharedColor { get; set; }
-        [field: SerializeField] public ThemeSolidColor ThemeSolidColor { get; set; }
-        [field: SerializeField] public ThemeGradientColor ThemeGradientColor { get; set; }
+        [field: SerializeField] public string ThemeSharedColorName { get; set; }
+        [field: SerializeField] public string ThemeSolidColorName { get; set; }
+        [field: SerializeField] public string ThemeGradientColorName { get; set; }
 
         [SerializeField] protected T _targetComponent;
+
+        public ThemeSharedColor ThemeSharedColor => ThemeColorDatabase
+            .TryGetColorByName<ThemeSharedColor>(ThemeSharedColorName, out var color)
+            ? color
+            : null;
+
+        public ThemeSolidColor ThemeSolidColor => ThemeColorDatabase
+            .TryGetColorByName<ThemeSolidColor>(ThemeSolidColorName, out var color)
+            ? color
+            : null;
+
+        public ThemeGradientColor ThemeGradientColor => ThemeColorDatabase
+            .TryGetColorByName<ThemeGradientColor>(ThemeGradientColorName, out var color)
+            ? color
+            : null;
+
         private ThemeHandler ThemeHandler => ThemeHandler.Instance;
         private ThemeColorDatabase ThemeColorDatabase => ThemeColorDatabase.Instance;
 
@@ -23,21 +39,10 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         private ColorType _previousColorType;
         private ThemeType _previousThemeType;
 
-#if UNITY_EDITOR
         protected virtual void Reset()
         {
-            if (ThemeColorDatabase.GradientColors is { Count: > 0 })
-                ThemeGradientColor = ThemeColorDatabase.GradientColors[0];
-
-            if (ThemeColorDatabase.SharedColor is { Count: > 0 })
-                ThemeSharedColor = ThemeColorDatabase.SharedColor[0];
-
-            if (ThemeColorDatabase.SolidColors is { Count: > 0 })
-                ThemeSolidColor = ThemeColorDatabase.SolidColors[0];
-
-            OnApplyColor();
+            OnEnable();
         }
-#endif
 
         protected virtual void OnEnable()
         {

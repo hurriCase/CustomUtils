@@ -19,16 +19,14 @@ namespace CustomUtils.Runtime.UI.Theme.Components
             _originalMaterial = _targetComponent.material;
         }
 
-        protected override bool ShouldUpdateColor()
-        {
-            return ColorType switch
+        protected override bool ShouldUpdateColor() =>
+            ColorType switch
             {
                 ColorType.Gradient => _targetComponent.CompareGradient(GetCurrentGradient()),
                 ColorType.Shared => _targetComponent.color != ThemeSharedColor.Color,
                 ColorType.Solid => _targetComponent.color != GetCurrentSolidColor(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-        }
 
         protected override void ApplyColor()
         {

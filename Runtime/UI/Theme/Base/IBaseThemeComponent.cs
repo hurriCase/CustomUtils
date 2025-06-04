@@ -6,8 +6,11 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     {
         public void OnApplyColor();
         public ColorType ColorType { get; set; }
-        public ThemeSolidColor ThemeSolidColor { get; set; }
-        public ThemeGradientColor ThemeGradientColor { get; set; }
-        public ThemeSharedColor ThemeSharedColor { get; set; }
+        public ThemeSolidColor ThemeSolidColor { get; }
+        public ThemeGradientColor ThemeGradientColor { get; }
+        public ThemeSharedColor ThemeSharedColor { get; }
+        public string ThemeSolidColorName { get; set; }
+        public string ThemeGradientColorName { get; set; }
+        public string ThemeSharedColorName { get; set; }
     }
 }

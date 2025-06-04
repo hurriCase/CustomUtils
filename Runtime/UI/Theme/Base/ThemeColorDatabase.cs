@@ -40,15 +40,13 @@ namespace CustomUtils.Runtime.UI.Theme.Base
             return true;
         }
 
-        private List<TColor> GetColorList<TColor>() where TColor : IThemeColor
-        {
-            return typeof(TColor) switch
+        private List<TColor> GetColorList<TColor>() where TColor : IThemeColor =>
+            typeof(TColor) switch
             {
                 var type when type == typeof(ThemeGradientColor) => GradientColors as List<TColor>,
                 var type when type == typeof(ThemeSharedColor) => SharedColor as List<TColor>,
                 var type when type == typeof(ThemeSolidColor) => SolidColors as List<TColor>,
                 _ => null
             };
-        }
     }
 }

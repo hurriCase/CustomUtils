@@ -5,6 +5,7 @@ using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEditor;
+using UnityEngine;
 
 namespace CustomUtils.Editor.Theme
 {
@@ -16,28 +17,11 @@ namespace CustomUtils.Editor.Theme
 
         private IBaseThemeComponent _themeComponent;
 
-        private SerializedProperty _gradientColorNameProperty;
-        private SerializedProperty _sharedColorNameProperty;
-        private SerializedProperty _solidColorNameProperty;
-
         private bool _wasDarkTheme;
 
         protected override void InitializeEditor()
         {
             _themeComponent = target as IBaseThemeComponent;
-
-            if (_themeComponent == null)
-                return;
-
-            InitializeColorProperty(nameof(IBaseThemeComponent.ThemeGradientColor), out _gradientColorNameProperty);
-            InitializeColorProperty(nameof(IBaseThemeComponent.ThemeSharedColor), out _sharedColorNameProperty);
-            InitializeColorProperty(nameof(IBaseThemeComponent.ThemeSolidColor), out _solidColorNameProperty);
-        }
-
-        private void InitializeColorProperty(string propertyName, out SerializedProperty colorNameProperty)
-        {
-            var colorProperty = serializedObject.FindField(propertyName);
-            colorNameProperty = colorProperty.FindFieldRelative(nameof(IThemeColor.Name));
         }
 
         protected override void DrawCustomSections()
@@ -59,7 +43,6 @@ namespace CustomUtils.Editor.Theme
 
             _themeComponent.ColorType = colorType;
             _themeComponent.OnApplyColor();
-
             EditorUtility.SetDirty(target);
         }
 
@@ -88,10 +71,16 @@ namespace CustomUtils.Editor.Theme
 
             using var changeCheck = EditorVisualControls.BeginBoxedSection("Color");
 
-            if (colorNames is null || colorNames.Count == 0 || colorNames.Contains(currentColorName) is false)
+            if (colorNames is null || colorNames.Count == 0)
             {
-                EditorVisualControls.LabelField("There is no colors in database or color name is invalid.");
+                EditorVisualControls.WarningBox("There is no colors in database or color name is invalid.");
                 return;
+            }
+
+            if (colorNames.Contains(currentColorName) is false || string.IsNullOrEmpty(currentColorName))
+            {
+                currentColorName = colorNames[0];
+                UpdateColorFromName(currentColorName);
             }
 
             var selectedColorName =
@@ -130,12 +119,18 @@ namespace CustomUtils.Editor.Theme
         private (List<string>, string) GetColorSelectorData(ColorType colorType) =>
             colorType switch
             {
-                ColorType.Gradient => (ThemeColorDatabase.GetColorNames<ThemeGradientColor>(),
-                    _themeComponent.ThemeGradientColor?.Name ?? string.Empty),
-                ColorType.Shared => (ThemeColorDatabase.GetColorNames<ThemeSharedColor>(),
-                    _themeComponent.ThemeSharedColor?.Name ?? string.Empty),
-                ColorType.Solid => (ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
-                    _themeComponent.ThemeSolidColor?.Name ?? string.Empty),
+                ColorType.Gradient => (
+                    ThemeColorDatabase.GetColorNames<ThemeGradientColor>(),
+                    _themeComponent.ThemeGradientColorName
+                ),
+                ColorType.Shared => (
+                    ThemeColorDatabase.GetColorNames<ThemeSharedColor>(),
+                    _themeComponent.ThemeSharedColorName
+                ),
+                ColorType.Solid => (
+                    ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
+                    _themeComponent.ThemeSolidColorName
+                ),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -143,30 +138,16 @@ namespace CustomUtils.Editor.Theme
         {
             switch (_themeComponent.ColorType)
             {
-                case ColorType.Gradient:
-                    if (ThemeColorDatabase.TryGetColorByName<ThemeGradientColor>(colorName, out var gradientColor))
-                    {
-                        _themeComponent.ThemeGradientColor = gradientColor;
-                        _gradientColorNameProperty.stringValue = gradientColor.Name;
-                    }
+                case ColorType.Solid:
+                    _themeComponent.ThemeSolidColorName = colorName;
+                    break;
 
+                case ColorType.Gradient:
+                    _themeComponent.ThemeGradientColorName = colorName;
                     break;
 
                 case ColorType.Shared:
-                    if (ThemeColorDatabase.TryGetColorByName<ThemeSharedColor>(colorName, out var sharedColor))
-                    {
-                        _themeComponent.ThemeSharedColor = sharedColor;
-                        _sharedColorNameProperty.stringValue = sharedColor.Name;
-                    }
-
-                    break;
-                case ColorType.Solid:
-                    if (ThemeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
-                    {
-                        _themeComponent.ThemeSolidColor = solidColor;
-                        _solidColorNameProperty.stringValue = solidColor.Name;
-                    }
-
+                    _themeComponent.ThemeSharedColorName = colorName;
                     break;
 
                 default:
