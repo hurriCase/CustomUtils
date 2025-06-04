@@ -117,6 +117,52 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             HandleValueChange(label, value, () => EditorGUILayout.FloatField(label, value));
 
         /// <summary>
+        /// Creates a float field with custom rect positioning and undo support.
+        /// </summary>
+        /// <param name="rect">The rect where the field should be drawn.</param>
+        /// <param name="label">The label used for the undo operation.</param>
+        /// <param name="value">The current float value.</param>
+        /// <returns>The modified float value.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public float FloatField(Rect rect, string label, float value) =>
+            HandleValueChangeWithRect(rect, label, value, (r, v) => EditorGUI.FloatField(r, v));
+
+        /// <summary>
+        /// Creates a float field with custom rect positioning, content label, and undo support.
+        /// </summary>
+        /// <param name="rect">The rect where the field should be drawn.</param>
+        /// <param name="label">The label used for the undo operation.</param>
+        /// <param name="content">The GUIContent to display with the field.</param>
+        /// <param name="value">The current float value.</param>
+        /// <returns>The modified float value.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public float FloatField(Rect rect, string label, GUIContent content, float value) =>
+            HandleValueChangeWithRect(rect, label, value, (position, value)
+                => EditorGUI.FloatField(position, content, value));
+
+        /// <summary>
+        /// Helper method that handles change detection and undo recording for GUI controls with custom rect positioning.
+        /// </summary>
+        /// <typeparam name="T">The type of value being modified.</typeparam>
+        /// <param name="rect">The rect where the control should be drawn.</param>
+        /// <param name="label">The label used for the undo operation.</param>
+        /// <param name="currentValue">The current value before any changes.</param>
+        /// <param name="guiMethod">The function that creates the GUI control with custom rect and returns its new value.</param>
+        /// <returns>The current value if unchanged, or the new value if modified.</returns>
+        [UsedImplicitly, MustUseReturnValue]
+        public T HandleValueChangeWithRect<T>(Rect rect, string label, T currentValue,
+            Func<Rect, T, T> guiMethod)
+        {
+            EditorGUI.BeginChangeCheck();
+            var newValue = guiMethod(rect, currentValue);
+            if (EditorGUI.EndChangeCheck() is false)
+                return currentValue;
+
+            Undo.RecordObject(_target, $"Change {label}");
+            return newValue;
+        }
+
+        /// <summary>
         /// Creates an int field with undo support.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>

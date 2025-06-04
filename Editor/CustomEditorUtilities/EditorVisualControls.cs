@@ -243,7 +243,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// allows the calling code to persist the expanded/collapsed state between draws.
         /// </remarks>
         [UsedImplicitly]
-        public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent, bool withFoldout = true)
+        public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent,
+            bool withFoldout = true)
         {
             EditorGUILayout.Space(Settings.FoldoutBoxSpacingBefore);
 
@@ -281,7 +282,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// without any truncation. No custom styling is applied.
         /// </remarks>
         [UsedImplicitly]
-        public static bool FoldoutWithContent(string title, ref bool showFoldout, Action drawContent, GUIStyle foldoutStyle = null)
+        public static bool FoldoutWithContent(string title, ref bool showFoldout, Action drawContent,
+            GUIStyle foldoutStyle = null)
         {
             showFoldout = EditorGUILayout.Foldout(showFoldout, title, true, foldoutStyle);
 
@@ -296,6 +298,28 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a foldout control with custom text styling.
+        /// </summary>
+        /// <param name="title">The title to display next to the foldout arrow.</param>
+        /// <param name="showFoldout">Current expanded state of the foldout.</param>
+        /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
+        /// <param name="style">Custom GUIStyle to use for the foldout control.</param>
+        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
+        /// <returns>The new expanded state of the foldout.</returns>
+        /// <remarks>
+        /// This method allows for custom styling of the foldout control instead of using theme settings.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool Foldout(string title, ref bool showFoldout, Action drawContent, GUIStyle style, bool toggleOnLabelClick = true)
+        {
+            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, style);
+            if (showFoldout)
+                drawContent.Invoke();
+
+            return showFoldout;
+        }
+
+        /// <summary>
         /// Creates a foldout control with consistent text styling from theme settings.
         /// </summary>
         /// <param name="title">The title to display next to the foldout arrow.</param>
@@ -307,7 +331,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// This method applies consistent font size and style from theme settings to maintain UI consistency.
         /// </remarks>
         [UsedImplicitly]
-        public static bool Foldout(string title, ref bool showFoldout, Action drawContent, bool toggleOnLabelClick = true)
+        public static bool Foldout(string title, ref bool showFoldout, Action drawContent,
+            bool toggleOnLabelClick = true)
         {
             var foldoutStyle = CreateTextStyle(
                 EditorStyles.foldout,
@@ -334,7 +359,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// Uses theme settings for consistent font size and style across the editor interface.
         /// </remarks>
         [UsedImplicitly]
-        public static List<bool> Foldout(string title, in List<bool> showFoldouts, int index, Action drawContent, bool toggleOnLabelClick = true)
+        public static List<bool> Foldout(string title, in List<bool> showFoldouts, int index, Action drawContent,
+            bool toggleOnLabelClick = true)
         {
             var foldoutStyle = CreateTextStyle(
                 EditorStyles.foldout,
@@ -545,6 +571,18 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             };
 
             EditorGUILayout.LabelField(text, combinedStyle);
+        }
+
+        /// <summary>
+        /// Creates a label field with custom rect positioning.
+        /// </summary>
+        /// <param name="rect">The rect where the label should be drawn.</param>
+        /// <param name="text">The text to display in the label.</param>
+        /// <param name="style">Optional style for the label. If null, uses EditorStyles.label.</param>
+        [UsedImplicitly]
+        public static void LabelField(Rect rect, string text, GUIStyle style = null)
+        {
+            EditorGUI.LabelField(rect, text, style ?? EditorStyles.label);
         }
 
         /// <summary>
