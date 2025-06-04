@@ -23,7 +23,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
             ColorType switch
             {
                 ColorType.Gradient => !_targetComponent.CompareGradient(GetCurrentGradient()),
-                ColorType.Shared => _targetComponent.color != ThemeSharedColor?.Color,
+                ColorType.Shared => ThemeSharedColor != null && _targetComponent.color != ThemeSharedColor.Color,
                 ColorType.Solid => _targetComponent.color != GetCurrentSolidColor(),
                 _ => throw new ArgumentOutOfRangeException()
             };
