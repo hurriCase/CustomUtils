@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEngine;
 using Component = UnityEngine.Component;
@@ -9,6 +10,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     internal abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
     {
         [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.Solid;
+        [field: SerializeField] public GradientDirection GradientDirection { get; set; }
         [field: SerializeField] public string ThemeSharedColorName { get; set; }
         [field: SerializeField] public string ThemeSolidColorName { get; set; }
         [field: SerializeField] public string ThemeGradientColorName { get; set; }

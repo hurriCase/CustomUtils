@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.UI.Theme.ThemeColors;
+﻿using CustomUtils.Runtime.Extensions.GradientExtensions;
+using CustomUtils.Runtime.UI.Theme.ThemeColors;
 
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
@@ -12,5 +13,6 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         public string ThemeSolidColorName { get; set; }
         public string ThemeGradientColorName { get; set; }
         public string ThemeSharedColorName { get; set; }
+        public GradientDirection GradientDirection { get; set; }
     }
 }

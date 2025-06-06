@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Runtime.Extensions.Gradient;
+using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using TMPro;
 using UnityEngine;
@@ -35,7 +35,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
                 case ColorType.Gradient:
                     var gradient = GetCurrentGradient();
                     if (gradient != null)
-                        _targetComponent.ApplyGradient(gradient);
+                        _targetComponent.ApplyGradient(gradient, GradientDirection);
 
                     break;
 

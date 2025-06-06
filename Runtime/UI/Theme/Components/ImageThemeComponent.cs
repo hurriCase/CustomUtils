@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Runtime.Extensions.Gradient;
+using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,7 +33,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
             switch (ColorType)
             {
                 case ColorType.Gradient:
-                    _targetComponent.ApplyGradient(GetCurrentGradient());
+                    _targetComponent.ApplyGradient(GetCurrentGradient(), GradientDirection);
                     break;
 
                 case ColorType.Shared:

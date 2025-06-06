@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
+using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEditor;
@@ -95,6 +96,7 @@ namespace CustomUtils.Editor.Theme
                         : _themeComponent.ThemeGradientColor.DarkThemeColor;
 
                     EditorVisualControls.GradientField("Preview", previewGradient);
+                    DrawGradientDirectionDropdown();
                     break;
 
                 case ColorType.Shared:
@@ -112,6 +114,18 @@ namespace CustomUtils.Editor.Theme
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void DrawGradientDirectionDropdown()
+        {
+            var currentDirection = (int)_themeComponent.GradientDirection;
+            var selectedDirection = EditorStateControls.Dropdown(
+                nameof(IThemeColor.Name),
+                currentDirection,
+                Enum.GetNames(typeof(GradientDirection)));
+
+            if (selectedDirection != currentDirection)
+                _themeComponent.GradientDirection = (GradientDirection)selectedDirection;
         }
 
         private (List<string>, string) GetColorSelectorData(ColorType colorType) =>
