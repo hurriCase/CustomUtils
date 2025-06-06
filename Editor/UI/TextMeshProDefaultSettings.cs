@@ -19,6 +19,7 @@ namespace CustomUtils.Editor.UI
 
             textMeshProUGUI.enableAutoSizing = true;
             textMeshProUGUI.fontSizeMin = 0;
+            textMeshProUGUI.fontSizeMax = 300;
             textMeshProUGUI.alignment = TextAlignmentOptions.Center;
 
             EditorUtility.SetDirty(textMeshProUGUI);
