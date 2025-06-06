@@ -1,4 +1,4 @@
-﻿namespace CustomUtils.Runtime.Extensions.Gradient
+﻿namespace CustomUtils.Runtime.Extensions.GradientExtensions
 {
     internal enum GradientDirection
     {

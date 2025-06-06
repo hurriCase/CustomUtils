@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.Extensions.Gradient
+namespace CustomUtils.Runtime.Extensions.GradientExtensions
 {
     internal static class GradientExtensions
     {
@@ -36,7 +36,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="targetImage">The Image component to apply the gradient to</param>
         /// <param name="gradient">The gradient to apply</param>
         /// <param name="direction">The gradient direction (Horizontal or Vertical)</param>
-        internal static void ApplyGradient(this Image targetImage, UnityEngine.Gradient gradient,
+        internal static void ApplyGradient(this Image targetImage, Gradient gradient,
             GradientDirection direction = GradientDirection.Horizontal)
         {
             if (gradient == null || gradient.colorKeys.Length < 1)
@@ -79,7 +79,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="targetText">The TextMeshProUGUI component to apply the gradient to</param>
         /// <param name="gradient">The gradient to apply</param>
         /// <param name="direction">The gradient direction (Horizontal or Vertical)</param>
-        internal static void ApplyGradient(this TextMeshProUGUI targetText, UnityEngine.Gradient gradient,
+        internal static void ApplyGradient(this TextMeshProUGUI targetText, Gradient gradient,
             GradientDirection direction = GradientDirection.Horizontal)
         {
             if (gradient == null || gradient.colorKeys.Length < 1)
@@ -119,7 +119,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// </summary>
         /// <param name="image">The Image to extract the gradient from</param>
         /// <returns>A new Gradient object if gradient material is applied, null otherwise</returns>
-        internal static UnityEngine.Gradient GetAppliedGradient(this Image image)
+        internal static Gradient GetAppliedGradient(this Image image)
         {
             if (!image || !image.material)
                 return null;
@@ -139,7 +139,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// </summary>
         /// <param name="text">The TextMeshProUGUI to extract the gradient from</param>
         /// <returns>A new Gradient object if gradient material is applied, null otherwise</returns>
-        internal static UnityEngine.Gradient GetAppliedGradient(this TextMeshProUGUI text)
+        internal static Gradient GetAppliedGradient(this TextMeshProUGUI text)
         {
             if (!text || !text.fontMaterial)
                 return null;
@@ -160,7 +160,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="image">The Image to check</param>
         /// <param name="gradient">The gradient to compare with</param>
         /// <returns>True if the Image has the same gradient applied, false otherwise</returns>
-        internal static bool CompareGradient(this Image image, UnityEngine.Gradient gradient)
+        internal static bool CompareGradient(this Image image, Gradient gradient)
         {
             if (!image || gradient == null)
                 return false;
@@ -175,7 +175,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="text">The TextMeshProUGUI to check</param>
         /// <param name="gradient">The gradient to compare with</param>
         /// <returns>True if the Text has the same gradient applied, false otherwise</returns>
-        internal static bool CompareGradient(this TextMeshProUGUI text, UnityEngine.Gradient gradient)
+        internal static bool CompareGradient(this TextMeshProUGUI text, Gradient gradient)
         {
             if (!text || gradient == null)
                 return false;
@@ -190,9 +190,9 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="startColor">The start color</param>
         /// <param name="endColor">The end color</param>
         /// <returns>A new Gradient object with the specified colors</returns>
-        private static UnityEngine.Gradient CreateGradientFromColors(Color startColor, Color endColor)
+        private static Gradient CreateGradientFromColors(Color startColor, Color endColor)
         {
-            var gradient = new UnityEngine.Gradient();
+            var gradient = new Gradient();
 
             var colorKeys = new GradientColorKey[2];
             colorKeys[0] = new GradientColorKey(startColor, 0f);
@@ -213,7 +213,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
         /// <param name="gradient1">First gradient</param>
         /// <param name="gradient2">Second gradient</param>
         /// <returns>True if gradients are identical, false otherwise</returns>
-        private static bool GradientsEqual(UnityEngine.Gradient gradient1, UnityEngine.Gradient gradient2)
+        private static bool GradientsEqual(Gradient gradient1, Gradient gradient2)
         {
             if (gradient1 == null || gradient2 == null)
                 return false;
@@ -231,7 +231,7 @@ namespace CustomUtils.Runtime.Extensions.Gradient
             return end1 == end2;
         }
 
-        private static string GenerateGradientKey(UnityEngine.Gradient gradient, GradientDirection direction)
+        private static string GenerateGradientKey(Gradient gradient, GradientDirection direction)
         {
             var startColor = gradient.colorKeys[0].color;
             var endColor = gradient.colorKeys[^1].color;
