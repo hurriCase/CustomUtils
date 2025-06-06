@@ -75,5 +75,12 @@ namespace CustomUtils.Editor.PersistentEditor
                 return default;
             }
         }
+
+        /// <summary>
+        /// Checks if a key exists in EditorPrefs
+        /// </summary>
+        /// <param name="key">Key to check</param>
+        /// <returns>True if key exists, false otherwise</returns>
+        internal static bool HasKey(string key) => EditorPrefs.HasKey(key);
     }
 }

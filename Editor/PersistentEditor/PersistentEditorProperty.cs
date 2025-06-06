@@ -73,9 +73,11 @@ namespace CustomUtils.Editor.PersistentEditor
             {
                 _savingEnabled = false;
 
+                if (EditorPrefsHelper.HasKey(_key) is false)
+                    return;
+
                 var loaded = EditorPrefsHelper.GetValue<TProperty>(_key);
-                if (loaded != null)
-                    _property.Value = loaded;
+                _property.Value = loaded;
             }
             finally
             {
