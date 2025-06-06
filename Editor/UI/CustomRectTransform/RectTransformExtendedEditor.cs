@@ -62,6 +62,9 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             DrawMarginFields();
             EditorGUILayout.Space();
 
+            DrawCalculatedContentSize();
+            EditorGUILayout.Space();
+
             DrawButtonsSection();
         }
 
@@ -80,12 +83,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 _repository.ParentHeight,
                 EditorStateControls,
                 "Width", "Height");
-
-            _guiDrawer.DrawVector2FieldStacked("Content",
-                _repository.ContentWidth,
-                _repository.ContentHeight,
-                EditorStateControls,
-                "Width", "Height");
         }
 
         private void DrawMarginFields()
@@ -101,6 +98,19 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 _repository.BottomMarginHeight,
                 EditorStateControls,
                 "T", "B");
+        }
+
+        private void DrawCalculatedContentSize()
+        {
+            var originalEnabled = GUI.enabled;
+            GUI.enabled = false;
+
+            _guiDrawer.DrawVector2ReadOnly("Content",
+                _repository.ContentWidth,
+                _repository.ContentHeight,
+                "Width", "Height");
+
+            GUI.enabled = originalEnabled;
         }
 
         private void ApplyAnchors()

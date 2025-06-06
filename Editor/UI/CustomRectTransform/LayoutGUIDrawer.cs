@@ -77,6 +77,31 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             EditorGUI.indentLevel = originalIndentLevel;
         }
 
+        internal void DrawVector2ReadOnly(string mainLabel, float xValue, float yValue, string xLabel = "X",
+            string yLabel = "Y")
+        {
+            var controlRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight * 2f);
+            controlRect.height = EditorGUIUtility.singleLineHeight;
+
+            var labelRect = new Rect(controlRect.x, controlRect.y, EditorGUIUtility.labelWidth, controlRect.height);
+            EditorVisualControls.LabelField(labelRect, mainLabel);
+
+            var (firstColumn, secondColumn) = GetTwoColumnRects(controlRect);
+
+            DrawStackedReadOnlyField(firstColumn, xLabel, xValue);
+            DrawStackedReadOnlyField(secondColumn, yLabel, yValue);
+        }
+
+        private void DrawStackedReadOnlyField(Rect columnRect, string labelText, float value)
+        {
+            var labelRect = new Rect(columnRect.x, columnRect.y, columnRect.width, EditorGUIUtility.singleLineHeight);
+            var fieldRect = new Rect(columnRect.x, columnRect.y + EditorGUIUtility.singleLineHeight, columnRect.width,
+                EditorGUIUtility.singleLineHeight);
+
+            EditorVisualControls.LabelField(labelRect, labelText);
+            EditorGUI.FloatField(fieldRect, value);
+        }
+
         private void DrawStackedField(Rect columnRect, string labelText, string controlName,
             PersistentEditorProperty<float> property, EditorStateControls stateControls)
         {

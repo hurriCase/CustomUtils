@@ -5,8 +5,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
     {
         internal float ParentWidth { get; set; }
         internal float ParentHeight { get; set; }
-        internal float ContentWidth { get; set; }
-        internal float ContentHeight { get; set; }
         internal float LeftMargin { get; set; }
         internal float RightMargin { get; set; }
         internal float TopMargin { get; set; }

@@ -9,7 +9,5 @@
         internal const string RightMarginWidthKey = "RectTransformExtended.rightMarginWidth";
         internal const string TopMarginHeightKey = "RectTransformExtended.topMarginHeight";
         internal const string BottomMarginHeightKey = "RectTransformExtended.bottomMarginHeight";
-        internal const string ContentWidthKey = "RectTransformExtended.contentWidth";
-        internal const string ContentHeightKey = "RectTransformExtended.contentHeight";
     }
 }
