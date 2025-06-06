@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomUtils.Editor.EditorTheme;
 using UnityEditor;
 
 // ReSharper disable UnusedMember.Global

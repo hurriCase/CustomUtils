@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -13,11 +12,11 @@ namespace CustomUtils.Editor.CustomEditorUtilities
 {
     /// <summary>
     /// Enhanced GUI system for editor inspectors with automatic undo support.
+    /// Uses Unity's standard editor styling for consistency with native Unity editors.
     /// </summary>
     [UsedImplicitly]
     public sealed class EditorStateControls
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
         private readonly Object _target;
         private readonly SerializedObject _serializedObject;
 
@@ -35,48 +34,48 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a color field with consistent styling and undo support.
+        /// Creates a color field with Unity's standard styling and undo support.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current color value.</param>
-        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
         /// <returns>The modified color value.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public Color ColorField(string label, Color value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
-                    ? EditorGUILayout.ColorField(label, value, GUILayout.Height(Settings.ColorFieldHeight))
+                    ? EditorGUILayout.ColorField(label, value, GUILayout.Height(EditorGUIUtility.singleLineHeight))
                     : EditorGUILayout.ColorField(label, value));
 
         /// <summary>
-        /// Creates a gradient field with consistent styling and undo support.
+        /// Creates a gradient field with Unity's standard styling and undo support.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current gradient value.</param>
-        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
         /// <returns>The modified gradient value.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public Gradient GradientField(string label, Gradient value, bool useConsistentHeight = true) =>
             HandleValueChange(label, value, () =>
                 useConsistentHeight
-                    ? EditorGUILayout.GradientField(label, value, GUILayout.Height(Settings.ColorFieldHeight))
+                    ? EditorGUILayout.GradientField(label, value, GUILayout.Height(EditorGUIUtility.singleLineHeight))
                     : EditorGUILayout.GradientField(label, value));
 
         /// <summary>
-        /// Creates an object field with consistent styling and undo support.
+        /// Creates a sprite field with Unity's standard styling and undo support.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
-        /// <param name="value">The current object reference.</param>
-        /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is true.</param>
-        /// <returns>The modified object reference.</returns>
+        /// <param name="value">The current sprite reference.</param>
+        /// <param name="allowSceneObjects">Whether to allow scene objects to be assigned. Default is false.</param>
+        /// <returns>The modified sprite reference.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public Sprite SpriteField(string label, Sprite value, bool allowSceneObjects = false) =>
             HandleValueChange(label, value, () =>
                 (Sprite)EditorGUILayout.ObjectField(label, value, typeof(Sprite), allowSceneObjects,
-                    GUILayout.Height(Settings.ObjectFieldHeight)));
+                    GUILayout.Height(EditorGUIUtility.singleLineHeight * 2f))); // Standard object field height
 
         /// <summary>
-        /// Creates an object field with consistent styling and undo support.
+        /// Creates an object field with Unity's standard styling and undo support.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current object reference.</param>
@@ -92,7 +91,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
                     GUILayout.ExpandWidth(expandWidth)));
 
         /// <summary>
-        /// Creates an object field with consistent styling and undo support using the object's name as the label.
+        /// Creates an object field with Unity's standard styling and undo support using the object's name as the label.
         /// </summary>
         /// <param name="value">The current object reference whose name will be used as the label.</param>
         /// <param name="type">The type of object that can be assigned to the field.</param>
@@ -125,7 +124,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>The modified float value.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public float FloatField(Rect rect, string label, float value) =>
-            HandleValueChangeWithRect(rect, label, value, (r, v) => EditorGUI.FloatField(r, v));
+            HandleValueChangeWithRect(rect, label, value, EditorGUI.FloatField);
 
         /// <summary>
         /// Creates a float field with custom rect positioning, content label, and undo support.
@@ -137,8 +136,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>The modified float value.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public float FloatField(Rect rect, string label, GUIContent content, float value) =>
-            HandleValueChangeWithRect(rect, label, value, (position, value)
-                => EditorGUI.FloatField(position, content, value));
+            HandleValueChangeWithRect(rect, label, value, (position, currentValue)
+                => EditorGUI.FloatField(position, content, currentValue));
 
         /// <summary>
         /// Helper method that handles change detection and undo recording for GUI controls with custom rect positioning.
@@ -301,7 +300,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             => Dropdown(label, selectedIndex, options.ToArray());
 
         /// <summary>
-        /// Creates a dropdown with undo support.
+        /// Creates a dropdown with undo support using Unity's standard popup styling.
         /// </summary>
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedIndex">The currently selected index.</param>
@@ -310,11 +309,6 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         [UsedImplicitly, MustUseReturnValue]
         public int Dropdown(string label, int selectedIndex, string[] options)
         {
-            var dropdownStyle = EditorVisualControls.CreateTextStyle(
-                EditorStyles.popup,
-                Settings.DropdownFontSize,
-                Settings.DropdownFontStyle);
-
             var originalIndent = EditorGUI.indentLevel;
 
             var result = HandleValueChange(label, selectedIndex, () =>
@@ -322,8 +316,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
                     label,
                     selectedIndex,
                     options,
-                    dropdownStyle,
-                    GUILayout.Height(Settings.DropdownHeight)
+                    EditorStyles.popup,
+                    GUILayout.Height(EditorGUIUtility.singleLineHeight)
                 ));
 
             EditorGUI.indentLevel = originalIndent;
@@ -331,27 +325,22 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a toggle button with undo support.
+        /// Creates a toggle button with undo support using Unity's standard button styling.
         /// </summary>
         /// <param name="label">The text to display on the button.</param>
         /// <param name="isSelected">Whether the button is currently selected.</param>
-        /// <param name="highlightColor">Optional color to use when the button is selected. If null, use the default from settings.</param>
+        /// <param name="highlightColor">Optional color to use when the button is selected. If null, use a default highlight color.</param>
         /// <returns>The newly selected state of the button.</returns>
         [UsedImplicitly, MustUseReturnValue]
         public bool ToggleButton(string label, bool isSelected, Color? highlightColor = null)
         {
-            var buttonStyle = EditorVisualControls.CreateTextStyle(
-                GUI.skin.button,
-                Settings.ButtonFontSize,
-                Settings.ButtonFontStyle);
-
             var originalBackgroundColor = GUI.backgroundColor;
             GUI.backgroundColor = isSelected
-                ? highlightColor ?? Settings.ButtonHighlightColor
-                : Settings.ButtonBackgroundColor;
+                ? highlightColor ?? Color.cyan
+                : Color.white;
 
             EditorGUI.BeginChangeCheck();
-            var clicked = GUILayout.Button(label, buttonStyle, GUILayout.Height(Settings.ButtonHeight));
+            var clicked = GUILayout.Button(label, GUILayout.Height(EditorGUIUtility.singleLineHeight * 1.5f));
 
             GUI.backgroundColor = originalBackgroundColor;
 

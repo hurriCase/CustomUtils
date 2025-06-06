@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities.Scopes;
-using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Runtime.Extensions;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -18,31 +17,23 @@ namespace CustomUtils.Editor.CustomEditorUtilities
     /// </summary>
     /// <remarks>
     /// Provides consistent styling and layout methods for creating uniform editor UI elements.
-    /// All methods use the centralized theme settings from <see cref="ThemeEditorSettings"/>.
+    /// All methods use Unity's default editor styles for consistency with native Unity editors.
     /// </remarks>
     [UsedImplicitly]
     public static class EditorVisualControls
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
-
         /// <summary>
         /// Draws a section header with consistent styling.
         /// </summary>
         /// <param name="title">The title text to display in the header.</param>
         /// <remarks>
-        /// Creates a header with spacing, font size, style, and alignment defined in the theme settings.
+        /// Creates a header using Unity's default bold label style with standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawSectionHeader(string title)
         {
-            var headerStyle = CreateTextStyle(
-                EditorStyles.boldLabel,
-                Settings.HeaderFontSize,
-                Settings.HeaderFontStyle,
-                Settings.HeaderAlignment);
-
-            EditorGUILayout.Space(Settings.HeaderSpacing);
-            EditorGUILayout.LabelField(title, headerStyle);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.5f);
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
         }
 
         /// <summary>
@@ -50,14 +41,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         /// <param name="drawContent">Action to execute for drawing the panel content.</param>
         /// <remarks>
-        /// Adds consistent spacing before and after the content based on theme settings.
+        /// Adds consistent spacing before and after the content using Unity's standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawPanel(Action drawContent)
         {
-            EditorGUILayout.Space(Settings.PanelSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             drawContent?.Invoke();
-            EditorGUILayout.Space(Settings.PanelSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -66,7 +57,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>A disposable panel scope.</returns>
         /// <remarks>
         /// Use this with the 'using' statement to create a panel with consistent spacing around content.
-        /// Adds spacing before and after the content based on theme settings.
+        /// Adds spacing before and after the content using Unity's standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static PanelScope BeginPanel() => new();
@@ -77,12 +68,13 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="property">The serialized property to display.</param>
         /// <param name="label">The label text to display next to the property field.</param>
         /// <remarks>
-        /// Uses consistent height for property fields defined in theme settings.
+        /// Uses Unity's standard single line height for property fields.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawPropertyFieldWithLabel(SerializedProperty property, string label)
         {
-            EditorGUILayout.PropertyField(property, new GUIContent(label), GUILayout.Height(Settings.PropertyHeight));
+            EditorGUILayout.PropertyField(property, new GUIContent(label),
+                GUILayout.Height(EditorGUIUtility.singleLineHeight));
         }
 
         /// <summary>
@@ -108,14 +100,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         /// <param name="message">The warning message to display.</param>
         /// <remarks>
-        /// Adds consistent spacing before and after the warning box based on theme settings.
+        /// Adds consistent spacing before and after the warning box using Unity's standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void WarningBox(string message)
         {
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.Warning);
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -123,14 +115,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         /// <param name="message">The information message to display.</param>
         /// <remarks>
-        /// Adds consistent spacing before and after the info box based on theme settings.
+        /// Adds consistent spacing before and after the info box using Unity's standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void InfoBox(string message)
         {
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.Info);
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -138,15 +130,15 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         /// <param name="message">The help message to display.</param>
         /// <remarks>
-        /// Adds consistent spacing before and after the help box based on theme settings.
+        /// Adds consistent spacing before and after the help box using Unity's standard spacing.
         /// Uses MessageType.None to display a box without an icon.
         /// </remarks>
         [UsedImplicitly]
         public static void HelpBox(string message)
         {
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.None);
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -154,14 +146,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         /// <param name="message">The error message to display.</param>
         /// <remarks>
-        /// Adds consistent spacing before and after the error box based on theme settings.
+        /// Adds consistent spacing before and after the error box using Unity's standard spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void ErrorBox(string message)
         {
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.Error);
-            EditorGUILayout.Space(Settings.MessageBoxSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -170,38 +162,28 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="title">The title to display at the top of the box. Can be null or empty for no title.</param>
         /// <param name="drawContent">Action to execute for drawing the box content.</param>
         /// <remarks>
-        /// Creates a visually distinct boxed area with consistent padding and spacing.
-        /// The box styling, title font, and spacing are all defined in theme settings.
+        /// Creates a visually distinct boxed area using Unity's help box style with standard padding and spacing.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawBoxedSection(string title, Action drawContent)
         {
-            EditorGUILayout.Space(Settings.BoxSpacingBefore);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
 
-            var boxStyle = CreateBoxStyle(
-                Settings.BoxPaddingLeft,
-                Settings.BoxPaddingRight,
-                Settings.BoxPaddingTop,
-                Settings.BoxPaddingBottom);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            var headerStyle = CreateTextStyle(
-                EditorStyles.boldLabel,
-                Settings.BoxHeaderFontSize,
-                Settings.BoxHeaderFontStyle,
-                Settings.BoxHeaderAlignment);
+            if (!string.IsNullOrEmpty(title))
+            {
+                EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+                EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+                EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+            }
 
-            EditorGUILayout.BeginVertical(boxStyle);
-
-            EditorGUILayout.Space(Settings.BoxTitleSpacing);
-            EditorGUILayout.LabelField(title, headerStyle);
-            EditorGUILayout.Space(Settings.BoxTitleSpacing);
-
-            EditorGUILayout.Space(Settings.BoxContentSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
             drawContent();
-            EditorGUILayout.Space(Settings.BoxContentSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
 
             EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(Settings.BoxSpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
@@ -211,7 +193,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>A disposable boxed scope.</returns>
         /// <remarks>
         /// Use this with the 'using' statement to create a boxed section with clearly defined boundaries.
-        /// The box will have consistent styling, padding, and spacing based on theme settings.
+        /// The box will use Unity's standard help box styling with consistent padding and spacing.
         /// </remarks>
         [UsedImplicitly]
         public static BoxedScope BeginBoxedSection(string title = null) => new(title);
@@ -227,7 +209,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         [UsedImplicitly]
         public static SectionScope BeginSection(string title)
         {
-            EditorGUILayout.Space(Settings.BoxSpacingBefore);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             return new SectionScope(title);
         }
 
@@ -239,107 +221,43 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="drawContent">Action to execute for drawing the box content when expanded.</param>
         /// <param name="withFoldout"></param>
         /// <remarks>
-        /// Creates a collapsible section with consistent styling. The foldout state parameter
-        /// allows the calling code to persist the expanded/collapsed state between draws.
+        /// Creates a collapsible section using Unity's standard help box and foldout styles.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent,
             bool withFoldout = true)
         {
-            EditorGUILayout.Space(Settings.FoldoutBoxSpacingBefore);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
 
-            var boxStyle = CreateBoxStyle(
-                Settings.FoldoutBoxPaddingLeft,
-                Settings.FoldoutBoxPaddingRight,
-                Settings.FoldoutBoxPaddingTop,
-                Settings.FoldoutBoxPaddingBottom);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
 
-            var foldoutStyle = CreateTextStyle(
-                EditorStyles.foldout,
-                Settings.FoldoutFontSize,
-                Settings.FoldoutFontStyle);
+            EditorGUI.indentLevel++;
+            Foldout(title, ref showFoldout, drawContent);
+            EditorGUI.indentLevel--;
 
-            EditorGUILayout.BeginVertical(boxStyle);
-            EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
-
-            FoldoutWithContent(title, ref showFoldout, drawContent, foldoutStyle);
-
-            EditorGUILayout.Space(Settings.FoldoutHeaderSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
             EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(Settings.FoldoutBoxSpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
         }
 
         /// <summary>
-        /// Creates a simple foldout with wrapped content display without styling.
+        /// Creates a foldout control with Unity's standard foldout styling.
         /// </summary>
         /// <param name="title">The title to display next to the foldout arrow.</param>
         /// <param name="showFoldout">Current expanded state of the foldout.</param>
         /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
+        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
         /// <param name="foldoutStyle">The GUIStyle to use for rendering the foldout control.</param>
         /// <returns>The new expanded state of the foldout.</returns>
         /// <remarks>
-        /// This method provides a simple foldout mechanism that ensures content is properly wrapped
-        /// without any truncation. No custom styling is applied.
-        /// </remarks>
-        [UsedImplicitly]
-        public static bool FoldoutWithContent(string title, ref bool showFoldout, Action drawContent,
-            GUIStyle foldoutStyle = null)
-        {
-            showFoldout = EditorGUILayout.Foldout(showFoldout, title, true, foldoutStyle);
-
-            if (showFoldout is false || drawContent == null)
-                return showFoldout;
-
-            EditorGUILayout.BeginVertical();
-            drawContent();
-            EditorGUILayout.EndVertical();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Creates a foldout control with custom text styling.
-        /// </summary>
-        /// <param name="title">The title to display next to the foldout arrow.</param>
-        /// <param name="showFoldout">Current expanded state of the foldout.</param>
-        /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
-        /// <param name="style">Custom GUIStyle to use for the foldout control.</param>
-        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
-        /// <returns>The new expanded state of the foldout.</returns>
-        /// <remarks>
-        /// This method allows for custom styling of the foldout control instead of using theme settings.
-        /// </remarks>
-        [UsedImplicitly]
-        public static bool Foldout(string title, ref bool showFoldout, Action drawContent, GUIStyle style, bool toggleOnLabelClick = true)
-        {
-            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, style);
-            if (showFoldout)
-                drawContent.Invoke();
-
-            return showFoldout;
-        }
-
-        /// <summary>
-        /// Creates a foldout control with consistent text styling from theme settings.
-        /// </summary>
-        /// <param name="title">The title to display next to the foldout arrow.</param>
-        /// <param name="showFoldout">Current expanded state of the foldout.</param>
-        /// /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
-        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
-        /// <returns>The new expanded state of the foldout.</returns>
-        /// <remarks>
-        /// This method applies consistent font size and style from theme settings to maintain UI consistency.
+        /// This method applies Unity's standard foldout styling for consistency with native editors.
         /// </remarks>
         [UsedImplicitly]
         public static bool Foldout(string title, ref bool showFoldout, Action drawContent,
-            bool toggleOnLabelClick = true)
+            bool toggleOnLabelClick = true, GUIStyle foldoutStyle = null)
         {
-            var foldoutStyle = CreateTextStyle(
-                EditorStyles.foldout,
-                Settings.FoldoutFontSize,
-                Settings.FoldoutFontStyle);
-
-            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, foldoutStyle);
+            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, foldoutStyle ?? EditorStyles.foldout);
             if (showFoldout)
                 drawContent.Invoke();
 
@@ -356,19 +274,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="toggleOnLabelClick">Whether clicking on the label toggles the foldout state.</param>
         /// <returns>The updated list of foldout states.</returns>
         /// <remarks>
-        /// Uses theme settings for consistent font size and style across the editor interface.
+        /// Uses Unity's standard foldout styling for consistency across the editor interface.
         /// </remarks>
         [UsedImplicitly]
         public static List<bool> Foldout(string title, in List<bool> showFoldouts, int index, Action drawContent,
             bool toggleOnLabelClick = true)
         {
-            var foldoutStyle = CreateTextStyle(
-                EditorStyles.foldout,
-                Settings.FoldoutFontSize,
-                Settings.FoldoutFontStyle);
-
             var showDetail = showFoldouts.GetOrCreate(index);
-            showDetail = EditorGUILayout.Foldout(showDetail, title, toggleOnLabelClick, foldoutStyle);
+            showDetail = EditorGUILayout.Foldout(showDetail, title, toggleOnLabelClick, EditorStyles.foldout);
             if (showDetail)
                 drawContent.Invoke();
 
@@ -400,177 +313,117 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a primary heading (H1) with consistent styling from theme settings.
+        /// Creates a primary heading (H1) with consistent styling.
         /// </summary>
         /// <param name="text">The text to display as a heading.</param>
         /// <remarks>
-        /// This method applies the largest heading style based on theme settings.
-        /// Use for main section titles or page headers.
+        /// This method applies Unity's large label style for main section titles or page headers.
         /// </remarks>
         [UsedImplicitly]
         public static void H1Label(string text)
         {
-            var headerStyle = CreateTextStyle(
-                EditorStyles.boldLabel,
-                Settings.H1FontSize,
-                FontStyle.Bold,
-                Settings.HeaderAlignment);
-
-            var heightStyle = GUILayout.Height(Settings.H1FontSize * Settings.FontHeightScaleFactor);
-
-            EditorGUILayout.Space(Settings.H1SpacingBefore);
-            EditorGUILayout.LabelField(text, headerStyle, heightStyle);
-            EditorGUILayout.Space(Settings.H1SpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.5f);
+            EditorGUILayout.LabelField(text, EditorStyles.largeLabel);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.25f);
         }
 
         /// <summary>
-        /// Creates a secondary heading (H2) with consistent styling from theme settings.
+        /// Creates a secondary heading (H2) with consistent styling.
         /// </summary>
         /// <param name="text">The text to display as a heading.</param>
         /// <remarks>
-        /// This method applies medium-sized heading styling based on theme settings.
-        /// Use for section headers within a larger content area.
+        /// This method applies Unity's bold label style for section headers within a larger content area.
         /// </remarks>
         [UsedImplicitly]
         public static void H2Label(string text)
         {
-            var headerStyle = CreateTextStyle(
-                EditorStyles.boldLabel,
-                Settings.H2FontSize,
-                FontStyle.Bold,
-                Settings.HeaderAlignment);
-
-            var heightStyle = GUILayout.Height(Settings.H2FontSize * Settings.FontHeightScaleFactor);
-
-            EditorGUILayout.Space(Settings.H2SpacingBefore);
-            EditorGUILayout.LabelField(text, headerStyle, heightStyle);
-            EditorGUILayout.Space(Settings.H2SpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.25f);
+            EditorGUILayout.LabelField(text, EditorStyles.boldLabel);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.125f);
         }
 
         /// <summary>
-        /// Creates a tertiary heading (H3) with consistent styling from theme settings.
+        /// Creates a tertiary heading (H3) with consistent styling.
         /// </summary>
         /// <param name="text">The text to display as a heading.</param>
         /// <remarks>
-        /// This method applies smaller heading styling based on theme settings.
-        /// Use for subsection headers or group titles.
+        /// This method applies Unity's mini bold label style for subsection headers or group titles.
         /// </remarks>
         [UsedImplicitly]
         public static void H3Label(string text)
         {
-            var headerStyle = CreateTextStyle(
-                EditorStyles.boldLabel,
-                Settings.H3FontSize,
-                FontStyle.Bold,
-                Settings.HeaderAlignment);
-
-            var heightStyle = GUILayout.Height(Settings.H3FontSize * Settings.FontHeightScaleFactor);
-
-            EditorGUILayout.Space(Settings.H3SpacingBefore);
-            EditorGUILayout.LabelField(text, headerStyle, heightStyle);
-            EditorGUILayout.Space(Settings.H3SpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.125f);
+            EditorGUILayout.LabelField(text, EditorStyles.miniBoldLabel);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.0625f);
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with Unity's default label styling.
         /// </summary>
         /// <param name="text">The text to display in the label.</param>
         /// <remarks>
-        /// This method applies standard text styling based on theme settings.
-        /// Use for regular text content that needs consistent styling.
+        /// This method applies Unity's standard label styling for regular text content.
         /// </remarks>
         [UsedImplicitly]
         public static void LabelField(string text)
         {
-            var labelStyle = CreateTextStyle(
-                EditorStyles.label,
-                Settings.LabelFontSize,
-                Settings.LabelFontStyle);
-
-            EditorGUILayout.LabelField(text, labelStyle);
+            EditorGUILayout.LabelField(text, EditorStyles.label);
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with Unity's default label styling.
         /// </summary>
         /// <param name="image">The texture to display on the label.</param>
         /// <remarks>
-        /// This method applies standard text styling based on theme settings.
-        /// Use for regular text content that needs consistent styling.
+        /// This method applies Unity's standard label styling for image content.
         /// </remarks>
         [UsedImplicitly]
         public static void Label(Texture image)
         {
-            var labelStyle = CreateTextStyle(
-                EditorStyles.label,
-                Settings.LabelFontSize,
-                Settings.LabelFontStyle);
-
-            GUILayout.Label(image, labelStyle);
+            GUILayout.Label(image, EditorStyles.label);
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with Unity's default label styling and custom options.
         /// </summary>
         /// <param name="image">The texture to display on the label.</param>
         /// <param name="options">Additional layout options to apply to the label.</param>
         /// <remarks>
-        /// This method applies both the theme's standard text styling and any custom styles provided.
-        /// Use when you need a consistently styled label with additional custom styling.
+        /// This method applies Unity's standard label styling with custom layout options.
         /// </remarks>
         [UsedImplicitly]
         public static void Label(Texture image, params GUILayoutOption[] options)
         {
-            var combinedStyle = new GUIStyle()
-            {
-                fontSize = Settings.LabelFontSize,
-                fontStyle = Settings.LabelFontStyle
-            };
-
-            GUILayout.Label(image, combinedStyle, options);
+            GUILayout.Label(image, EditorStyles.label, options);
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with custom styling and layout options.
         /// </summary>
         /// <param name="image">The texture to display on the label.</param>
         /// <param name="style">Additional style to apply to the label</param>
         /// <param name="options">Additional layout options to apply to the label.</param>
         /// <remarks>
-        /// This method applies both the theme's standard text styling and any custom styles provided.
-        /// Use when you need a consistently styled label with additional custom styling.
+        /// This method applies custom styling with layout options for specialized use cases.
         /// </remarks>
         [UsedImplicitly]
         public static void Label(Texture image, GUIStyle style, params GUILayoutOption[] options)
         {
-            var combinedStyle = new GUIStyle(style)
-            {
-                fontSize = Settings.LabelFontSize,
-                fontStyle = Settings.LabelFontStyle
-            };
-
-            GUILayout.Label(image, combinedStyle, options);
+            GUILayout.Label(image, style, options);
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with custom styling.
         /// </summary>
         /// <param name="text">The text to display in the label.</param>
-        /// <param name="style">Additional style to apply to the label.</param>
+        /// <param name="style">Style to apply to the label.</param>
         /// <remarks>
-        /// This method applies both the theme's standard text styling and any custom styles provided.
-        /// Use when you need a consistently styled label with additional custom styling.
+        /// This method applies custom styling for specialized use cases.
         /// </remarks>
         [UsedImplicitly]
         public static void LabelField(string text, GUIStyle style)
         {
-            var combinedStyle = new GUIStyle(style)
-            {
-                fontSize = Settings.LabelFontSize,
-                fontStyle = Settings.LabelFontStyle
-            };
-
-            EditorGUILayout.LabelField(text, combinedStyle);
+            EditorGUILayout.LabelField(text, style);
         }
 
         /// <summary>
@@ -586,23 +439,17 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a standard label with consistent styling from theme settings.
+        /// Creates a standard label with Unity's default styling and layout options.
         /// </summary>
         /// <param name="text">The text to display in the label.</param>
-        /// <param name="style">Additional style to apply to the label.</param>
+        /// <param name="option">Layout option to apply to the label.</param>
         /// <remarks>
-        /// This method applies both the theme's standard text styling and any custom styles provided.
-        /// Use when you need a consistently styled label with additional custom styling.
+        /// This method applies Unity's standard label styling with custom layout options.
         /// </remarks>
         [UsedImplicitly]
-        public static void LabelField(string text, GUILayoutOption style)
+        public static void LabelField(string text, GUILayoutOption option)
         {
-            var labelStyle = CreateTextStyle(
-                EditorStyles.label,
-                Settings.LabelFontSize,
-                Settings.LabelFontStyle);
-
-            EditorGUILayout.LabelField(text, labelStyle, style);
+            EditorGUILayout.LabelField(text, EditorStyles.label, option);
         }
 
         /// <summary>
@@ -693,26 +540,25 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             => new(style, options);
 
         /// <summary>
-        /// Creates a horizontal line (divider) with consistent styling.
+        /// Creates a horizontal line (divider) with Unity's standard styling.
         /// </summary>
         /// <remarks>
-        /// Adds a visual separator between UI elements with spacing above and below.
-        /// The divider height, color, and spacing are defined in theme settings.
+        /// Adds a visual separator between UI elements using Unity's standard divider appearance.
         /// </remarks>
         [UsedImplicitly]
         public static void DrawHorizontalLine()
         {
-            EditorGUILayout.Space(Settings.DividerSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
 
-            var rect = EditorGUILayout.GetControlRect(false, Settings.DividerHeight);
-            rect.height = Settings.DividerHeight;
-            EditorGUI.DrawRect(rect, Settings.DividerColor);
+            var rect = EditorGUILayout.GetControlRect(false, 1f);
+            rect.height = 1f;
+            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1f));
 
-            EditorGUILayout.Space(Settings.DividerSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
 
         /// <summary>
-        /// Creates a text style with consistent styling based on settings.
+        /// Creates a text style based on Unity's editor styles.
         /// </summary>
         /// <param name="baseStyle">The base GUIStyle to clone and modify.</param>
         /// <param name="fontSize">Optional custom font size. If null, uses the base style's size.</param>
@@ -720,17 +566,19 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="alignment">Optional custom text alignment. If null, uses the base style's alignment.</param>
         /// <returns>A new GUIStyle instance with the specified modifications.</returns>
         /// <remarks>
-        /// This utility method is used internally to create consistent text styles throughout the editor.
+        /// This utility method creates text styles based on Unity's built-in editor styles.
         /// </remarks>
         [UsedImplicitly]
         public static GUIStyle CreateTextStyle(GUIStyle baseStyle, int? fontSize = null, FontStyle? fontStyle = null,
             TextAnchor? alignment = null)
         {
-            var style = new GUIStyle(baseStyle)
-            {
-                fontSize = fontSize ?? baseStyle.fontSize,
-                fontStyle = fontStyle ?? baseStyle.fontStyle
-            };
+            var style = new GUIStyle(baseStyle);
+
+            if (fontSize.HasValue)
+                style.fontSize = fontSize.Value;
+
+            if (fontStyle.HasValue)
+                style.fontStyle = fontStyle.Value;
 
             if (alignment.HasValue)
                 style.alignment = alignment.Value;
@@ -739,7 +587,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a box style with consistent styling based on settings.
+        /// Creates a box style using Unity's help box style with custom padding.
         /// </summary>
         /// <param name="paddingLeft">Left padding in pixels.</param>
         /// <param name="paddingRight">Right padding in pixels.</param>
@@ -747,7 +595,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="paddingBottom">Bottom padding in pixels.</param>
         /// <returns>A new GUIStyle instance configured for box display.</returns>
         /// <remarks>
-        /// This utility method is used internally to create consistent box styles throughout the editor.
+        /// This utility method creates box styles based on Unity's help box style.
         /// </remarks>
         [UsedImplicitly]
         public static GUIStyle CreateBoxStyle(int paddingLeft, int paddingRight, int paddingTop, int paddingBottom)
@@ -846,19 +694,17 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>True if the text was clicked, false otherwise.</returns>
         /// <remarks>
         /// The text appears as a standard label with hand cursor on hover and executes the provided action when clicked.
-        /// Uses consistent text styling from theme settings with enhanced user interaction feedback.
+        /// Uses Unity's standard label styling with enhanced user interaction feedback.
         /// Text automatically wraps to new lines when it exceeds the available width, and the control height adjusts accordingly.
         /// This is a wrapper around the URL-opening version that provides more flexibility for custom actions.
         /// </remarks>
         [UsedImplicitly]
         public static bool ClickableTextWithCursor(string text, Action onClick)
         {
-            var labelStyle = CreateTextStyle(
-                EditorStyles.label,
-                Settings.LabelFontSize,
-                Settings.LabelFontStyle);
-
-            labelStyle.wordWrap = true;
+            var labelStyle = new GUIStyle(EditorStyles.label)
+            {
+                wordWrap = true
+            };
 
             var content = new GUIContent(text);
             var availableWidth = EditorGUIUtility.currentViewWidth - GUI.skin.box.padding.horizontal;
@@ -887,7 +733,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <returns>True if the text was clicked, false otherwise.</returns>
         /// <remarks>
         /// The text appears as a standard label with hand cursor on hover and opens the URL when clicked.
-        /// Uses consistent text styling from theme settings with enhanced user interaction feedback.
+        /// Uses Unity's standard label styling with enhanced user interaction feedback.
         /// Text automatically wraps to new lines when it exceeds the available width, and the control height adjusts accordingly.
         /// This is a convenience wrapper around the action-based version for URL opening specifically.
         /// </remarks>
@@ -896,27 +742,27 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             => ClickableTextWithCursor(text, () => Application.OpenURL(url));
 
         /// <summary>
-        /// Creates a color field with consistent styling.
+        /// Creates a color field with Unity's standard styling.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current color value.</param>
-        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
         [UsedImplicitly]
         public static void ColorField(string label, Color value, bool useConsistentHeight = true) =>
             EditorGUILayout.ColorField(label, value, useConsistentHeight
-                ? GUILayout.Height(Settings.ColorFieldHeight)
+                ? GUILayout.Height(EditorGUIUtility.singleLineHeight)
                 : null);
 
         /// <summary>
-        /// Creates a gradient field with consistent styling.
+        /// Creates a gradient field with Unity's standard styling.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
         /// <param name="value">The current gradient value.</param>
-        /// <param name="useConsistentHeight">Whether to use a consistent height based on settings. Default is true.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
         [UsedImplicitly]
         public static void GradientField(string label, Gradient value, bool useConsistentHeight = true) =>
             EditorGUILayout.GradientField(label, value, useConsistentHeight
-                ? GUILayout.Height(Settings.ColorFieldHeight)
+                ? GUILayout.Height(EditorGUIUtility.singleLineHeight)
                 : null);
     }
 }

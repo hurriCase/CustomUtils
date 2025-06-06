@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomUtils.Editor.EditorTheme;
 using UnityEditor;
 
 namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
@@ -7,56 +6,44 @@ namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
     /// <inheritdoc />
     /// <summary>
     /// Disposable scope for boxed sections that can be used with 'using' statements.
+    /// Uses Unity's standard help box styling for consistency with native Unity editors.
     /// </summary>
     public sealed class SectionScope : IDisposable
     {
-        private static ThemeEditorSettings Settings => ThemeEditorSettings.Instance;
-
-        private readonly Action _drawContent;
         private readonly bool _endVertical;
 
         internal SectionScope(string title, bool withBox = true)
         {
             if (withBox)
             {
-                var boxStyle = EditorVisualControls.CreateBoxStyle(
-                    Settings.BoxPaddingLeft,
-                    Settings.BoxPaddingRight,
-                    Settings.BoxPaddingTop,
-                    Settings.BoxPaddingBottom);
-
-                EditorGUILayout.BeginVertical(boxStyle);
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 _endVertical = true;
 
                 if (string.IsNullOrEmpty(title) is false)
                 {
-                    var headerStyle = EditorVisualControls.CreateTextStyle(
-                        EditorStyles.boldLabel,
-                        Settings.BoxHeaderFontSize,
-                        Settings.BoxHeaderFontStyle,
-                        Settings.BoxHeaderAlignment);
-
-                    EditorGUILayout.Space(Settings.BoxTitleSpacing);
-                    EditorGUILayout.LabelField(title, headerStyle);
-                    EditorGUILayout.Space(Settings.BoxTitleSpacing);
+                    EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+                    EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+                    EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
                 }
 
-                EditorGUILayout.Space(Settings.BoxContentSpacing);
+                EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
             }
             else
-            {
                 _endVertical = false;
-            }
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Disposes the section scope, properly closing the vertical layout if applicable and adding appropriate spacing.
+        /// </summary>
         public void Dispose()
         {
             if (!_endVertical)
                 return;
 
-            EditorGUILayout.Space(Settings.BoxContentSpacing);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
             EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(Settings.BoxSpacingAfter);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
         }
     }
 }

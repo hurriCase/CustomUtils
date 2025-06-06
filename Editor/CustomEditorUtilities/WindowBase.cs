@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities.Scopes;
-using CustomUtils.Editor.EditorTheme;
 using CustomUtils.Editor.Extensions;
 using UnityEditor;
 

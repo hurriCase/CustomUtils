@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEditor;
-using UnityEngine;
 
 namespace CustomUtils.Editor.Theme
 {

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading;
-using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Runtime.Helpers;
 using Cysharp.Threading.Tasks;
 using PrimeTween;
 using UnityEngine;
 
 // ReSharper disable MemberCanBeInternal
-namespace CustomUtils.Editor.EditorTheme
+namespace CustomUtils.Editor.CustomEditorUtilities
 {
     /// <inheritdoc />
     /// <summary>

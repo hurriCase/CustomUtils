@@ -5,7 +5,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
 {
     /// <inheritdoc />
     /// <summary>
-    /// A disposable scope for horizontal layout groups.
+    /// Disposable scope for horizontal layout groups that can be used with 'using' statements.
+    /// Provides automatic cleanup of horizontal layout groups in Unity Editor GUI.
     /// </summary>
     public sealed class HorizontalScope : System.IDisposable
     {
@@ -19,10 +20,13 @@ namespace CustomUtils.Editor.CustomEditorUtilities.Scopes
             EditorGUILayout.BeginHorizontal(style, options);
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Disposes the horizontal scope, properly closing the horizontal layout group.
+        /// </summary>
         public void Dispose()
         {
             EditorGUILayout.EndHorizontal();
         }
     }
-
 }
