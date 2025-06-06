@@ -124,8 +124,13 @@ namespace CustomUtils.Editor.Theme
                 currentDirection,
                 Enum.GetNames(typeof(GradientDirection)));
 
-            if (selectedDirection != currentDirection)
-                _themeComponent.GradientDirection = (GradientDirection)selectedDirection;
+            if (selectedDirection == currentDirection)
+                return;
+
+            _themeComponent.GradientDirection = (GradientDirection)selectedDirection;
+
+            _themeComponent.OnApplyColor();
+            EditorUtility.SetDirty(target);
         }
 
         private (List<string>, string) GetColorSelectorData(ColorType colorType) =>
