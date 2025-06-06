@@ -119,7 +119,7 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 if (selectedTarget is not RectTransform rectTransform)
                     continue;
 
-                Undo.RecordObject(rectTransform, "Set RectTransform Anchors");
+                Undo.RecordObject(rectTransform, "Set RectTransform Anchors and Reset Offsets");
 
                 rectTransform.anchorMin = new Vector2(
                     widthRatio * _repository.LeftMarginWidth.Value,
@@ -128,6 +128,9 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 rectTransform.anchorMax = new Vector2(
                     1 - widthRatio * _repository.RightMarginWidth.Value,
                     1 - heightRatio * _repository.TopMarginHeight.Value);
+
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
 
                 EditorUtility.SetDirty(rectTransform);
             }
