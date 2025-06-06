@@ -24,7 +24,7 @@ namespace CustomUtils.Editor.PersistentEditor
             string key,
             TProperty defaultValue = default)
         {
-            var uniqueKey = !target
+            var uniqueKey = target
                 ? target.GetObjectUniqueKey(key) ?? key
                 : key;
 
