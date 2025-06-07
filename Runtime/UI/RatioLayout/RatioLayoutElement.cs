@@ -7,6 +7,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 {
     [AddComponentMenu("Layout/Ratio Layout Element")]
     [RequireComponent(typeof(RectTransform))]
+    [ExecuteInEditMode]
     public sealed class RatioLayoutElement : MonoBehaviour
 #if UNITY_EDITOR
         , ILayoutSelfController
