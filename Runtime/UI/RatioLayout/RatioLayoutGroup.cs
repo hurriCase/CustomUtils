@@ -47,18 +47,12 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         {
             _ratioElements.Clear();
 
-            for (var i = 0; i < rectTransform.childCount; i++)
+            foreach (var child in rectChildren)
             {
-                var child = rectTransform.GetChild(i);
-                if (child.gameObject.activeInHierarchy is false)
-                    continue;
-
-                var ratioElement = child.GetComponent<RatioLayoutElement>();
-                _ratioElements.Add(ratioElement ? ratioElement : CreateDefaultRatioElement());
+                if (child.TryGetComponent<RatioLayoutElement>(out var ratioElement))
+                    _ratioElements.Add(ratioElement);
             }
         }
-
-        private RatioLayoutElement CreateDefaultRatioElement() => gameObject.AddComponent<RatioLayoutElement>();
 
         private void CalculateLayoutSizes()
         {
