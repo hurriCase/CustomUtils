@@ -6,9 +6,9 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 {
     [AddComponentMenu("Layout/Ratio Layout Element")]
     [RequireComponent(typeof(RectTransform))]
-    internal sealed class RatioLayoutElement : MonoBehaviour
+    public sealed class RatioLayoutElement : MonoBehaviour
     {
-        [field: SerializeField] internal float Ratio { get; private set; }
+        [field: SerializeField] public float Ratio { get; private set; }
 
         private void OnValidate()
         {

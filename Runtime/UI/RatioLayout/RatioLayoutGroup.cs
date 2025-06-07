@@ -7,7 +7,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 {
     [AddComponentMenu("Layout/Ratio Layout Group")]
     [RequireComponent(typeof(RectTransform))]
-    internal sealed class RatioLayoutGroup : LayoutGroup
+    public sealed class RatioLayoutGroup : LayoutGroup
     {
         [SerializeField] private LayoutDirection _direction = LayoutDirection.Horizontal;
         [SerializeField] private float _spacing;
