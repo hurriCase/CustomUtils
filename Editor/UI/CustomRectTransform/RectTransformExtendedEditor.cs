@@ -7,6 +7,7 @@ using UnityEngine;
 namespace CustomUtils.Editor.UI.CustomRectTransform
 {
     [CustomEditor(typeof(RectTransform), true)]
+    [CanEditMultipleObjects]
     internal sealed class RectTransformExtendedEditor : EditorBase
     {
         private UnityEditor.Editor _defaultEditor;
