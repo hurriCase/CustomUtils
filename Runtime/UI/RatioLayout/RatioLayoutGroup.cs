@@ -62,6 +62,9 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 
             foreach (var child in rectChildren)
             {
+                if (!child)
+                    continue;
+
                 var childInfo = new ChildInfo
                 {
                     RectTransform = child,
@@ -125,7 +128,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                 }
             }
 
-            if (!alongOtherAxis && _childInfos.Count > 0)
+            if (alongOtherAxis is false && _childInfos.Count > 0)
             {
                 totalMin -= _spacing;
                 totalPreferred -= _spacing;
