@@ -95,16 +95,13 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 
             var position = axis == 0 ? (float)padding.left : padding.bottom;
 
-            for (var i = 0; i < rectChildren.Count && i < _ratioElements.Count; i++)
+            foreach (var ratioLayoutElement in _ratioElements)
             {
-                var child = rectChildren[i];
-                var ratio = _ratioElements[i].AspectRatio;
-
                 float size;
                 if (_direction == LayoutDirection.Horizontal)
                 {
                     if (axis == 0)
-                        size = availableHeight * ratio;
+                        size = availableHeight * ratioLayoutElement.AspectRatio;
                     else
                         size = availableHeight;
                 }
@@ -113,10 +110,10 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                     if (axis == 0)
                         size = availableWidth;
                     else
-                        size = availableWidth / ratio;
+                        size = availableWidth / ratioLayoutElement.AspectRatio;
                 }
 
-                SetChildAlongAxis(child, axis, position, size);
+                SetChildAlongAxis(ratioLayoutElement.RectTransform, axis, position, size);
 
                 if ((_direction == LayoutDirection.Horizontal && axis == 0) ||
                     (_direction == LayoutDirection.Vertical && axis == 1))

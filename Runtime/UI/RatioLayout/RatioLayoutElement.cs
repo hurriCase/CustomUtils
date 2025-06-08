@@ -1,6 +1,7 @@
 ﻿using System;
 using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,11 +21,28 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         , ILayoutSelfController
 #endif
     {
+        [NonSerialized] private RectTransform _rectTransform;
+
+        /// <summary>
+        /// Gets the cached RectTransform component of this GameObject.
+        /// </summary>
+        [UsedImplicitly]
+        public RectTransform RectTransform
+        {
+            get
+            {
+                if (!_rectTransform)
+                    _rectTransform = GetComponent<RectTransform>();
+                return _rectTransform;
+            }
+        }
+
         [SerializeField] private float _aspectRatio = 1;
 
         /// <summary>
         /// The aspect ratio to enforce. This means width divided by height.
         /// </summary>
+        [UsedImplicitly]
         public float AspectRatio
         {
             get => _aspectRatio;
@@ -66,23 +84,11 @@ namespace CustomUtils.Runtime.UI.RatioLayout
             }
         }
 
-        [NonSerialized] private RectTransform _rectTransform;
-
         private bool _delayedSetDirty;
 
         private bool _doesParentExist;
 
         [SerializeField, HideInInspector] private bool _isInsideRatioLayoutGroup;
-
-        private RectTransform RectTransformTransform
-        {
-            get
-            {
-                if (!_rectTransform)
-                    _rectTransform = GetComponent<RectTransform>();
-                return _rectTransform;
-            }
-        }
 
         private DrivenRectTransformTracker _tracker;
 
@@ -92,7 +98,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         {
             base.OnEnable();
 
-            _doesParentExist = RectTransformTransform.parent;
+            _doesParentExist = RectTransform.parent;
 
             UpdateLayoutGroupStatus();
 
@@ -111,7 +117,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         {
             _tracker.Clear();
 
-            LayoutRebuilder.MarkLayoutForRebuild(RectTransformTransform);
+            LayoutRebuilder.MarkLayoutForRebuild(RectTransform);
 
             base.OnDisable();
         }
@@ -120,7 +126,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         {
             base.OnTransformParentChanged();
 
-            _doesParentExist = RectTransformTransform.parent;
+            _doesParentExist = RectTransform.parent;
 
             UpdateLayoutGroupStatus();
 
@@ -169,7 +175,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
             {
                 case AspectRatioFitter.AspectMode.None:
                 {
-                    var rect = RectTransformTransform.rect;
+                    var rect = RectTransform.rect;
                     _aspectRatio = Mathf.Clamp(rect.width / rect.height, 0.001f,
                         1000f);
 
@@ -178,17 +184,17 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 
                 case AspectRatioFitter.AspectMode.HeightControlsWidth:
                 {
-                    _tracker.Add(this, RectTransformTransform, DrivenTransformProperties.SizeDeltaX);
-                    RectTransformTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
-                        RectTransformTransform.rect.height * _aspectRatio);
+                    _tracker.Add(this, RectTransform, DrivenTransformProperties.SizeDeltaX);
+                    RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
+                        RectTransform.rect.height * _aspectRatio);
                     break;
                 }
 
                 case AspectRatioFitter.AspectMode.WidthControlsHeight:
                 {
-                    _tracker.Add(this, RectTransformTransform, DrivenTransformProperties.SizeDeltaY);
-                    RectTransformTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                        RectTransformTransform.rect.width / _aspectRatio);
+                    _tracker.Add(this, RectTransform, DrivenTransformProperties.SizeDeltaY);
+                    RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                        RectTransform.rect.width / _aspectRatio);
                     break;
                 }
 
@@ -198,15 +204,15 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                     if (DoesParentExists() is false)
                         break;
 
-                    _tracker.Add(this, RectTransformTransform,
+                    _tracker.Add(this, RectTransform,
                         DrivenTransformProperties.Anchors |
                         DrivenTransformProperties.AnchoredPosition |
                         DrivenTransformProperties.SizeDeltaX |
                         DrivenTransformProperties.SizeDeltaY);
 
-                    RectTransformTransform.anchorMin = Vector2.zero;
-                    RectTransformTransform.anchorMax = Vector2.one;
-                    RectTransformTransform.anchoredPosition = Vector2.zero;
+                    RectTransform.anchorMin = Vector2.zero;
+                    RectTransform.anchorMax = Vector2.one;
+                    RectTransform.anchoredPosition = Vector2.zero;
 
                     var sizeDelta = Vector2.zero;
                     var parentSize = GetParentSize();
@@ -216,7 +222,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                     else
                         sizeDelta.x = GetSizeDeltaToProduceSize(parentSize.y * AspectRatio, 0);
 
-                    RectTransformTransform.sizeDelta = sizeDelta;
+                    RectTransform.sizeDelta = sizeDelta;
 
                     break;
                 }
@@ -224,11 +230,11 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         }
 
         private float GetSizeDeltaToProduceSize(float size, int axis) => size - GetParentSize()[axis] *
-            (RectTransformTransform.anchorMax[axis] - RectTransformTransform.anchorMin[axis]);
+            (RectTransform.anchorMax[axis] - RectTransform.anchorMin[axis]);
 
         private Vector2 GetParentSize()
         {
-            var parent = RectTransformTransform.parent as RectTransform;
+            var parent = RectTransform.parent as RectTransform;
             return !parent ? Vector2.zero : parent.rect.size;
         }
 
