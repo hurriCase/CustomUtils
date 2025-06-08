@@ -68,7 +68,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
 
             if (_direction == LayoutDirection.Horizontal)
             {
-                totalRequiredSize += _ratioElements.Sum(element => availableHeight * element.Ratio);
+                totalRequiredSize += _ratioElements.Sum(element => availableHeight * element.AspectRatio);
 
                 totalRequiredSize += spacingTotal;
 
@@ -78,7 +78,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
             else
             {
                 var childWidth = availableWidth;
-                totalRequiredSize += _ratioElements.Sum(element => childWidth / element.Ratio);
+                totalRequiredSize += _ratioElements.Sum(element => childWidth / element.AspectRatio);
 
                 totalRequiredSize += spacingTotal;
 
@@ -98,7 +98,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
             for (var i = 0; i < rectChildren.Count && i < _ratioElements.Count; i++)
             {
                 var child = rectChildren[i];
-                var ratio = _ratioElements[i].Ratio;
+                var ratio = _ratioElements[i].AspectRatio;
 
                 float size;
                 if (_direction == LayoutDirection.Horizontal)
