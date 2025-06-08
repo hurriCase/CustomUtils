@@ -1,4 +1,4 @@
-﻿#if IS_STRETCH_RECTRANSFORM
+﻿#if IS_AUTO_STRETCH_RECTTRANSFORM
 using UnityEditor;
 using UnityEngine;
 
