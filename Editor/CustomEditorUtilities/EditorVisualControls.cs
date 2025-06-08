@@ -111,6 +111,21 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a warning message box with consistent styling at the specified position.
+        /// </summary>
+        /// <param name="position">The rect position where the warning box should be drawn.</param>
+        /// <param name="message">The warning message to display.</param>
+        /// <remarks>
+        /// Uses EditorGUI for manual positioning instead of EditorGUILayout.
+        /// Designed for use in PropertyDrawer contexts where position is manually controlled.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void WarningBox(Rect position, string message)
+        {
+            EditorGUI.HelpBox(position, message, MessageType.Warning);
+        }
+
+        /// <summary>
         /// Creates an information message box with consistent styling.
         /// </summary>
         /// <param name="message">The information message to display.</param>
@@ -123,6 +138,21 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.Info);
             EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
+        }
+
+        /// <summary>
+        /// Creates an information message box with consistent styling at the specified position.
+        /// </summary>
+        /// <param name="position">The rect position where the info box should be drawn.</param>
+        /// <param name="message">The information message to display.</param>
+        /// <remarks>
+        /// Uses EditorGUI for manual positioning instead of EditorGUILayout.
+        /// Designed for use in PropertyDrawer contexts where position is manually controlled.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void InfoBox(Rect position, string message)
+        {
+            EditorGUI.HelpBox(position, message, MessageType.Info);
         }
 
         /// <summary>
@@ -142,6 +172,22 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a plain help box with consistent styling at the specified position.
+        /// </summary>
+        /// <param name="position">The rect position where the help box should be drawn.</param>
+        /// <param name="message">The help message to display.</param>
+        /// <remarks>
+        /// Uses EditorGUI for manual positioning instead of EditorGUILayout.
+        /// Uses MessageType.None to display a box without an icon.
+        /// Designed for use in PropertyDrawer contexts where position is manually controlled.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void HelpBox(Rect position, string message)
+        {
+            EditorGUI.HelpBox(position, message, MessageType.None);
+        }
+
+        /// <summary>
         /// Creates an error message box with consistent styling.
         /// </summary>
         /// <param name="message">The error message to display.</param>
@@ -154,6 +200,21 @@ namespace CustomUtils.Editor.CustomEditorUtilities
             EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
             EditorGUILayout.HelpBox(message, MessageType.Error);
             EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing);
+        }
+
+        /// <summary>
+        /// Creates an error message box with consistent styling at the specified position.
+        /// </summary>
+        /// <param name="position">The rect position where the error box should be drawn.</param>
+        /// <param name="message">The error message to display.</param>
+        /// <remarks>
+        /// Uses EditorGUI for manual positioning instead of EditorGUILayout.
+        /// Designed for use in PropertyDrawer contexts where position is manually controlled.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void ErrorBox(Rect position, string message)
+        {
+            EditorGUI.HelpBox(position, message, MessageType.Error);
         }
 
         /// <summary>
@@ -257,7 +318,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         public static bool Foldout(string title, ref bool showFoldout, Action drawContent,
             bool toggleOnLabelClick = true, GUIStyle foldoutStyle = null)
         {
-            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick, foldoutStyle ?? EditorStyles.foldout);
+            showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick,
+                foldoutStyle ?? EditorStyles.foldout);
             if (showFoldout)
                 drawContent.Invoke();
 
