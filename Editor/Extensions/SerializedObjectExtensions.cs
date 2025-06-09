@@ -3,7 +3,7 @@
 // ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Editor.Extensions
 {
-    public static class SerializedPropertyExtensions
+    public static class SerializedObjectExtensions
     {
         /// <summary>
         /// Finds a serialized property using its backing field name format.
