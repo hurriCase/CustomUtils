@@ -2,7 +2,7 @@
 using CustomUtils.Runtime.UI.Theme.Base;
 using UnityEditor;
 
-namespace CustomUtils.Editor.Theme
+namespace CustomUtils.Editor.UI.Theme
 {
     [CustomEditor(typeof(ThemeHandler))]
     internal sealed class ThemeHandlerEditor : EditorBase

@@ -6,7 +6,7 @@ using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEditor;
 
-namespace CustomUtils.Editor.Theme
+namespace CustomUtils.Editor.UI.Theme
 {
     [CustomEditor(typeof(BaseThemeComponent<>), true)]
     internal sealed class BaseThemeComponentEditor : EditorBase
