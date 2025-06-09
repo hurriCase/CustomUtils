@@ -13,6 +13,10 @@
         internal const string ThemeColorDatabaseAssetName = "ThemeColorDatabase";
         internal const string ThemeResourcePath = "Theme";
 
+        internal const string ImagePixelPerUnitFullPath = ResourcesPath + "/" + ImagePixelPerUnitResourcePath;
+        internal const string ImagePixelPerUnitDatabaseAssetName = "ImagePixelPerUnitDatabase";
+        internal const string ImagePixelPerUnitResourcePath = "ImagePixelPerUnit";
+
         internal const string LocalizationSettingsFullPath = ResourcesPath + "/" + LocalizationSettingsResourcesPath;
         internal const string LocalizationSettingsAssetName = "LocalizationSettings";
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
