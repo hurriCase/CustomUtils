@@ -4,7 +4,7 @@ using CustomUtils.Runtime.Attributes;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CustomUtils.Editor.Attributes.RequiredField
+namespace CustomUtils.Editor.AttributeDrawers.RequiredField
 {
     internal static class RequiredFieldsValidator
     {

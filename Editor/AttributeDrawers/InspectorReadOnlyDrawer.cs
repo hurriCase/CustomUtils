@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CustomUtils.Editor.Attributes
+namespace CustomUtils.Editor.AttributeDrawers
 {
     [CustomPropertyDrawer(typeof(InspectorReadOnlyAttribute))]
     internal class InspectorReadOnlyDrawer : PropertyDrawer

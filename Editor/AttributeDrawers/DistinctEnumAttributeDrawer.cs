@@ -3,7 +3,7 @@ using CustomUtils.Runtime.Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace CustomUtils.Editor.Attributes
+namespace CustomUtils.Editor.AttributeDrawers
 {
     [CustomPropertyDrawer(typeof(DistinctEnumAttribute))]
     internal sealed class DistinctEnumDrawer : PropertyDrawer

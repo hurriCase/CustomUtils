@@ -1,10 +1,10 @@
-﻿using CustomUtils.Runtime.Attributes;
+﻿using System.Reflection;
+using CustomUtils.Editor.CustomEditorUtilities;
+using CustomUtils.Runtime.Attributes;
 using UnityEditor;
 using UnityEngine;
-using System.Reflection;
-using CustomUtils.Editor.CustomEditorUtilities;
 
-namespace CustomUtils.Editor.Attributes
+namespace CustomUtils.Editor.AttributeDrawers
 {
     [CustomPropertyDrawer(typeof(HideIfAttribute))]
     public class HideIfPropertyDrawer : PropertyDrawer

@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace CustomUtils.Editor.Attributes.RequiredField
+namespace CustomUtils.Editor.AttributeDrawers.RequiredField
 {
     [CustomPropertyDrawer(typeof(RequiredFieldAttribute))]
     internal sealed class RequiredFieldDrawer : PropertyDrawer
