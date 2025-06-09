@@ -30,7 +30,7 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (!_image.sprite)
+            if (!_image.sprite || BackgroundType.CornerRatio == 0 || string.IsNullOrWhiteSpace(BackgroundType.Name))
                 return;
 
             var spriteCornerSize = _image.sprite.border.x;

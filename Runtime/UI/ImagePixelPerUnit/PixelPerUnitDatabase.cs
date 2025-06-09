@@ -16,9 +16,9 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
     {
         [field: SerializeField] internal List<PixelPerUnitData> PixelPerUnitData { get; private set; }
 
-        internal List<string> GetBackgroundTypeNames() => PixelPerUnitData?.Select(data => data.Name).ToList();
+        internal List<string> GetPixelPerUnitTypeNames() => PixelPerUnitData?.Select(data => data.Name).ToList();
 
-        internal PixelPerUnitData GetPixelPerUnitData(string backgroundTypeName)
-            => PixelPerUnitData.AsValueEnumerable().FirstOrDefault(data => data.Name == backgroundTypeName);
+        internal PixelPerUnitData GetPixelPerUnitData(string pixelPerUnityTypeName)
+            => PixelPerUnitData.AsValueEnumerable().FirstOrDefault(data => data.Name == pixelPerUnityTypeName);
     }
 }
