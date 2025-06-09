@@ -72,7 +72,7 @@ namespace CustomUtils.Editor.UI.Theme
 
             if (colorNames is null || colorNames.Count == 0)
             {
-                EditorVisualControls.WarningBox("There is no colors in database or color name is invalid.");
+                EditorVisualControls.WarningBox("There is no colors in database.");
                 return;
             }
 
