@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
@@ -37,7 +36,8 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (!_image.sprite || BackgroundType.CornerRatio == 0 || string.IsNullOrWhiteSpace(BackgroundType.Name))
+            if (!_image || !_image.sprite || BackgroundType.CornerRatio == 0 ||
+                string.IsNullOrWhiteSpace(BackgroundType.Name))
                 return;
 
             var (spriteCornerSize, rectSize) = DimensionType switch
