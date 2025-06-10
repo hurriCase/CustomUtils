@@ -24,7 +24,7 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
             UpdateImagePixelPerUnit();
         }
 
-        private void Update()
+        private void OnRectTransformDimensionsChange()
         {
             UpdateImagePixelPerUnit();
         }
