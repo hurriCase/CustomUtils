@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
@@ -21,6 +22,11 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
             _image.type = Image.Type.Sliced;
 
+            UpdateImagePixelPerUnit();
+        }
+
+        private void OnValidate()
+        {
             UpdateImagePixelPerUnit();
         }
 
