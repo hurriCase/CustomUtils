@@ -197,18 +197,15 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                 var actualSpacing = _spacing;
                 var hasFlexibleChildren = GetTotalFlexibleSize(axis) > 0;
 
-                switch (surplusSpace)
+                if (surplusSpace > 0)
                 {
-                    case > 0 when hasFlexibleChildren is false && _childInfos.Count > 1:
-                        actualSpacing += surplusSpace / (_childInfos.Count - 1);
-                        break;
-                    case > 0 when hasFlexibleChildren:
+                    if (hasFlexibleChildren)
                         itemFlexibleMultiplier = surplusSpace / GetTotalFlexibleSize(axis);
-                        break;
-                    case > 0:
+                    else if (childForceExpandSize && _childInfos.Count > 1)
+                        actualSpacing += surplusSpace / (_childInfos.Count - 1);
+                    else
                         pos = GetStartOffset(axis,
                             GetTotalPreferredSize(axis) - (axis == 0 ? padding.horizontal : padding.vertical));
-                        break;
                 }
 
                 float minMaxLerp = 0;
