@@ -535,6 +535,43 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a read-only float field with Unity's standard styling.
+        /// </summary>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The float value to display.</param>
+        /// <remarks>
+        /// This method temporarily disables GUI interaction to create a non-editable float field
+        /// that maintains Unity's standard visual appearance. The field appears grayed out to
+        /// indicate its read-only state.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void ReadOnlyFloatField(string label, float value)
+        {
+            var originalEnabled = GUI.enabled;
+            GUI.enabled = false;
+            EditorGUILayout.FloatField(label, value);
+            GUI.enabled = originalEnabled;
+        }
+
+        /// <summary>
+        /// Creates a read-only float field with custom rect positioning and Unity's standard styling.
+        /// </summary>
+        /// <param name="rect">The rect where the field should be drawn.</param>
+        /// <param name="value">The float value to display.</param>
+        /// <remarks>
+        /// This method temporarily disables GUI interaction to create a non-editable float field
+        /// with precise positioning control. The field appears grayed out to indicate its read-only state.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void ReadOnlyFloatField(Rect rect, float value)
+        {
+            var originalEnabled = GUI.enabled;
+            GUI.enabled = false;
+            EditorGUI.FloatField(rect, value);
+            GUI.enabled = originalEnabled;
+        }
+
+        /// <summary>
         /// Creates a scrollable area for the content defined in the action.
         /// Uses the 'using' pattern for automatic cleanup.
         /// </summary>
