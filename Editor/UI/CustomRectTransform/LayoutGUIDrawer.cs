@@ -1,7 +1,6 @@
 ﻿#if IS_RECTTRANSFORM_EXTENDED_ENABLED
 using System.Reflection;
 using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Editor.PersistentEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,12 +24,7 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 null, new[] { typeof(GUIContent), typeof(GUIStyle) }, null);
         }
 
-        internal void DrawVector2FieldStacked(string mainLabel,
-            PersistentEditorProperty<float> xProperty,
-            PersistentEditorProperty<float> yProperty,
-            EditorStateControls stateControls,
-            string xLabel = "X",
-            string yLabel = "Y")
+        internal void DrawVector2FieldStacked(string mainLabel, ref float xValue, ref float yValue, EditorStateControls stateControls, string xLabel = "X", string yLabel = "Y")
         {
             var controlRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight * 2f);
             controlRect.height = EditorGUIUtility.singleLineHeight;
@@ -40,16 +34,11 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
 
             var (firstColumn, secondColumn) = GetTwoColumnRects(controlRect);
 
-            DrawStackedField(firstColumn, xLabel, $"{mainLabel} {xLabel}", xProperty, stateControls);
-            DrawStackedField(secondColumn, yLabel, $"{mainLabel} {yLabel}", yProperty, stateControls);
+            DrawStackedField(firstColumn, xLabel, ref xValue, stateControls);
+            DrawStackedField(secondColumn, yLabel, ref yValue, stateControls);
         }
 
-        internal void DrawVector2FieldHorizontal(string label,
-            PersistentEditorProperty<float> xProperty,
-            PersistentEditorProperty<float> yProperty,
-            EditorStateControls stateControls,
-            string xLabel = "X",
-            string yLabel = "Y")
+        internal void DrawVector2FieldHorizontal(string label, ref float xValue, ref float yValue, EditorStateControls stateControls, string xLabel = "X", string yLabel = "Y")
         {
             var controlRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
             var controlId = GUIUtility.GetControlID(label.GetHashCode(), FocusType.Keyboard, controlRect);
@@ -68,17 +57,14 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
 
             var (xRect, yRect) = GetHorizontalFieldRects(fieldRect);
 
-            xProperty.Value =
-                stateControls.FloatField(xRect, $"{label} {xLabel}", new GUIContent(xLabel), xProperty.Value);
-            yProperty.Value =
-                stateControls.FloatField(yRect, $"{label} {yLabel}", new GUIContent(yLabel), yProperty.Value);
+            xValue = stateControls.FloatField(xRect, $"{label} {xLabel}", new GUIContent(xLabel), xValue);
+            yValue = stateControls.FloatField(yRect, $"{label} {yLabel}", new GUIContent(yLabel), yValue);
 
             EditorGUIUtility.labelWidth = originalLabelWidth;
             EditorGUI.indentLevel = originalIndentLevel;
         }
 
-        internal void DrawVector2ReadOnly(string mainLabel, float xValue, float yValue, string xLabel = "X",
-            string yLabel = "Y")
+        internal void DrawVector2ReadOnly(string mainLabel, float xValue, float yValue, string xLabel = "X", string yLabel = "Y")
         {
             var controlRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight * 2f);
             controlRect.height = EditorGUIUtility.singleLineHeight;
@@ -99,18 +85,17 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 EditorGUIUtility.singleLineHeight);
 
             EditorVisualControls.LabelField(labelRect, labelText);
-            EditorGUI.FloatField(fieldRect, value);
+            EditorVisualControls.ReadOnlyFloatField(fieldRect, value);
         }
 
-        private void DrawStackedField(Rect columnRect, string labelText, string controlName,
-            PersistentEditorProperty<float> property, EditorStateControls stateControls)
+        private void DrawStackedField(Rect columnRect, string labelText, ref float value, EditorStateControls stateControls)
         {
             var labelRect = new Rect(columnRect.x, columnRect.y, columnRect.width, EditorGUIUtility.singleLineHeight);
             var fieldRect = new Rect(columnRect.x, columnRect.y + EditorGUIUtility.singleLineHeight, columnRect.width,
                 EditorGUIUtility.singleLineHeight);
 
             EditorVisualControls.LabelField(labelRect, labelText);
-            property.Value = stateControls.FloatField(fieldRect, controlName, property.Value);
+            value = stateControls.FloatField(fieldRect, labelText, value);
         }
 
         private (Rect first, Rect second) GetTwoColumnRects(Rect totalRect)

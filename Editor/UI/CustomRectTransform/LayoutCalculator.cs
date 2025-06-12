@@ -13,17 +13,16 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 return LayoutData.Empty;
 
             var parentSize = CalculateParentSize(rectTransform);
-            var margins = CalculateMargins(rectTransform, parentSize);
 
-            return new LayoutData
+            var layoutData = new LayoutData
             {
                 ParentWidth = parentSize.x,
                 ParentHeight = parentSize.y,
-                LeftMargin = margins.Left,
-                RightMargin = margins.Right,
-                TopMargin = margins.Top,
-                BottomMargin = margins.Bottom
             };
+
+            CalculateMargins(rectTransform, parentSize, ref layoutData);
+
+            return layoutData;
         }
 
         private Vector2 CalculateParentSize(Transform rectTransform)
@@ -52,21 +51,18 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             return Vector2.zero;
         }
 
-        private Margins CalculateMargins(RectTransform rectTransform, Vector2 parentSize)
+        private void CalculateMargins(RectTransform rectTransform, Vector2 parentSize, ref LayoutData layoutData)
         {
             if (parentSize.x <= 0 || parentSize.y <= 0)
-                return Margins.Zero;
+                return;
 
             var horizontalMargins = CalculateHorizontalMargins(rectTransform, parentSize.x);
             var verticalMargins = CalculateVerticalMargins(rectTransform, parentSize.y);
 
-            return new Margins
-            {
-                Left = Mathf.Max(0, horizontalMargins.left),
-                Right = Mathf.Max(0, horizontalMargins.right),
-                Top = Mathf.Max(0, verticalMargins.top),
-                Bottom = Mathf.Max(0, verticalMargins.bottom)
-            };
+            layoutData.LeftMargin = Mathf.Max(0, horizontalMargins.left);
+            layoutData.RightMargin = Mathf.Max(0, horizontalMargins.right);
+            layoutData.TopMargin = Mathf.Max(0, verticalMargins.top);
+            layoutData.BottomMargin = Mathf.Max(0, verticalMargins.bottom);
         }
 
         private (float left, float right) CalculateHorizontalMargins(RectTransform rectTransform, float parentWidth)
