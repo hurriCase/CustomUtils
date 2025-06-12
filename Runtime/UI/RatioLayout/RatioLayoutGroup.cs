@@ -194,13 +194,21 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                 float itemFlexibleMultiplier = 0;
                 var surplusSpace = size - GetTotalPreferredSize(axis);
 
-                if (surplusSpace > 0)
+                var actualSpacing = _spacing;
+                var hasFlexibleChildren = GetTotalFlexibleSize(axis) > 0;
+
+                switch (surplusSpace)
                 {
-                    if (GetTotalFlexibleSize(axis) == 0)
+                    case > 0 when hasFlexibleChildren is false && _childInfos.Count > 1:
+                        actualSpacing += surplusSpace / (_childInfos.Count - 1);
+                        break;
+                    case > 0 when hasFlexibleChildren:
+                        itemFlexibleMultiplier = surplusSpace / GetTotalFlexibleSize(axis);
+                        break;
+                    case > 0:
                         pos = GetStartOffset(axis,
                             GetTotalPreferredSize(axis) - (axis == 0 ? padding.horizontal : padding.vertical));
-                    else if (GetTotalFlexibleSize(axis) > 0)
-                        itemFlexibleMultiplier = surplusSpace / GetTotalFlexibleSize(axis);
+                        break;
                 }
 
                 float minMaxLerp = 0;
@@ -238,7 +246,7 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                         SetChildAlongAxisWithScale(childInfo.RectTransform, axis, pos + offsetInCell, scaleFactor);
                     }
 
-                    pos += childSize * scaleFactor + _spacing;
+                    pos += childSize * scaleFactor + actualSpacing;
                 }
             }
         }
