@@ -21,7 +21,7 @@
         internal const string LocalizationSettingsAssetName = "LocalizationSettings";
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
         internal const string LocalizationSheetsPath =
-            ResourcesPath + "/" + LocalizationSettingsResourcesPath + "Localization";
+            ResourcesPath + "/" + LocalizationSettingsResourcesPath + "/" + "Localization";
 
         internal const string AssetLoaderConfigFullPath = ResourcesPath + "/" + AssetLoaderConfigResourcesPath;
         internal const string AssetLoaderConfigAssetName = "AssetLoaderConfig";
