@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.Extensions
         /// Sets alpha to 0 and disables both interactable and blocksRaycasts properties.
         /// </remarks>
         [UsedImplicitly]
-        public static void Hive(this CanvasGroup canvasGroup)
+        public static void Hide(this CanvasGroup canvasGroup)
         {
             canvasGroup.alpha = 0f;
             canvasGroup.interactable = false;
