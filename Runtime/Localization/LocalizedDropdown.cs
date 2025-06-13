@@ -3,8 +3,9 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.Localization
 {
+    /// <inheritdoc />
     /// <summary>
-    ///     Localize dropdown component.
+    /// Localize dropdown component.
     /// </summary>
     [RequireComponent(typeof(Dropdown))]
     internal sealed class LocalizedDropdown : MonoBehaviour
@@ -14,12 +15,12 @@ namespace CustomUtils.Runtime.Localization
         internal void Start()
         {
             Localize();
-            LocalizationManager.OnLocalizationChanged += Localize;
+            LocalizationController.OnLocalizationChanged += Localize;
         }
 
         internal void OnDestroy()
         {
-            LocalizationManager.OnLocalizationChanged -= Localize;
+            LocalizationController.OnLocalizationChanged -= Localize;
         }
 
         private void Localize()
@@ -27,10 +28,10 @@ namespace CustomUtils.Runtime.Localization
             var dropdown = GetComponent<Dropdown>();
 
             for (var i = 0; i < LocalizationKeys.Length; i++)
-                dropdown.options[i].text = LocalizationManager.Localize(LocalizationKeys[i]);
+                dropdown.options[i].text = LocalizationController.Localize(LocalizationKeys[i]);
 
             if (dropdown.value < LocalizationKeys.Length)
-                dropdown.captionText.text = LocalizationManager.Localize(LocalizationKeys[dropdown.value]);
+                dropdown.captionText.text = LocalizationController.Localize(LocalizationKeys[dropdown.value]);
         }
     }
 }

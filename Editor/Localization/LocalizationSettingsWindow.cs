@@ -18,17 +18,6 @@ namespace CustomUtils.Editor.Localization
             GetWindow<LocalizationSettingsWindow>("Localization Settings");
         }
 
-        [MenuItem("--Project--/Localization/Reset")]
-        internal static void ResetSettings()
-        {
-            if (EditorUtility.DisplayDialog(
-                    "Simple Localization",
-                    "Do you want to reset settings?",
-                    "Yes",
-                    "No"))
-                LocalizationSettings.Instance.Reset();
-        }
-
         private void MakeSettingsWindow()
         {
             minSize = new Vector2(300, 500);

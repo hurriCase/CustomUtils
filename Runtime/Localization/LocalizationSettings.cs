@@ -41,14 +41,6 @@ namespace CustomUtils.Runtime.Localization
         private const string URLPattern =
             "https://docs.google.com/spreadsheets/d/{0}/export?format=csv&gid={1}";
 
-        private Object _saveFolder;
-
-        private void Awake()
-        {
-            if (Sheets == null || !_saveFolder)
-                Reset();
-        }
-
         private void DownloadGoogleSheets(Action callback = null)
         {
 #if UNITY_EDITOR
@@ -62,17 +54,6 @@ namespace CustomUtils.Runtime.Localization
             {
                 EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
                 yield break;
-            }
-
-            if (!_saveFolder)
-            {
-                Reset();
-
-                if (!_saveFolder)
-                {
-                    EditorUtility.DisplayDialog("Error", "Save Folder is not set.", "OK");
-                    yield break;
-                }
             }
 
             if (Sheets.Count == 0)
@@ -111,7 +92,7 @@ namespace CustomUtils.Runtime.Localization
 
                 if (string.IsNullOrEmpty(error))
                 {
-                    var path = Path.Combine(AssetDatabase.GetAssetPath(_saveFolder), sheet.Name + ".csv");
+                    var path = Path.Combine(ResourcePaths.LocalizationSheetsPath, sheet.Name + ".csv");
 
                     File.WriteAllBytes(path, request.downloadHandler.data);
                     AssetDatabase.Refresh();
@@ -143,7 +124,7 @@ namespace CustomUtils.Runtime.Localization
 
             void ClearSaveFolder()
             {
-                var files = Directory.GetFiles(AssetDatabase.GetAssetPath(_saveFolder));
+                var files = Directory.GetFiles(ResourcePaths.LocalizationSheetsPath);
 
                 foreach (var file in files)
                     File.Delete(file);
@@ -156,14 +137,6 @@ namespace CustomUtils.Runtime.Localization
                 Debug.LogWarning("Table ID is empty.");
             else
                 Application.OpenURL(string.Format(SpreedSettings.TableUrlPattern, TableId));
-        }
-
-        internal void Reset()
-        {
-            if (AssetDatabase.IsValidFolder(ResourcePaths.LocalizationsFolderPath) is false)
-                Directory.CreateDirectory(ResourcePaths.LocalizationsFolderPath);
-
-            _saveFolder = AssetDatabase.LoadAssetAtPath<Object>(ResourcePaths.LocalizationsFolderPath);
         }
 
         private void ResolveGoogleSheets()
@@ -261,8 +234,6 @@ namespace CustomUtils.Runtime.Localization
         {
             if (TableId == "")
                 EditorGUILayout.HelpBox("Table Id is empty.", MessageType.Warning);
-            else if (!_saveFolder)
-                EditorGUILayout.HelpBox("Save Folder is not set.", MessageType.Warning);
             else if (Sheets.Count == 0)
                 EditorGUILayout.HelpBox("Sheets are empty.", MessageType.Warning);
             else if (Sheets.Any(sheet => sheet.TextAsset is null))

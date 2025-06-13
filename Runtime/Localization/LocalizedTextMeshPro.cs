@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Localization
 {
+    /// <inheritdoc />
     /// <summary>
     /// Localize text component with font support.
     /// </summary>
@@ -24,22 +25,22 @@ namespace CustomUtils.Runtime.Localization
         private void Start()
         {
             Localize();
-            LocalizationManager.OnLocalizationChanged += Localize;
+            LocalizationController.OnLocalizationChanged += Localize;
         }
 
         private void OnDestroy()
         {
-            LocalizationManager.OnLocalizationChanged -= Localize;
+            LocalizationController.OnLocalizationChanged -= Localize;
         }
 
         private void Localize()
         {
             _textComponent ??= GetComponent<TextMeshProUGUI>();
 
-            _textComponent.text = LocalizationManager.Localize(LocalizationKey);
+            _textComponent.text = LocalizationController.Localize(LocalizationKey);
 
             var isFontSpecified =
-                LocalizationManager.TryGetFontForLanguage(LocalizationManager.Language, out var languageFontMapping);
+                LocalizationController.TryGetFontForLanguage(LocalizationController.Language, out var languageFontMapping);
 
             _textComponent.font = isFontSpecified ? languageFontMapping.Font : _originalFont;
         }

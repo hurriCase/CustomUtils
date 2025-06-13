@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using UnityEngine;
 using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
-    ///     Localization manager.
+    /// Localization controller.
     /// </summary>
-    public static class LocalizationManager
+    [UsedImplicitly]
+    public static class LocalizationController
     {
         /// <summary>
-        ///     Fired when localization changed.
+        /// Fired when localization changed.
         /// </summary>
         public static event Action OnLocalizationChanged = () => { };
 
@@ -21,8 +23,9 @@ namespace CustomUtils.Runtime.Localization
         private static string _language = "English";
 
         /// <summary>
-        ///     Get or set language.
+        /// Get or set language.
         /// </summary>
+        [UsedImplicitly]
         public static string Language
         {
             get => _language;
@@ -34,12 +37,77 @@ namespace CustomUtils.Runtime.Localization
         }
 
         /// <summary>
-        ///     Set default language.
+        /// Check if a key exists in localization.
         /// </summary>
-        private static void AutoLanguage() => Language = "English";
+        [UsedImplicitly]
+        public static bool HasKey(string localizationKey) =>
+            _dictionary.ContainsKey(Language) && _dictionary[Language].ContainsKey(localizationKey);
 
         /// <summary>
-        ///     Read localization spreadsheets.
+        ///     Check if a language exists in localization.
+        /// </summary>
+        [UsedImplicitly]
+        public static bool HasLanguage(string language) =>
+            _dictionary.ContainsKey(language);
+
+        [UsedImplicitly]
+        public static bool TryGetFontForLanguage(string language, out LanguageFontMapping fontMapping)
+        {
+            fontMapping = null;
+
+            var fontMappings = LocalizationSettings.Instance.FontMappings;
+            if (fontMappings == null)
+                return false;
+
+            foreach (var mapping in fontMappings)
+            {
+                if (mapping.Language.Equals(language, StringComparison.OrdinalIgnoreCase) is false)
+                    continue;
+
+                fontMapping = mapping;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Get localized value by localization key.
+        /// </summary>
+        [UsedImplicitly]
+        public static string Localize(string localizationKey)
+        {
+            if (_dictionary.Count == 0) Read();
+
+            if (_dictionary.ContainsKey(Language) is false)
+                throw new KeyNotFoundException("Language not found: " + Language);
+
+            var missed = _dictionary[Language].ContainsKey(localizationKey) is false ||
+                         string.IsNullOrEmpty(_dictionary[Language][localizationKey]);
+
+            if (missed is false)
+                return _dictionary[Language][localizationKey];
+
+            Debug.LogWarning($"Translation not found: {localizationKey} ({Language}).");
+
+            return _dictionary["English"].ContainsKey(localizationKey)
+                ? _dictionary["English"][localizationKey]
+                : localizationKey;
+        }
+
+        /// <summary>
+        /// Get localized value by localization key.
+        /// </summary>
+        [UsedImplicitly]
+        public static string Localize(string localizationKey, params object[] args)
+        {
+            var pattern = Localize(localizationKey);
+
+            return string.Format(pattern, args);
+        }
+
+        /// <summary>
+        /// Read localization spreadsheets.
         /// </summary>
         private static void Read()
         {
@@ -93,76 +161,6 @@ namespace CustomUtils.Runtime.Localization
             AutoLanguage();
         }
 
-        /// <summary>
-        ///     Check if a key exists in localization.
-        /// </summary>
-        public static bool HasKey(string localizationKey) =>
-            _dictionary.ContainsKey(Language) && _dictionary[Language].ContainsKey(localizationKey);
-
-        /// <summary>
-        ///     Check if a language exists in localization.
-        /// </summary>
-        public static bool HasLanguage(string language) =>
-            _dictionary.ContainsKey(language);
-
-        /// <summary>
-        ///     Get localized value by localization key.
-        /// </summary>
-        public static string Localize(string localizationKey)
-        {
-            if (_dictionary.Count == 0) Read();
-
-            if (_dictionary.ContainsKey(Language) is false)
-                throw new KeyNotFoundException("Language not found: " + Language);
-
-            var missed = _dictionary[Language].ContainsKey(localizationKey) is false ||
-                         _dictionary[Language][localizationKey] == "";
-
-            if (missed)
-            {
-                Debug.LogWarning($"Translation not found: {localizationKey} ({Language}).");
-
-                return _dictionary["English"].ContainsKey(localizationKey)
-                    ? _dictionary["English"][localizationKey]
-                    : localizationKey;
-            }
-
-            return _dictionary[Language][localizationKey];
-        }
-
-        /// <summary>
-        ///     Get localized value by localization key.
-        /// </summary>
-        public static string Localize(string localizationKey, params object[] args)
-        {
-            var pattern = Localize(localizationKey);
-
-            return string.Format(pattern, args);
-        }
-
-        public static bool TryGetFontForLanguage(string language, out LanguageFontMapping fontMapping)
-        {
-            fontMapping = null;
-
-            if (LocalizationSettings.Instance is null)
-                return false;
-
-            var fontMappings = LocalizationSettings.Instance.FontMappings;
-            if (fontMappings == null)
-                return false;
-
-            foreach (var mapping in fontMappings)
-            {
-                if (mapping.Language.Equals(language, StringComparison.OrdinalIgnoreCase) is false)
-                    continue;
-
-                fontMapping = mapping;
-                return true;
-            }
-
-            return false;
-        }
-
         private static List<string> GetLines(string text)
         {
             text = text.Replace("\r\n", "\n").Replace("\"\"", "[_quote_]");
@@ -187,5 +185,7 @@ namespace CustomUtils.Runtime.Localization
             return line.Split(',').Select(j => j.Trim()).Select(j =>
                 j.Replace("[_quote_]", "\"").Replace("[_comma_]", ",").Replace("[_newline_]", "\n")).ToList();
         }
+
+        private static void AutoLanguage() => Language = "English";
     }
 }
