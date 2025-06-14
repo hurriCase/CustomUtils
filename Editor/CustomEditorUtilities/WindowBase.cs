@@ -119,8 +119,17 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// </summary>
         protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
 
-        protected void PropertyField(string fieldName, bool includeChildren = false)
-            => EditorStateControls.PropertyField(serializedObject.FindField(fieldName), includeChildren);
+        protected void PropertyField(string fieldName, bool includeChildren = true)
+        {
+            if (serializedObject == null)
+            {
+                EditorVisualControls.WarningBox("Serialized Object isn't set.");
+                return;
+            }
+
+            var property = serializedObject.FindField(fieldName);
+            EditorStateControls.PropertyField(property, includeChildren);
+        }
 
         private void OnEnable()
         {
@@ -139,7 +148,15 @@ namespace CustomUtils.Editor.CustomEditorUtilities
 
         private void OnGUI()
         {
+            serializedObject?.Update();
+
             DrawWindowContent();
+
+            if (serializedObject == null)
+                return;
+
+            if (serializedObject.ApplyModifiedProperties())
+                EditorUtility.SetDirty(serializedObject.targetObject);
         }
 
         private void SaveWindowPreferences()
