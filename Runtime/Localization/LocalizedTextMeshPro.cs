@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Localization
 {
     [RequireComponent(typeof(TextMeshProUGUI))]
-    internal sealed class LocalizedTextMeshPro : TexBehaviour
+    internal sealed class LocalizedTextMeshPro : TextBehaviour
     {
         [field: SerializeField] internal string LocalizationKey { get; set; }
 

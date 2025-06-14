@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.CustomBehaviours
 {
     [UsedImplicitly]
-    public class TexBehaviour : MonoBehaviour
+    public class TextBehaviour : MonoBehaviour
     {
         [UsedImplicitly]
         public TextMeshProUGUI TextComponent =>
