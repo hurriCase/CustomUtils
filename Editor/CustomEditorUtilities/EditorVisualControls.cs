@@ -375,6 +375,27 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Creates a standard button with consistent styling.
+        /// </summary>
+        /// <param name="text">The text to display on the button.</param>
+        /// <param name="buttonStyle">The GUIStyle to use for rendering the button.</param>
+        [UsedImplicitly]
+        public static bool Button(string text, GUIStyle buttonStyle) => GUILayout.Button(text, buttonStyle);
+
+        /// <summary>
+        /// Creates a button that executes an action when clicked.
+        /// </summary>
+        /// <param name="text">The text to display on the button.</param>
+        /// <param name="drawContent">Action to execute when the button is clicked. Can be null.</param>
+        /// <param name="buttonStyle">The GUIStyle to use for rendering the button.</param>
+        [UsedImplicitly]
+        public static void Button(string text, Action drawContent, GUIStyle buttonStyle)
+        {
+            if (GUILayout.Button(text, buttonStyle))
+                drawContent?.Invoke();
+        }
+
+        /// <summary>
         /// Creates a primary heading (H1) with consistent styling.
         /// </summary>
         /// <param name="text">The text to display as a heading.</param>
