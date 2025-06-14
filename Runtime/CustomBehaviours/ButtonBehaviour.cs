@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.CustomBehaviours
     public class ButtonBehaviour : MonoBehaviour
     {
         [UsedImplicitly]
-        public Button TextComponent =>
+        public Button ButtonComponent =>
             _buttonComponent = _buttonComponent ? _buttonComponent : GetComponent<Button>();
         private Button _buttonComponent;
     }
