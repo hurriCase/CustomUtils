@@ -17,10 +17,33 @@ namespace CustomUtils.Runtime.Audio
     /// <typeparam name="TMusicType">Enum type for music categories</typeparam>
     /// <typeparam name="TSoundType">Enum type for sound effect categories</typeparam>
     [UsedImplicitly]
-    public abstract class AudioHandlerBase<TMusicType, TSoundType> : MonoBehaviour
+    public abstract class AudioHandlerGeneric<TMusicType, TSoundType> : MonoBehaviour
         where TMusicType : unmanaged, Enum
         where TSoundType : unmanaged, Enum
     {
+        [UsedImplicitly] public static AudioHandlerGeneric<TMusicType, TSoundType> Instance { get; private set; }
+
+#if UNITY_EDITOR
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticVariables()
+        {
+            Instance = null;
+        }
+#endif
+        protected virtual void Awake()
+        {
+            if (!Instance)
+            {
+                Instance = this;
+
+                DontDestroyOnLoad(gameObject);
+                return;
+            }
+
+            if (Instance != this)
+                Destroy(gameObject);
+        }
+
         [SerializeField] protected AudioDatabaseGeneric<TMusicType, TSoundType> _audioDatabaseGeneric;
         [SerializeField] protected AudioSource _soundSourcePrefab;
         [SerializeField] protected AudioSource _musicSource;
@@ -44,6 +67,8 @@ namespace CustomUtils.Runtime.Audio
         {
             _soundPool = new PoolHandler<AudioSource>();
             _soundPool.Init(_soundSourcePrefab, _defaultSoundPoolCount, _defaultSoundPoolCount * 5);
+
+            _audioDatabaseGeneric.Init();
 
             var soundDisposable = SoundVolume
                 .Subscribe(this, (handler, volume) => handler.OnSoundVolumeChanged(volume));
