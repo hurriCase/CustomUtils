@@ -68,7 +68,8 @@ namespace CustomUtils.Runtime.Localization
 
             Timestamp = DateTime.UtcNow;
 
-            if (silent is false) ClearSaveFolder();
+            if (silent is false)
+                ClearSaveFolder();
 
             for (var i = 0; i < Sheets.Count; i++)
             {
@@ -119,16 +120,17 @@ namespace CustomUtils.Runtime.Localization
 
             if (silent is false)
                 EditorUtility.DisplayDialog("Message", $"{Sheets.Count} localization sheets downloaded!", "OK");
+        }
 
-            yield break;
+        private void ClearSaveFolder()
+        {
+            if (Directory.Exists(ResourcePaths.LocalizationSheetsPath) is false)
+                Directory.CreateDirectory(ResourcePaths.LocalizationSheetsPath);
 
-            void ClearSaveFolder()
-            {
-                var files = Directory.GetFiles(ResourcePaths.LocalizationSheetsPath);
+            var files = Directory.GetFiles(ResourcePaths.LocalizationSheetsPath);
 
-                foreach (var file in files)
-                    File.Delete(file);
-            }
+            foreach (var file in files)
+                File.Delete(file);
         }
 
         private void OpenGoogleSheets()
@@ -188,7 +190,8 @@ namespace CustomUtils.Runtime.Localization
                         Sheets.Add(new Sheet { Id = item.Value, Name = item.Key });
 
                     EditorUtility.DisplayDialog("Message",
-                        $"{Sheets.Count} sheets resolved: {string.Join(", ", Sheets.AsValueEnumerable().Select(i => i.Name))}.", "OK");
+                        $"{Sheets.Count} sheets resolved: {string.Join(", ", Sheets.AsValueEnumerable().Select(i => i.Name))}.",
+                        "OK");
                 }
                 else
                     throw new Exception(request.error);
