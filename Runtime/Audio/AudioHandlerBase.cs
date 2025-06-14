@@ -23,7 +23,6 @@ namespace CustomUtils.Runtime.Audio
         where TMusicType : unmanaged, Enum
         where TSoundType : unmanaged, Enum
     {
-        [SerializeField] protected AudioDatabaseGeneric<TMusicType, TSoundType> _audioDatabaseGeneric;
         [SerializeField] protected AudioSource _soundSourcePrefab;
         [SerializeField] protected AudioSource _musicSource;
         [SerializeField] protected AudioSource _oneShotSource;
@@ -31,6 +30,9 @@ namespace CustomUtils.Runtime.Audio
 
         protected virtual PersistentReactiveProperty<float> MusicVolume { get; } = new("music_volume_key", 1);
         protected virtual PersistentReactiveProperty<float> SoundVolume { get; } = new("sound_volume_key", 1);
+
+        private AudioDatabaseGeneric<TMusicType, TSoundType> AudioDatabaseGeneric =>
+            AudioDatabaseGeneric<TMusicType, TSoundType>.Instance;
 
         private readonly Dictionary<int, float> _lastPlayedTimes = new();
         private readonly SortedDictionary<float, AliveAudioData<TSoundType>> _sortedAliveAudioData = new();
@@ -80,7 +82,7 @@ namespace CustomUtils.Runtime.Audio
         [UsedImplicitly]
         public virtual AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
         {
-            var soundData = _audioDatabaseGeneric.GetSoundContainer(soundType);
+            var soundData = AudioDatabaseGeneric.GetSoundContainer(soundType);
 
             if (soundData?.AudioData == null || !soundData.AudioData?.AudioClip)
                 return null;
@@ -152,7 +154,7 @@ namespace CustomUtils.Runtime.Audio
         [UsedImplicitly]
         public virtual void PlayOneShotSound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
         {
-            var soundData = _audioDatabaseGeneric.GetSoundContainer(soundType);
+            var soundData = AudioDatabaseGeneric.GetSoundContainer(soundType);
 
             if (soundData?.AudioData == null || !soundData.AudioData?.AudioClip)
                 return;
@@ -170,7 +172,7 @@ namespace CustomUtils.Runtime.Audio
         [UsedImplicitly]
         public virtual AudioSource PlayMusic(TMusicType musicType)
         {
-            var musicData = _audioDatabaseGeneric.GetMusicContainer(musicType);
+            var musicData = AudioDatabaseGeneric.GetMusicContainer(musicType);
             return musicData?.AudioData == null ? null : PlayMusic(musicData.AudioData);
         }
 

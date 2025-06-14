@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Runtime.Audio.Containers;
+using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -13,7 +14,8 @@ namespace CustomUtils.Runtime.Audio
     /// </summary>
     /// <typeparam name="TMusicType">Music enum type</typeparam>
     /// <typeparam name="TSoundType">Sound enum type</typeparam>
-    public abstract class AudioDatabaseGeneric<TMusicType, TSoundType> : ScriptableObject
+    public abstract class AudioDatabaseGeneric<TMusicType, TSoundType> :
+        SingletonScriptableObject<AudioDatabaseGeneric<TMusicType, TSoundType>>
         where TMusicType : unmanaged, Enum
         where TSoundType : unmanaged, Enum
     {
