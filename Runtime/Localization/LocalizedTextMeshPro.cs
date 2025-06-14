@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.Localization
     [RequireComponent(typeof(TextMeshProUGUI))]
     internal sealed class LocalizedTextMeshPro : TexBehaviour
     {
-        [field: SerializeField] internal string LocalizationKey { get; private set; }
+        [field: SerializeField] internal string LocalizationKey { get; set; }
 
         private TMP_FontAsset _originalFont;
 
