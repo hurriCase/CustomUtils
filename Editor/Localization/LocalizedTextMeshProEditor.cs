@@ -23,7 +23,7 @@ namespace CustomUtils.Editor.Localization
         protected override void InitializeEditor()
         {
             if (target && target is LocalizedTextMeshPro localizedText)
-                _textComponent = localizedText.TextComponent;
+                _textComponent = localizedText.Text;
 
             _localizationKeyProperty = serializedObject.FindField(nameof(LocalizedTextMeshPro.LocalizationKey));
 

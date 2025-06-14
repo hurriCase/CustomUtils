@@ -14,7 +14,7 @@ namespace CustomUtils.Runtime.Localization
 
         private void Awake()
         {
-            _originalFont = TextComponent.font;
+            _originalFont = Text.font;
         }
 
         private void Start()
@@ -27,13 +27,13 @@ namespace CustomUtils.Runtime.Localization
 
         private void Localize()
         {
-            TextComponent.text = LocalizationController.Localize(LocalizationKey);
+            Text.text = LocalizationController.Localize(LocalizationKey);
 
             var isFontSpecified =
                 LocalizationController.TryGetFontForLanguage(LocalizationController.Language.Value,
                     out var languageFontMapping);
 
-            TextComponent.font = isFontSpecified ? languageFontMapping.Font : _originalFont;
+            Text.font = isFontSpecified ? languageFontMapping.Font : _originalFont;
         }
     }
 }
