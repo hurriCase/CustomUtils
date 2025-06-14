@@ -45,7 +45,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 #endif
         protected virtual void Awake()
         {
-            if (_instance is null)
+            if (!_instance)
             {
                 if (_created is false)
                     _instance = CreateInstance();
@@ -71,21 +71,6 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
         private static T CreateInstance()
         {
             var type = typeof(T);
-            var instances = FindObjectsByType<T>(FindObjectsSortMode.None);
-
-            if (instances.Length > 0)
-            {
-                if (instances.Length <= 1)
-                    return instances[0];
-
-                Debug.LogWarning($"There is more than one instance of Singleton of type '{type}'." +
-                                 " Keeping the first one. Destroying the others.");
-                for (var i = 1; i < instances.Length; i++)
-                    Destroy(instances[i].gameObject);
-
-                return instances[0];
-            }
-
             var prefabName = type.Name;
 
             if (ResourceLoader<T>.TryLoad(out var prefab))
@@ -93,7 +78,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 
             var gameObject = prefab ? Instantiate(prefab.gameObject) : new GameObject(prefabName);
 
-            return _instance ??= gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
+            return gameObject.GetComponent<T>() ? gameObject.GetComponent<T>() : gameObject.AddComponent<T>();
         }
     }
 }
