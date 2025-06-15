@@ -30,7 +30,6 @@ namespace CustomUtils.Editor.Localization
         private static DateTime _lastRequestTime;
 
         private const string UrlPattern = "https://docs.google.com/spreadsheets/d/{0}/export?format=csv&gid={1}";
-        private const int MinRequestIntervalSeconds = 2;
 
         [MenuItem(MenuItemNames.LocalizationMenuName)]
         internal static void ShowWindow()
@@ -67,14 +66,37 @@ namespace CustomUtils.Editor.Localization
 
         private void DisplayButtons()
         {
-            if (EditorVisualControls.Button("↺ Resolve Sheets"))
-                ResolveGoogleSheetsInternalAsync().Forget();
-
             if (EditorVisualControls.Button("▼ Download Sheets"))
-                DownloadGoogleSheetsInternalAsync().Forget();
+                ProcessDownloadSheetsAsync().Forget();
 
             if (EditorVisualControls.Button("❖ Open Google Sheets"))
-                OpenGoogleSheets();
+                Application.OpenURL(string.Format(SpreedSettings.TableUrlPattern, LocalizationSettings.TableId));
+        }
+
+        private async UniTaskVoid ProcessDownloadSheetsAsync()
+        {
+            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
+            {
+                EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
+                return;
+            }
+
+            CancellationSourceHelper.SetNewCancellationTokenSource(ref _cancellationTokenSource);
+
+            try
+            {
+                await ResolveGoogleSheetsInternalAsync();
+                await DownloadGoogleSheetsInternalAsync();
+            }
+            catch (Exception ex)
+            {
+                EditorUtility.DisplayDialog("Error", $"Resolve failed: {ex.Message}", "OK");
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                CancellationSourceHelper.CancelAndDisposeCancellationTokenSource(ref _cancellationTokenSource);
+            }
         }
 
         private void DisplayWarnings()
@@ -87,109 +109,29 @@ namespace CustomUtils.Editor.Localization
                 EditorVisualControls.WarningBox("Sheets are not downloaded.");
         }
 
-        private async UniTask DownloadGoogleSheetsInternalAsync(bool silent = false)
+        private async UniTask DownloadGoogleSheetsInternalAsync()
         {
-            if (ValidateDownloadPrerequisites() is false)
-                return;
+            PrepareDownloadFolder();
 
-            if (CheckRequestThrottling())
-                return;
+            await ProcessSheetsDownload(_cancellationTokenSource.Token);
 
-            CancellationSourceHelper.SetNewCancellationTokenSource(ref _cancellationTokenSource);
-
-            try
-            {
-                if (silent is false)
-                    PrepareDownloadFolder();
-
-                await ProcessSheetsDownload(_cancellationTokenSource.Token);
-
-                if (silent is false)
-                    ShowCompletionDialog();
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.Log("[LocalizationSettingsWindow::DownloadGoogleSheetsInternalAsync] Download cancelled");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[LocalizationSettingsWindow::DownloadGoogleSheetsInternalAsync] " +
-                               $"Download failed: {ex.Message}");
-                EditorUtility.DisplayDialog("Error", $"Download failed: {ex.Message}", "OK");
-            }
-            finally
-            {
-                EditorUtility.ClearProgressBar();
-                CancellationSourceHelper.CancelAndDisposeCancellationTokenSource(ref _cancellationTokenSource);
-            }
+            EditorUtility.DisplayDialog("Message",
+                $"{LocalizationSettings.Sheets.Count} localization sheets downloaded!", "OK");
         }
 
         private async UniTask ResolveGoogleSheetsInternalAsync()
         {
-            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
-            {
-                EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
-                return;
-            }
+            EditorUtility.DisplayProgressBar("Resolving sheets...", "Executing Google App Script...", 0.5f);
 
-            CancellationSourceHelper.SetNewCancellationTokenSource(ref _cancellationTokenSource);
+            var requestUrl = $"{SpreedSettings.SheetResolverUrl}?tableUrl={LocalizationSettings.TableId}";
+            using var request = UnityWebRequest.Get(requestUrl);
 
-            try
-            {
-                EditorUtility.DisplayProgressBar("Resolving sheets...", "Executing Google App Script...", 0.5f);
+            await request.SendWebRequest().ToUniTask(cancellationToken: _cancellationTokenSource.Token);
 
-                var requestUrl = $"{SpreedSettings.SheetResolverUrl}?tableUrl={LocalizationSettings.TableId}";
-                using var request = UnityWebRequest.Get(requestUrl);
+            if (string.IsNullOrEmpty(request.error) is false)
+                throw new Exception($"Network error: {request.error}");
 
-                await request.SendWebRequest().ToUniTask(cancellationToken: _cancellationTokenSource.Token);
-
-                if (string.IsNullOrEmpty(request.error))
-                    ProcessResolveResponse(request);
-                else
-                    throw new Exception($"Network error: {request.error}");
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.Log("[LocalizationSettingsWindow::ResolveGoogleSheetsInternalAsync] Resolve cancelled");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[LocalizationSettingsWindow::ResolveGoogleSheetsInternalAsync] " +
-                               $"Resolve failed: {ex.Message}");
-                EditorUtility.DisplayDialog("Error", $"Resolve failed: {ex.Message}", "OK");
-            }
-            finally
-            {
-                EditorUtility.ClearProgressBar();
-                CancellationSourceHelper.CancelAndDisposeCancellationTokenSource(ref _cancellationTokenSource);
-            }
-        }
-
-        private bool ValidateDownloadPrerequisites()
-        {
-            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
-            {
-                EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
-                return false;
-            }
-
-            if (LocalizationSettings.Sheets.Count != 0)
-                return true;
-
-            EditorUtility.DisplayDialog("Error", "Sheets are empty.", "OK");
-            return false;
-        }
-
-        private bool CheckRequestThrottling()
-        {
-            if ((DateTime.UtcNow - _lastRequestTime).TotalSeconds < MinRequestIntervalSeconds)
-            {
-                EditorUtility.DisplayDialog("Message", "Too many requests! Try again later.", "OK");
-                return true;
-            }
-
-            _lastRequestTime = DateTime.UtcNow;
-            return false;
+            ProcessResolveResponse(request);
         }
 
         private void PrepareDownloadFolder()
@@ -219,12 +161,13 @@ namespace CustomUtils.Editor.Localization
 
                 await DownloadSingleSheet(sheet, i, cancellationToken);
             }
+
+            LocalizationController.ReadLocalizationData();
         }
 
         private async UniTask DownloadSingleSheet(Sheet sheet, int index, CancellationToken cancellationToken)
         {
             var url = string.Format(UrlPattern, LocalizationSettings.TableId, sheet.Id);
-            Debug.Log($"[LocalizationSettingsWindow::DownloadSingleSheet] Downloading {url}");
 
             using var request = UnityWebRequest.Get(url);
             await request.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
@@ -233,12 +176,11 @@ namespace CustomUtils.Editor.Localization
             if (string.IsNullOrEmpty(error))
             {
                 await SaveSheetData(sheet, index, request.downloadHandler.data);
+                return;
             }
-            else
-            {
-                var errorMessage = error.Contains("404") ? "Table Id is wrong!" : error;
-                throw new Exception(errorMessage);
-            }
+
+            var errorMessage = error.Contains("404") ? "Table Id is wrong!" : error;
+            throw new Exception(errorMessage);
         }
 
         private string GetRequestError(UnityWebRequest request)
@@ -267,12 +209,6 @@ namespace CustomUtils.Editor.Localization
                       $"Sheet {sheet.Name} ({sheet.Id}) saved to {path}");
         }
 
-        private void ShowCompletionDialog()
-        {
-            EditorUtility.DisplayDialog("Message",
-                $"{LocalizationSettings.Sheets.Count} localization sheets downloaded!", "OK");
-        }
-
         private void ProcessResolveResponse(UnityWebRequest request)
         {
             var error = ExtractInternalError(request);
@@ -289,13 +225,13 @@ namespace CustomUtils.Editor.Localization
 
             LocalizationSettings.Sheets.Clear();
             foreach (var (sheetName, id) in sheetsDict)
-                LocalizationSettings.Sheets.Add(new Sheet { Id = id, Name = sheetName });
-
-            var sheetNames = string.Join(", ", LocalizationSettings.Sheets.AsValueEnumerable()
-                .Select(sheet => sheet.Name).ToArray());
-
-            EditorUtility.DisplayDialog("Message",
-                $"{LocalizationSettings.Sheets.Count} sheets resolved: {sheetNames}.", "OK");
+            {
+                LocalizationSettings.Sheets.Add(new Sheet
+                {
+                    Id = id,
+                    Name = sheetName
+                });
+            }
         }
 
         private static string ExtractInternalError(UnityWebRequest request)
@@ -308,19 +244,6 @@ namespace CustomUtils.Editor.Localization
             return matches.Count > 0
                 ? matches[1].Groups["Message"].Value.Replace("quot;", string.Empty)
                 : request.downloadHandler.text;
-        }
-
-        [UsedImplicitly]
-        internal void OpenGoogleSheets()
-        {
-            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
-            {
-                Debug.LogWarning("[LocalizationSettingsWindow::OpenGoogleSheets] Table ID is empty.");
-                return;
-            }
-
-            var url = string.Format(SpreedSettings.TableUrlPattern, LocalizationSettings.TableId);
-            Application.OpenURL(url);
         }
     }
 }

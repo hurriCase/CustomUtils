@@ -16,7 +16,6 @@ namespace CustomUtils.Runtime.Localization
     public static class LocalizationController
     {
         private static readonly Dictionary<string, Dictionary<string, string>> _dictionary = new();
-        private static bool _isInitialized;
 
         /// <summary>
         /// Reactive property for current language with automatic localization updates.
@@ -25,24 +24,14 @@ namespace CustomUtils.Runtime.Localization
         public static ReactiveProperty<string> Language { get; } = new(LocalizationSettings.Instance.DefaultLanguage);
 
         /// <summary>
-        /// Observable that emits when any localization data changes.
-        /// </summary>
-        [UsedImplicitly]
-        public static Observable<Unit> OnLocalizationChanged => Language.Select(_ => Unit.Default);
-
-        /// <summary>
         /// Checks if a localization key exists for the current language.
         /// </summary>
         /// <param name="localizationKey">The key to check.</param>
         /// <returns>True if the key exists, false otherwise.</returns>
         [UsedImplicitly]
-        public static bool HasKey(string localizationKey)
-        {
-            EnsureInitialized();
-
-            return _dictionary.ContainsKey(Language.Value) &&
-                   _dictionary[Language.Value].ContainsKey(localizationKey);
-        }
+        public static bool HasKey(string localizationKey) =>
+            _dictionary.ContainsKey(Language.Value) &&
+            _dictionary[Language.Value].ContainsKey(localizationKey);
 
         /// <summary>
         /// Checks if a language exists in the localization data.
@@ -50,12 +39,7 @@ namespace CustomUtils.Runtime.Localization
         /// <param name="language">The language to check.</param>
         /// <returns>True if the language exists, false otherwise.</returns>
         [UsedImplicitly]
-        public static bool HasLanguage(string language)
-        {
-            EnsureInitialized();
-
-            return _dictionary.ContainsKey(language);
-        }
+        public static bool HasLanguage(string language) => _dictionary.ContainsKey(language);
 
         /// <summary>
         /// Attempts to get font mapping for the specified language.
@@ -88,8 +72,6 @@ namespace CustomUtils.Runtime.Localization
         {
             if (string.IsNullOrEmpty(localizationKey))
                 return localizationKey;
-
-            EnsureInitialized();
 
             if (_dictionary.ContainsKey(Language.Value) is false)
             {
@@ -131,46 +113,22 @@ namespace CustomUtils.Runtime.Localization
             }
         }
 
-        /// <summary>
-        /// Forces reinitialization of localization data.
-        /// </summary>
-        [UsedImplicitly]
-        public static void Refresh()
-        {
-            _dictionary.Clear();
-
-            _isInitialized = false;
-
-            EnsureInitialized();
-        }
-
         internal static string[] GetAllKeys()
         {
-            EnsureInitialized();
-
             var allKeys = new HashSet<string>();
             foreach (var languageDict in _dictionary.Values)
             {
                 foreach (var key in languageDict.Keys)
-                {
                     allKeys.Add(key);
-                }
             }
 
             return allKeys.OrderBy(k => k).ToArray();
         }
 
-        internal static string[] GetAllLanguages()
-        {
-            EnsureInitialized();
-
-            return _dictionary.Keys.OrderBy(language => language).ToArray();
-        }
+        internal static string[] GetAllLanguages() => _dictionary.Keys.OrderBy(language => language).ToArray();
 
         internal static string GetLocalizedText(string key, string language)
         {
-            EnsureInitialized();
-
             if (_dictionary.ContainsKey(language) && _dictionary[language].ContainsKey(key))
                 return _dictionary[language][key];
 
@@ -182,18 +140,7 @@ namespace CustomUtils.Runtime.Localization
         {
             _dictionary.Clear();
 
-            _isInitialized = false;
-
             Language.Value = "English";
-        }
-
-        private static void EnsureInitialized()
-        {
-            if (_isInitialized)
-                return;
-
-            ReadLocalizationData();
-            _isInitialized = true;
         }
 
         private static string GetFallbackText(string localizationKey)
@@ -205,7 +152,7 @@ namespace CustomUtils.Runtime.Localization
             return localizationKey;
         }
 
-        private static void ReadLocalizationData()
+        internal static void ReadLocalizationData()
         {
             var settings = LocalizationSettings.Instance;
             if (!settings || settings.Sheets == null)

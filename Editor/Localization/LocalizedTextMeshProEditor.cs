@@ -175,9 +175,6 @@ namespace CustomUtils.Editor.Localization
             if (string.IsNullOrEmpty(text) || text == "[Empty]")
                 return;
 
-            if (!_textComponent)
-                return;
-
             Undo.RecordObject(_textComponent, "Apply Localized Text Preview");
             _textComponent.text = text.Replace("...", string.Empty);
             EditorUtility.SetDirty(_textComponent);
@@ -187,7 +184,7 @@ namespace CustomUtils.Editor.Localization
 
         private void ApplyLocalizedText()
         {
-            if (string.IsNullOrEmpty(_localizationKeyProperty.stringValue) || !_textComponent)
+            if (string.IsNullOrEmpty(_localizationKeyProperty.stringValue))
                 return;
 
             var localizedText =
@@ -202,8 +199,7 @@ namespace CustomUtils.Editor.Localization
 
         private void ApplyLocalizedFont(string language)
         {
-            if (!_textComponent ||
-                LocalizationController.TryGetFontForLanguage(language, out var fontMapping) is false ||
+            if (LocalizationController.TryGetFontForLanguage(language, out var fontMapping) is false ||
                 !fontMapping.Font)
                 return;
 
