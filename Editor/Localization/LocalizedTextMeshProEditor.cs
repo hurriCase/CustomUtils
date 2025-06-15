@@ -128,7 +128,8 @@ namespace CustomUtils.Editor.Localization
                 return;
             }
 
-            _selectedLanguage = EditorStateControls.Dropdown("Preview Language", _selectedLanguage, availableLanguages);
+            _selectedLanguage =
+                EditorStateControls.Dropdown("Preview Language", _selectedLanguage, availableLanguages);
 
             if (EditorGUI.EndChangeCheck())
                 ApplyLocalizedText();
@@ -153,21 +154,9 @@ namespace CustomUtils.Editor.Localization
             EditorVisualControls.LabelField(language, GUILayout.Width(100));
 
             var localizedText = LocalizationController.GetLocalizedText(key, language);
-            var validatedText = ValidateAndProcessText(localizedText);
 
-            if (EditorVisualControls.Button(validatedText, GUI.skin.textField))
-                ApplyPreviewText(validatedText, language);
-        }
-
-        private static string ValidateAndProcessText(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return "[Empty]";
-
-            if (text.Length > 50)
-                return text[..47] + "...";
-
-            return text;
+            if (EditorVisualControls.Button(localizedText, GUI.skin.textField))
+                ApplyPreviewText(localizedText, language);
         }
 
         private void ApplyPreviewText(string text, string language)
