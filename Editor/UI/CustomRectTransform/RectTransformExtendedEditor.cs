@@ -134,8 +134,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             _bottomMargin = 0f;
 
             ApplyAnchors();
-
-            Debug.Log("[RectTransformExtendedEditor::ResetLayout] Layout data reset and applied");
         }
 
         private void DrawButtonsSection()
@@ -184,8 +182,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             };
 
             LayoutClipboard.Copy(layoutData);
-
-            Debug.Log("[RectTransformExtendedEditor::CopyLayout] Layout data copied to clipboard");
         }
 
         private void PasteLayout()
@@ -203,8 +199,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             _rightMargin = layoutData.RightMargin;
             _topMargin = layoutData.TopMargin;
             _bottomMargin = layoutData.BottomMargin;
-
-            Debug.Log("[RectTransformExtendedEditor::PasteLayout] Layout data pasted from clipboard");
 
             ApplyAnchors();
         }
