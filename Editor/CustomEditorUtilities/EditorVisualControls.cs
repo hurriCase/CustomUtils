@@ -275,34 +275,6 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         }
 
         /// <summary>
-        /// Creates a boxed section with a foldout header for collapsible content.
-        /// </summary>
-        /// <param name="title">The title to display in the foldout header.</param>
-        /// <param name="showFoldout">Reference to a boolean that tracks the expanded/collapsed state.</param>
-        /// <param name="drawContent">Action to execute for drawing the box content when expanded.</param>
-        /// <param name="withFoldout"></param>
-        /// <remarks>
-        /// Creates a collapsible section using Unity's standard help box and foldout styles.
-        /// </remarks>
-        [UsedImplicitly]
-        public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent,
-            bool withFoldout = true)
-        {
-            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
-
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
-
-            EditorGUI.indentLevel++;
-            Foldout(title, ref showFoldout, drawContent);
-            EditorGUI.indentLevel--;
-
-            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
-        }
-
-        /// <summary>
         /// Creates a foldout control with Unity's standard foldout styling.
         /// </summary>
         /// <param name="title">The title to display next to the foldout arrow.</param>
@@ -310,46 +282,133 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
         /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
         /// <param name="foldoutStyle">The GUIStyle to use for rendering the foldout control.</param>
+        /// <param name="enableSaving">Whether to automatically save and restore the foldout state using EditorPrefs.</param>
         /// <returns>The new expanded state of the foldout.</returns>
         /// <remarks>
         /// This method applies Unity's standard foldout styling for consistency with native editors.
+        /// When enableSaving is true, the foldout state is automatically saved to and restored from EditorPrefs using the title as a key.
         /// </remarks>
         [UsedImplicitly]
         public static bool Foldout(string title, ref bool showFoldout, Action drawContent,
-            bool toggleOnLabelClick = true, GUIStyle foldoutStyle = null)
+            bool toggleOnLabelClick = true, GUIStyle foldoutStyle = null, bool enableSaving = true)
         {
+            if (enableSaving)
+                showFoldout = EditorPrefs.GetBool($"Foldout_{title}", showFoldout);
+
             showFoldout = EditorGUILayout.Foldout(showFoldout, title, toggleOnLabelClick,
                 foldoutStyle ?? EditorStyles.foldout);
             if (showFoldout)
                 drawContent.Invoke();
 
+            if (enableSaving)
+                EditorPrefs.SetBool($"Foldout_{title}", showFoldout);
+
             return showFoldout;
         }
 
         /// <summary>
-        /// Creates a foldout section with styled header and expandable content.
+        /// Creates a boxed section with a foldout header for collapsible content.
+        /// </summary>
+        /// <param name="title">The title to display in the foldout header.</param>
+        /// <param name="showFoldout">Reference to a boolean that tracks the expanded/collapsed state.</param>
+        /// <param name="drawContent">Action to execute for drawing the box content when expanded.</param>
+        /// <param name="withFoldout">Whether to use foldout behavior (currently unused parameter).</param>
+        /// <param name="enableSaving">Whether to automatically save and restore the foldout state using EditorPrefs.</param>
+        /// <remarks>
+        /// Creates a collapsible section using Unity's standard help box and foldout styles.
+        /// When enableSaving is true, the foldout state is automatically saved to and restored from EditorPrefs using the title as a key.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void DrawBoxWithFoldout(string title, ref bool showFoldout, Action drawContent,
+            bool withFoldout = true, bool enableSaving = true)
+        {
+            if (enableSaving)
+                showFoldout = EditorPrefs.GetBool($"BoxFoldout_{title}", showFoldout);
+
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+
+            EditorGUI.indentLevel++;
+            Foldout(title, ref showFoldout, drawContent, enableSaving: false);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(EditorGUIUtility.standardVerticalSpacing * 0.5f);
+
+            if (enableSaving)
+                EditorPrefs.SetBool($"BoxFoldout_{title}", showFoldout);
+        }
+
+        /// <summary>
+        /// Creates a foldout section with styled header and expandable content with automatic state saving.
         /// </summary>
         /// <param name="title">The title text to display in the foldout header.</param>
         /// <param name="showFoldouts">List of boolean values tracking the expanded state of multiple foldouts.</param>
         /// <param name="index">The index in the showFoldouts list for this specific foldout.</param>
         /// <param name="drawContent">Action to execute when the foldout is expanded.</param>
         /// <param name="toggleOnLabelClick">Whether clicking on the label toggles the foldout state.</param>
+        /// <param name="enableSaving">Whether to automatically save and restore the foldout state using EditorPrefs.</param>
         /// <returns>The updated list of foldout states.</returns>
         /// <remarks>
         /// Uses Unity's standard foldout styling for consistency across the editor interface.
+        /// When enableSaving is true, the foldout state is automatically saved to and restored from EditorPrefs using the title and index as a key.
         /// </remarks>
         [UsedImplicitly]
         public static List<bool> Foldout(string title, in List<bool> showFoldouts, int index, Action drawContent,
-            bool toggleOnLabelClick = true)
+            bool toggleOnLabelClick = true, bool enableSaving = true)
         {
             var showDetail = showFoldouts.GetOrCreate(index);
+
+            if (enableSaving)
+                showDetail = EditorPrefs.GetBool($"ListFoldout_{title}_{index}", showDetail);
+
             showDetail = EditorGUILayout.Foldout(showDetail, title, toggleOnLabelClick, EditorStyles.foldout);
             if (showDetail)
                 drawContent.Invoke();
 
             showFoldouts[index] = showDetail;
 
+            if (enableSaving)
+                EditorPrefs.SetBool($"ListFoldout_{title}_{index}", showDetail);
+
             return showFoldouts;
+        }
+
+        /// <summary>
+        /// Creates a foldout control with Unity's standard foldout styling at a specific position.
+        /// </summary>
+        /// <param name="foldoutRect">The rect where the foldout control should be drawn.</param>
+        /// <param name="title">The title to display next to the foldout arrow.</param>
+        /// <param name="showFoldout">Reference to the current expanded state of the foldout.</param>
+        /// <param name="drawContent">Action to execute for drawing the content when the foldout is expanded.</param>
+        /// <param name="toggleOnLabelClick">Whether clicking the label toggles the foldout state (true) or only the arrow does (false).</param>
+        /// <param name="foldoutStyle">The GUIStyle to use for rendering the foldout control.</param>
+        /// <param name="enableSaving">Whether to automatically save and restore the foldout state using EditorPrefs.</param>
+        /// <returns>The new expanded state of the foldout.</returns>
+        /// <remarks>
+        /// Uses EditorGUI for manual positioning instead of EditorGUILayout. When enableSaving is true,
+        /// the foldout state is automatically saved to and restored from EditorPrefs using the title as a key.
+        /// This method applies Unity's standard foldout styling for consistency with native editors.
+        /// </remarks>
+        [UsedImplicitly]
+        public static bool Foldout(Rect foldoutRect, string title, ref bool showFoldout, Action drawContent,
+            bool toggleOnLabelClick = true, GUIStyle foldoutStyle = null, bool enableSaving = true)
+        {
+            if (enableSaving)
+                showFoldout = EditorPrefs.GetBool($"Foldout_{title}", showFoldout);
+
+            showFoldout = EditorGUI.Foldout(foldoutRect, showFoldout, title, toggleOnLabelClick,
+                foldoutStyle ?? EditorStyles.foldout);
+            if (showFoldout)
+                drawContent.Invoke();
+
+            if (enableSaving)
+                EditorPrefs.SetBool($"Foldout_{title}", showFoldout);
+
+            return showFoldout;
         }
 
         /// <summary>
