@@ -23,6 +23,16 @@ namespace CustomUtils.Runtime.Localization
         [UsedImplicitly]
         public static ReactiveProperty<string> Language { get; } = new(LocalizationSettings.Instance.DefaultLanguage);
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Initialize()
+        {
+            _dictionary.Clear();
+
+            Language.Value = "English";
+
+            ReadLocalizationData();
+        }
+
         /// <summary>
         /// Checks if a localization key exists for the current language.
         /// </summary>
@@ -133,14 +143,6 @@ namespace CustomUtils.Runtime.Localization
                 return _dictionary[language][key];
 
             return key;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticMembers()
-        {
-            _dictionary.Clear();
-
-            Language.Value = "English";
         }
 
         private static string GetFallbackText(string localizationKey)
