@@ -11,12 +11,14 @@ namespace CustomUtils.Runtime.Storage
     [UsedImplicitly]
     public sealed class PersistentReactiveProperty<TProperty> : IDisposable
     {
-        private readonly string _key;
-        private readonly IStorageProvider _provider;
-        private readonly IDisposable _subscription;
-        private bool _savingEnabled = true;
-
         private readonly ReactiveProperty<TProperty> _property;
+
+        private readonly string _key;
+        private readonly IDisposable _subscription;
+
+        private IStorageProvider _provider;
+        private bool _savingEnabled;
+        private bool _loadAttempted;
 
         /// <summary>
         /// Gets or sets the current value of the property
@@ -24,7 +26,12 @@ namespace CustomUtils.Runtime.Storage
         [UsedImplicitly]
         public TProperty Value
         {
-            get => _property.Value;
+            get
+            {
+                EnsureLoaded();
+
+                return _property.Value;
+            }
             set => _property.Value = value;
         }
 
@@ -37,8 +44,6 @@ namespace CustomUtils.Runtime.Storage
         public PersistentReactiveProperty(string key, TProperty defaultValue = default)
         {
             _key = key;
-
-            _provider = ServiceProvider.Provider;
             _property = new ReactiveProperty<TProperty>(defaultValue);
 
             _subscription = _property.Subscribe(this, static (_, state) =>
@@ -46,8 +51,22 @@ namespace CustomUtils.Runtime.Storage
                 if (state._savingEnabled)
                     state.SaveAsync().Forget();
             });
+        }
 
-            Initialize().Forget();
+        /// <summary>
+        /// Factory method that ensures proper async initialization
+        /// Recommended for Unity environments
+        /// </summary>
+        /// <param name="key">Unique key for storing the value</param>
+        /// <param name="defaultValue">Default value if no saved value exists</param>
+        /// <returns>Fully initialized PersistentReactiveProperty</returns>
+        [UsedImplicitly]
+        public static async UniTask<PersistentReactiveProperty<TProperty>> CreateAsync(string key,
+            TProperty defaultValue = default)
+        {
+            var property = new PersistentReactiveProperty<TProperty>(key, defaultValue);
+            await property.InitializeAsync();
+            return property;
         }
 
         /// <summary>
@@ -58,22 +77,43 @@ namespace CustomUtils.Runtime.Storage
         /// <returns>Disposable subscription</returns>
         [UsedImplicitly]
         public IDisposable Subscribe<TTarget>(TTarget target, Action<TTarget, TProperty> onNext) where TTarget : class
-            => _property.Subscribe(
+        {
+            EnsureLoaded();
+
+            return _property.Subscribe(
                 (target, onNext),
                 static (value, tuple) => tuple.onNext(tuple.target, value));
+        }
 
         /// <summary>
         /// Manually saves the current value to storage
         /// </summary>
         /// <returns>Task representing the save operation</returns>
         [UsedImplicitly]
-        public async UniTask SaveAsync() => await _provider.TrySaveAsync(_key, _property.Value);
-
-        private async UniTask Initialize()
+        public async UniTask SaveAsync()
         {
+            EnsureProvider();
+
+            if (_provider != null)
+                await _provider.TrySaveAsync(_key, _property.Value);
+        }
+
+        /// <summary>
+        /// Manually initializes the property (loads from storage)
+        /// </summary>
+        /// <returns>Task representing the initialization</returns>
+        [UsedImplicitly]
+        public async UniTask InitializeAsync()
+        {
+            if (_loadAttempted)
+                return;
+
             try
             {
-                _savingEnabled = false;
+                EnsureProvider();
+
+                if (_provider == null)
+                    return;
 
                 var loaded = await _provider.LoadAsync<TProperty>(_key);
                 if (loaded != null && EqualityComparer<TProperty>.Default.Equals(loaded, default) is false)
@@ -81,11 +121,34 @@ namespace CustomUtils.Runtime.Storage
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[PersistentReactiveProperty::Initialize] Failed to load key '{_key}': {ex.Message}");
+                Debug.LogError("[PersistentReactiveProperty::InitializeAsync] " +
+                               $"Failed to load key '{_key}': {ex.Message}");
             }
             finally
             {
+                _loadAttempted = true;
                 _savingEnabled = true;
+            }
+        }
+
+        private void EnsureLoaded()
+        {
+            if (_loadAttempted is false)
+                InitializeAsync().Forget();
+        }
+
+        private void EnsureProvider()
+        {
+            if (_provider != null)
+                return;
+
+            try
+            {
+                _provider = ServiceProvider.Provider;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[PersistentReactiveProperty::EnsureProvider] Failed to get provider: {ex.Message}");
             }
         }
 

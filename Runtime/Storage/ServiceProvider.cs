@@ -1,36 +1,47 @@
-﻿using CustomUtils.Runtime.Storage.Base;
+﻿using System;
+using CustomUtils.Runtime.Storage.Base;
 using CustomUtils.Runtime.Storage.Providers;
 using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.Storage
 {
     /// <summary>
-    /// Provides platform-specific storage provider instances.
+    /// Provides platform-specific storage provider instances with lazy initialization.
     /// Automatically selects the appropriate provider based on the current platform.
     /// </summary>
     [UsedImplicitly]
     public static class ServiceProvider
     {
+        private static readonly Lazy<IStorageProvider> _lazyProvider = new(CreateProvider);
+        private static IStorageProvider _customProvider;
+
         /// <summary>
         /// Gets the current storage provider instance.
         /// Returns a platform-specific provider or a custom provider if one was set using SetProvider.
         /// </summary>
         /// <returns>The active storage provider instance.</returns>
         [UsedImplicitly]
-        public static IStorageProvider Provider => _provider ?? (_provider = GetProvider());
-        private static IStorageProvider _provider;
+        public static IStorageProvider Provider => _customProvider ?? _lazyProvider.Value;
 
         /// <summary>
         /// Sets a custom storage provider. Must be called before any storage operations.
         /// </summary>
-        /// <param name="provider">Custom storage provider implementation</param>
+        [UsedImplicitly]
+        public static void SetProvider<TProvider>() where TProvider : class, IStorageProvider, new()
+        {
+            _customProvider = new TProvider();
+        }
+
+        /// <summary>
+        /// Sets a custom storage provider instance. Must be called before any storage operations.
+        /// </summary>
         [UsedImplicitly]
         public static void SetProvider(IStorageProvider provider)
         {
-            _provider = provider;
+            _customProvider = provider;
         }
 
-        private static IStorageProvider GetProvider()
+        private static IStorageProvider CreateProvider()
         {
             return
 #if YANDEX && !UNITY_EDITOR && UNITY_WEBGL
