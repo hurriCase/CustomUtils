@@ -10,6 +10,7 @@ using ZLinq;
 
 namespace CustomUtils.Editor.Localization
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(LocalizedTextMeshPro))]
     internal sealed class LocalizedTextMeshProEditor : EditorBase
     {
