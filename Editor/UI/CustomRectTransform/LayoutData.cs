@@ -1,7 +1,10 @@
 ﻿#if IS_RECTTRANSFORM_EXTENDED_ENABLED
+using MemoryPack;
+
 namespace CustomUtils.Editor.UI.CustomRectTransform
 {
-    internal struct LayoutData
+    [MemoryPackable]
+    internal partial struct LayoutData
     {
         internal float ParentWidth { get; set; }
         internal float ParentHeight { get; set; }

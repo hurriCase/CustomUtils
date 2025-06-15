@@ -10,8 +10,6 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
     [CanEditMultipleObjects]
     internal sealed class RectTransformExtendedEditor : EditorBase
     {
-        private const string ShowLayoutHelperPref = "RectTransformExtended.ShowLayoutHelper";
-
         private UnityEditor.Editor _defaultEditor;
         private LayoutGUIDrawer _guiDrawer;
         private LayoutCalculator _layoutCalculator;
@@ -23,6 +21,8 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
         private float _rightMargin;
         private float _topMargin;
         private float _bottomMargin;
+
+        private bool _showFoldout;
 
         protected override void InitializeEditor()
         {
@@ -50,7 +50,7 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
 
             serializedObject.Update();
 
-            if (!_hasInitialized)
+            if (_hasInitialized is false)
             {
                 RecalculateFromCurrent();
                 _hasInitialized = true;
@@ -76,13 +76,17 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
         {
             EditorGUILayout.Space();
 
-            var showFoldout = EditorPrefs.GetBool(ShowLayoutHelperPref, true);
-            EditorVisualControls.Foldout("Layout Helper", ref showFoldout, DrawFoldoutContent);
-            EditorPrefs.SetBool(ShowLayoutHelperPref, showFoldout);
+            var foldoutRect = EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight);
+
+            HandleLayoutContextMenu(foldoutRect);
+
+            EditorVisualControls.Foldout(foldoutRect, "Layout Helper", ref _showFoldout, DrawFoldoutContent);
         }
 
         private void DrawFoldoutContent()
         {
+            EditorGUI.indentLevel++;
+
             DrawSizeFields();
             EditorGUILayout.Space();
 
@@ -93,6 +97,45 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
             EditorGUILayout.Space();
 
             DrawButtonsSection();
+
+            EditorGUI.indentLevel--;
+        }
+
+        private void HandleLayoutContextMenu(Rect rect)
+        {
+            var currentEvent = Event.current;
+
+            if (currentEvent.type != EventType.ContextClick || rect.Contains(currentEvent.mousePosition) is false)
+                return;
+
+            var menu = new GenericMenu();
+
+            menu.AddItem(new GUIContent("Copy Layout"), false, CopyLayout);
+
+            if (LayoutClipboard.HasData)
+                menu.AddItem(new GUIContent("Paste Layout"), false, PasteLayout);
+            else
+                menu.AddDisabledItem(new GUIContent("Paste Layout"));
+
+            menu.AddSeparator("");
+            menu.AddItem(new GUIContent("Reset Layout"), false, ResetLayout);
+
+            menu.ShowAsContext();
+            currentEvent.Use();
+        }
+
+        private void ResetLayout()
+        {
+            RecalculateFromCurrent();
+
+            _leftMargin = 0f;
+            _rightMargin = 0f;
+            _topMargin = 0f;
+            _bottomMargin = 0f;
+
+            ApplyAnchors();
+
+            Debug.Log("[RectTransformExtendedEditor::ResetLayout] Layout data reset and applied");
         }
 
         private void DrawButtonsSection()
@@ -128,17 +171,59 @@ namespace CustomUtils.Editor.UI.CustomRectTransform
                 "Width", "Height");
         }
 
+        private void CopyLayout()
+        {
+            var layoutData = new LayoutData
+            {
+                ParentWidth = _parentWidth,
+                ParentHeight = _parentHeight,
+                LeftMargin = _leftMargin,
+                RightMargin = _rightMargin,
+                TopMargin = _topMargin,
+                BottomMargin = _bottomMargin
+            };
+
+            LayoutClipboard.Copy(layoutData);
+
+            Debug.Log("[RectTransformExtendedEditor::CopyLayout] Layout data copied to clipboard");
+        }
+
+        private void PasteLayout()
+        {
+            if (LayoutClipboard.TryPaste(out var layoutData) is false)
+            {
+                Debug.LogWarning("[RectTransformExtendedEditor::PasteLayout] " +
+                                 "Failed to paste layout data from clipboard");
+                return;
+            }
+
+            _parentWidth = layoutData.ParentWidth;
+            _parentHeight = layoutData.ParentHeight;
+            _leftMargin = layoutData.LeftMargin;
+            _rightMargin = layoutData.RightMargin;
+            _topMargin = layoutData.TopMargin;
+            _bottomMargin = layoutData.BottomMargin;
+
+            Debug.Log("[RectTransformExtendedEditor::PasteLayout] Layout data pasted from clipboard");
+
+            ApplyAnchors();
+        }
+
         private void ApplyAnchors()
         {
             if (_parentWidth <= 0 || _parentHeight <= 0)
+            {
+                Debug.LogWarning("[RectTransformExtendedEditor::ApplyAnchors] " +
+                                 "Cannot apply anchors: Parent size is invalid. Try 'Recalculate from Current' first.");
                 return;
+            }
 
             var widthRatio = 1f / _parentWidth;
             var heightRatio = 1f / _parentHeight;
 
             foreach (var selectedTarget in targets)
             {
-                if (selectedTarget is not RectTransform rectTransform)
+                if (!selectedTarget || selectedTarget is not RectTransform rectTransform)
                     continue;
 
                 Undo.RecordObject(rectTransform, "Set RectTransform Anchors and Reset Offsets");
