@@ -7,6 +7,10 @@ using R3;
 using UnityEngine;
 using ZLinq;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
@@ -23,15 +27,13 @@ namespace CustomUtils.Runtime.Localization
         [UsedImplicitly]
         public static ReactiveProperty<string> Language { get; } = new(LocalizationSettings.Instance.DefaultLanguage);
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Initialize()
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        private static void InitializeInEditor()
         {
-            _dictionary.Clear();
-
-            Language.Value = "English";
-
             ReadLocalizationData();
         }
+#endif
 
         /// <summary>
         /// Checks if a localization key exists for the current language.
