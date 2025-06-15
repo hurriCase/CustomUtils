@@ -162,8 +162,9 @@ namespace CustomUtils.Runtime.Localization
                 return;
             }
 
-            var processedKeys = new HashSet<string>();
+            _dictionary.Clear();
 
+            var processedKeys = new HashSet<string>();
             foreach (var sheet in settings.Sheets)
             {
                 if (!sheet?.TextAsset)
