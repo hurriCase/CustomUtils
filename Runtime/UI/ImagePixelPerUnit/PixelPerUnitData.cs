@@ -7,6 +7,6 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
     internal struct PixelPerUnitData
     {
         [field: SerializeField] internal string Name { get; private set; }
-        [field: SerializeField] internal float CornerRatio { get; private set; }
+        [field: SerializeField] internal float CornerSize { get; private set; }
     }
 }

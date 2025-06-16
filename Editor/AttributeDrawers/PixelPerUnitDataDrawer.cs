@@ -10,13 +10,13 @@ namespace CustomUtils.Editor.AttributeDrawers
     public class PixelPerUnitDataDrawer : PropertyDrawer
     {
         private SerializedProperty _pixelPerUnitTypeNameProperty;
-        private SerializedProperty _pixelPerUnitTypeCornerRatioProperty;
+        private SerializedProperty _pixelPerUnitTypeCornerSizeProperty;
         private PixelPerUnitDatabase _pixelPerUnitDatabase;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             _pixelPerUnitTypeNameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
-            _pixelPerUnitTypeCornerRatioProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerRatio));
+            _pixelPerUnitTypeCornerSizeProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerSize));
             _pixelPerUnitDatabase = PixelPerUnitDatabase.Instance;
 
             if (ValidatePixelPerUnitTypes() is false)
@@ -58,7 +58,7 @@ namespace CustomUtils.Editor.AttributeDrawers
         private void AssignPixelPerUnitData(PixelPerUnitData pixelPerUnitData)
         {
             _pixelPerUnitTypeNameProperty.stringValue = pixelPerUnitData.Name;
-            _pixelPerUnitTypeCornerRatioProperty.floatValue = pixelPerUnitData.CornerRatio;
+            _pixelPerUnitTypeCornerSizeProperty.floatValue = pixelPerUnitData.CornerSize;
         }
     }
 }
