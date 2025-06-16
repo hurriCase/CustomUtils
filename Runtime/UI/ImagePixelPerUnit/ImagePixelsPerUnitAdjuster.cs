@@ -12,12 +12,12 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
         [field: SerializeField, PixelPerUnitPopup] internal PixelPerUnitData BackgroundType { get; set; }
         [field: SerializeField] internal DimensionType DimensionType { get; set; }
 
+        private RectTransform RectTransform =>
+            _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
         private RectTransform _rectTransform;
 
         private void OnEnable()
         {
-            _rectTransform = GetComponent<RectTransform>();
-
             Image.type = Image.Type.Sliced;
 
             UpdateImagePixelPerUnit();
@@ -40,8 +40,8 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
             var (spriteCornerSize, rectSize) = DimensionType switch
             {
-                DimensionType.Width => (Image.sprite.border.x, _rectTransform.rect.size.x),
-                DimensionType.Height => (Image.sprite.border.y, _rectTransform.rect.size.y),
+                DimensionType.Width => (Image.sprite.border.x, RectTransform.rect.size.x),
+                DimensionType.Height => (Image.sprite.border.y, RectTransform.rect.size.y),
                 _ => (1f, 1f)
             };
 
