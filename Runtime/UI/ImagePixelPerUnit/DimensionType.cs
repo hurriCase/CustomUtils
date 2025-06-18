@@ -1,6 +1,6 @@
 ﻿namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 {
-    internal enum DimensionType
+    public enum DimensionType
     {
         None = 0,
         Width = 1,
