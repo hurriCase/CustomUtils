@@ -10,7 +10,6 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
     internal sealed class ImagePixelsPerUnitAdjuster : ImageBehaviour
     {
         [field: SerializeField, PixelPerUnitPopup] internal PixelPerUnitData BackgroundType { get; set; }
-        [field: SerializeField] internal DimensionType DimensionType { get; set; }
 
         private RectTransform RectTransform =>
             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
@@ -35,10 +34,10 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (BackgroundType.CornerRatio == 0)
+            if (BackgroundType.CornerRatio == 0 || BackgroundType.DimensionType == DimensionType.None)
                 return;
 
-            var (spriteCornerSize, rectSize) = DimensionType switch
+            var (spriteCornerSize, rectSize) = BackgroundType.DimensionType switch
             {
                 DimensionType.Width => (Image.sprite.border.x, RectTransform.rect.size.x),
                 DimensionType.Height => (Image.sprite.border.y, RectTransform.rect.size.y),
