@@ -9,7 +9,8 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
     [ExecuteInEditMode]
     internal sealed class ImagePixelsPerUnitAdjuster : ImageBehaviour
     {
-        [field: SerializeField, PixelPerUnitPopup] internal float CornerSize { get; set; }
+        [field: SerializeField, PixelPerUnitPopup] internal PixelPerUnitData BackgroundType { get; set; }
+        [field: SerializeField] internal DimensionType DimensionType { get; set; }
 
         private RectTransform RectTransform =>
             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
@@ -34,14 +35,17 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (CornerSize == 0)
+            if (BackgroundType.CornerSize == 0)
                 return;
 
-            var rect = RectTransform.rect;
-            var rectSize = Mathf.Max(rect.size.x, rect.size.y);
-            var spriteCornerSize = Mathf.Max(Image.sprite.border.x, Image.sprite.border.y);
+            var (spriteCornerSize, rectSize) = DimensionType switch
+            {
+                DimensionType.Width => (Image.sprite.border.x, RectTransform.rect.size.x),
+                DimensionType.Height => (Image.sprite.border.y, RectTransform.rect.size.y),
+                _ => (1f, 1f)
+            };
 
-            var desiredCornerSize = rectSize / CornerSize;
+            var desiredCornerSize = rectSize / BackgroundType.CornerSize;
             Image.pixelsPerUnitMultiplier = spriteCornerSize / desiredCornerSize;
         }
     }

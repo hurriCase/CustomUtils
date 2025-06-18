@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
+using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.ImagePixelPerUnit;
 using UnityEditor;
 using UnityEngine;
@@ -9,13 +9,17 @@ namespace CustomUtils.Editor.AttributeDrawers
     [CustomPropertyDrawer(typeof(PixelPerUnitPopupAttribute))]
     public class PixelPerUnitDataDrawer : PropertyDrawer
     {
+        private SerializedProperty _pixelPerUnitTypeNameProperty;
+        private SerializedProperty _pixelPerUnitTypeCornerSizeProperty;
         private PixelPerUnitDatabase _pixelPerUnitDatabase;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
+            _pixelPerUnitTypeNameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
+            _pixelPerUnitTypeCornerSizeProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerSize));
             _pixelPerUnitDatabase = PixelPerUnitDatabase.Instance;
 
-            if (_pixelPerUnitDatabase.CornerSizes == null || _pixelPerUnitDatabase.CornerSizes.Count == 0)
+            if (ValidatePixelPerUnitTypes() is false)
                 return EditorGUIUtility.singleLineHeight * 1.5f + EditorGUIUtility.standardVerticalSpacing;
 
             return EditorGUIUtility.singleLineHeight;
@@ -23,28 +27,38 @@ namespace CustomUtils.Editor.AttributeDrawers
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (_pixelPerUnitDatabase.CornerSizes == null || _pixelPerUnitDatabase.CornerSizes.Count == 0)
+            if (ValidatePixelPerUnitTypes() is false)
             {
                 EditorGUI.HelpBox(position, "No pixel per unit types in database", MessageType.Warning);
                 return;
             }
 
-            var currentIndex = _pixelPerUnitDatabase.CornerSizes.IndexOf(property.floatValue);
+            var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
+            var currentIndex = pixelPerUnitTypeNames.IndexOf(_pixelPerUnitTypeNameProperty.stringValue);
 
             if (currentIndex == -1)
-            {
-                property.floatValue = _pixelPerUnitDatabase.CornerSizes.First();
-                currentIndex = 0;
-            }
+                AssignPixelPerUnitData(_pixelPerUnitDatabase.PixelPerUnitData.First());
 
-            var newIndex = EditorGUI.Popup(position, label.text, currentIndex,
-                _pixelPerUnitDatabase.CornerSizes.Select(x => x.ToString(CultureInfo.CurrentCulture))
-                    .ToArray());
+            var newIndex = EditorGUI.Popup(position, label.text, currentIndex, pixelPerUnitTypeNames.ToArray());
 
             if (newIndex == currentIndex || newIndex < 0)
                 return;
 
-            property.floatValue = _pixelPerUnitDatabase.CornerSizes[newIndex];
+            var selectedData = _pixelPerUnitDatabase.GetPixelPerUnitData(pixelPerUnitTypeNames[newIndex]);
+
+            AssignPixelPerUnitData(selectedData);
+        }
+
+        private bool ValidatePixelPerUnitTypes()
+        {
+            var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
+            return pixelPerUnitTypeNames != null && pixelPerUnitTypeNames.Count != 0;
+        }
+
+        private void AssignPixelPerUnitData(PixelPerUnitData pixelPerUnitData)
+        {
+            _pixelPerUnitTypeNameProperty.stringValue = pixelPerUnitData.Name;
+            _pixelPerUnitTypeCornerSizeProperty.floatValue = pixelPerUnitData.CornerSize;
         }
     }
 }
