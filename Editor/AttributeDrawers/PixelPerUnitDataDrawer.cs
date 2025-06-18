@@ -9,15 +9,21 @@ namespace CustomUtils.Editor.AttributeDrawers
     [CustomPropertyDrawer(typeof(PixelPerUnitPopupAttribute))]
     public class PixelPerUnitDataDrawer : PropertyDrawer
     {
-        private SerializedProperty _pixelPerUnitTypeNameProperty;
-        private SerializedProperty _pixelPerUnitTypeCornerRatioProperty;
         private PixelPerUnitDatabase _pixelPerUnitDatabase;
+
+        private SerializedProperty _nameProperty;
+        private SerializedProperty _dimensionTypeProperty;
+        private SerializedProperty _imageSizeProperty;
+        private SerializedProperty _cornerRadiusProperty;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            _pixelPerUnitTypeNameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
-            _pixelPerUnitTypeCornerRatioProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerRatio));
             _pixelPerUnitDatabase = PixelPerUnitDatabase.Instance;
+
+            _nameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
+            _dimensionTypeProperty = property.FindFieldRelative(nameof(PixelPerUnitData.DimensionType));
+            _imageSizeProperty = property.FindFieldRelative(nameof(PixelPerUnitData.ImageSize));
+            _cornerRadiusProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerRadius));
 
             if (ValidatePixelPerUnitTypes() is false)
                 return EditorGUIUtility.singleLineHeight * 1.5f + EditorGUIUtility.standardVerticalSpacing;
@@ -34,10 +40,15 @@ namespace CustomUtils.Editor.AttributeDrawers
             }
 
             var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
-            var currentIndex = pixelPerUnitTypeNames.IndexOf(_pixelPerUnitTypeNameProperty.stringValue);
+            var entryNameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
+            var currentIndex = pixelPerUnitTypeNames.IndexOf(entryNameProperty.stringValue);
 
+            // If current selection is invalid, set to first item
             if (currentIndex == -1)
-                AssignPixelPerUnitData(_pixelPerUnitDatabase.PixelPerUnitData.First());
+            {
+                currentIndex = 0;
+                CopyPixelPerUnitDataToProperty(_pixelPerUnitDatabase.PixelPerUnitData.First(), property);
+            }
 
             var newIndex = EditorGUI.Popup(position, label.text, currentIndex, pixelPerUnitTypeNames.ToArray());
 
@@ -45,20 +56,23 @@ namespace CustomUtils.Editor.AttributeDrawers
                 return;
 
             var selectedData = _pixelPerUnitDatabase.GetPixelPerUnitData(pixelPerUnitTypeNames[newIndex]);
+            CopyPixelPerUnitDataToProperty(selectedData, property);
+        }
 
-            AssignPixelPerUnitData(selectedData);
+        private void CopyPixelPerUnitDataToProperty(PixelPerUnitData sourceData, SerializedProperty targetProperty)
+        {
+            _nameProperty.stringValue = sourceData.Name;
+            _dimensionTypeProperty.enumValueIndex = (int)sourceData.DimensionType;
+            _imageSizeProperty.floatValue = sourceData.ImageSize;
+            _cornerRadiusProperty.floatValue = sourceData.CornerRadius;
+
+            targetProperty.serializedObject.ApplyModifiedProperties();
         }
 
         private bool ValidatePixelPerUnitTypes()
         {
             var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
             return pixelPerUnitTypeNames != null && pixelPerUnitTypeNames.Count != 0;
-        }
-
-        private void AssignPixelPerUnitData(PixelPerUnitData pixelPerUnitData)
-        {
-            _pixelPerUnitTypeNameProperty.stringValue = pixelPerUnitData.Name;
-            _pixelPerUnitTypeCornerRatioProperty.floatValue = pixelPerUnitData.CornerRatio;
         }
     }
 }
