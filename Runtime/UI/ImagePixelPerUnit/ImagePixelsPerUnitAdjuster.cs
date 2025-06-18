@@ -35,7 +35,7 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (BackgroundType.CornerSize == 0)
+            if (BackgroundType.CornerRatio == 0)
                 return;
 
             var (spriteCornerSize, rectSize) = DimensionType switch
@@ -45,7 +45,7 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
                 _ => (1f, 1f)
             };
 
-            var desiredCornerSize = rectSize / BackgroundType.CornerSize;
+            var desiredCornerSize = rectSize / BackgroundType.CornerRatio;
             Image.pixelsPerUnitMultiplier = spriteCornerSize / desiredCornerSize;
         }
     }
