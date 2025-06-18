@@ -34,7 +34,7 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (PixelPerUnitData.CornerRatio == 0 || PixelPerUnitData.DimensionType == DimensionType.None)
+            if (PixelPerUnitData.IsCorrectData is false || !Image.sprite)
                 return;
 
             var (spriteCornerSize, rectSize) = PixelPerUnitData.DimensionType switch

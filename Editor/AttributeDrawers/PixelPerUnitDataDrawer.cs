@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.ImagePixelPerUnit;
 using UnityEditor;
@@ -25,7 +26,7 @@ namespace CustomUtils.Editor.AttributeDrawers
             _imageSizeProperty = property.FindFieldRelative(nameof(PixelPerUnitData.ImageSize));
             _cornerRadiusProperty = property.FindFieldRelative(nameof(PixelPerUnitData.CornerRadius));
 
-            if (ValidatePixelPerUnitTypes() is false)
+            if (ValidatePixelPerUnitTypes(out _) is false)
                 return EditorGUIUtility.singleLineHeight * 1.5f + EditorGUIUtility.standardVerticalSpacing;
 
             return EditorGUIUtility.singleLineHeight;
@@ -33,21 +34,20 @@ namespace CustomUtils.Editor.AttributeDrawers
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (ValidatePixelPerUnitTypes() is false)
+            if (ValidatePixelPerUnitTypes(out var pixelPerUnitTypeNames) is false)
             {
                 EditorGUI.HelpBox(position, "No pixel per unit types in database", MessageType.Warning);
                 return;
             }
 
-            var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
+            pixelPerUnitTypeNames.Insert(0, PixelPerUnitData.NoneOption);
             var entryNameProperty = property.FindFieldRelative(nameof(PixelPerUnitData.Name));
             var currentIndex = pixelPerUnitTypeNames.IndexOf(entryNameProperty.stringValue);
 
-            // If current selection is invalid, set to first item
             if (currentIndex == -1)
             {
                 currentIndex = 0;
-                CopyPixelPerUnitDataToProperty(_pixelPerUnitDatabase.PixelPerUnitData.First(), property);
+                CopyPixelPerUnitDataToProperty(PixelPerUnitData.None, property);
             }
 
             var newIndex = EditorGUI.Popup(position, label.text, currentIndex, pixelPerUnitTypeNames.ToArray());
@@ -69,9 +69,9 @@ namespace CustomUtils.Editor.AttributeDrawers
             targetProperty.serializedObject.ApplyModifiedProperties();
         }
 
-        private bool ValidatePixelPerUnitTypes()
+        private bool ValidatePixelPerUnitTypes(out List<string> pixelPerUnitTypeNames)
         {
-            var pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
+            pixelPerUnitTypeNames = _pixelPerUnitDatabase.GetPixelPerUnitTypeNames();
             return pixelPerUnitTypeNames != null && pixelPerUnitTypeNames.Count != 0;
         }
     }
