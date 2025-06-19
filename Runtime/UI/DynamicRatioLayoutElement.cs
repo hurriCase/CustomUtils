@@ -6,11 +6,10 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI
 {
-    [AddComponentMenu("Layout/Dynamic Aspect Ratio Fitter")]
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
     [RequireComponent(typeof(RatioLayoutElement))]
-    internal class DynamicRatioLayoutElement : RatioLayoutBehaviour
+    internal sealed class DynamicRatioLayoutElement : RatioLayoutBehaviour
     {
         [SerializeField] private RectTransform _referenceObject;
         [SerializeField] private DimensionType _dimensionType;
