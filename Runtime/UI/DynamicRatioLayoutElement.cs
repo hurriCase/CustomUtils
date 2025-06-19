@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.CustomBehaviours;
+using CustomUtils.Runtime.UI.RatioLayout;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +9,8 @@ namespace CustomUtils.Runtime.UI
     [AddComponentMenu("Layout/Dynamic Aspect Ratio Fitter")]
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
-    [RequireComponent(typeof(AspectRatioFitter))]
-    internal class DynamicAspectRatioFitter : AspectRatioBehaviour
+    [RequireComponent(typeof(RatioLayoutElement))]
+    internal class DynamicRatioLayoutElement : RatioLayoutBehaviour
     {
         [SerializeField] private RectTransform _referenceObject;
         [SerializeField] private DimensionType _dimensionType;
@@ -86,7 +87,7 @@ namespace CustomUtils.Runtime.UI
             if (newRatio <= 0)
                 return;
 
-            AspectRatioFitter.aspectRatio = newRatio;
+            RatioLayoutElement.AspectRatio = newRatio;
         }
     }
 }
