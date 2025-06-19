@@ -42,8 +42,6 @@ namespace CustomUtils.Editor.UI
 
             serializedObject.Update();
 
-            GetCurrentRectSize();
-
             DrawCalculatorContent();
 
             serializedObject.ApplyModifiedProperties();
