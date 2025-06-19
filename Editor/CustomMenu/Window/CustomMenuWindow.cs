@@ -37,10 +37,11 @@ namespace CustomUtils.Editor.CustomMenu.Window
             using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
 
             PropertyField(nameof(CustomMenuSettings.DefaultSceneAsset));
-            PropertyField(nameof(CustomMenuSettings.SceneMenuItems), true);
-            PropertyField(nameof(CustomMenuSettings.AssetMenuItems), true);
-            PropertyField(nameof(CustomMenuSettings.MethodExecutionItems), true);
-            PropertyField(nameof(CustomMenuSettings.ScriptingSymbols), true);
+            PropertyField(nameof(CustomMenuSettings.SceneMenuItems));
+            PropertyField(nameof(CustomMenuSettings.AssetMenuItems));
+            PropertyField(nameof(CustomMenuSettings.PrefabMenuItems));
+            PropertyField(nameof(CustomMenuSettings.MethodExecutionItems));
+            PropertyField(nameof(CustomMenuSettings.ScriptingSymbols));
         }
 
         private void DrawGenerateMenuItems()

@@ -18,6 +18,7 @@ namespace CustomUtils.Editor.CustomMenu
         [field: SerializeField] internal SceneAsset DefaultSceneAsset { get; private set; }
         [field: SerializeField] internal SceneMenuItem[] SceneMenuItems { get; private set; }
         [field: SerializeField] internal AssetMenuItem[] AssetMenuItems { get; private set; }
+        [field: SerializeField] internal PrefabMenuItem[] PrefabMenuItems { get; private set; }
         [field: SerializeField] internal MethodExecutionMenuItem[] MethodExecutionItems { get; private set; }
         [field: SerializeField] internal ScriptingSymbolMenuItem[] ScriptingSymbols { get; private set; }
     }
