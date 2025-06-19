@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.RatioLayout
 {
-    [AddComponentMenu("Layout/Ratio Layout Group")]
     [RequireComponent(typeof(RectTransform))]
     public sealed class RatioLayoutGroup : LayoutGroup
     {

@@ -12,7 +12,6 @@ namespace CustomUtils.Runtime.UI.RatioLayout
     /// Resizes a RectTransform to fit a specified aspect ratio when not inside a RatioLayoutGroup.
     /// When inside a RatioLayoutGroup, acts as a data provider for the layout group.
     /// </summary>
-    [AddComponentMenu("Layout/Ratio Layout Element")]
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
     [DisallowMultipleComponent]
