@@ -14,8 +14,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <summary>
         /// Access to the enhanced GUI system with automatic undo support
         /// </summary>
-        protected EditorStateControls EditorStateControls => _editorGUI ??= new EditorStateControls(target);
-        private EditorStateControls _editorGUI;
+        protected EditorStateControls EditorStateControls => _editorStateControls ??= new EditorStateControls(target);
+        private EditorStateControls _editorStateControls;
 
         /// <summary>
         /// Access to the progress tracker for handling long-running operations.
