@@ -37,11 +37,17 @@ namespace CustomUtils.Runtime.UI
             if (_dimensionType == DimensionType.None)
                 return;
 
-            var differenceRatio = _dimensionType switch
+            var currentSize = _dimensionType switch
             {
-                DimensionType.Width => _parentReferenceSize / RectTransform.rect.width,
-                DimensionType.Height => _parentReferenceSize / RectTransform.rect.height
+                DimensionType.Width => RectTransform.rect.width,
+                DimensionType.Height => RectTransform.rect.height,
+                _ => 0f
             };
+
+            if (currentSize <= 0f || _parentReferenceSize <= 0f)
+                return;
+
+            var differenceRatio = _parentReferenceSize / currentSize;
 
             UpdateMargins(differenceRatio);
             UpdateAspectRatio(differenceRatio);
