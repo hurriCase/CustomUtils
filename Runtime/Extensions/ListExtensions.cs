@@ -19,7 +19,7 @@ namespace CustomUtils.Runtime.Extensions
         /// If not specified, uses the default value for type T.</param>
         /// <returns>The element at the specified index.</returns>
         [UsedImplicitly]
-        public static T GetOrCreate<T>(this List<T> list, int index, T defaultValue = default)
+        public static T GetOrCreate<T>([NotNull] this IList<T> list, int index, T defaultValue = default)
         {
             while (list.Count <= index)
             {
@@ -28,5 +28,14 @@ namespace CustomUtils.Runtime.Extensions
 
             return list[index];
         }
+
+        /// <summary>
+        /// Gets a random element from the list using Unity's Random number generator.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the list.</typeparam>
+        /// <param name="list">The list to get a random element from.</param>
+        /// <returns>A randomly selected element from the list.</returns>
+        [UsedImplicitly]
+        internal static T Random<T>([NotNull] this IList<T> list) => list[UnityEngine.Random.Range(0, list.Count)];
     }
 }
