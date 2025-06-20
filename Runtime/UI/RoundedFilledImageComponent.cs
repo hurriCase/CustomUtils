@@ -6,13 +6,13 @@ namespace CustomUtils.Runtime.UI
 {
     [RequireComponent(typeof(CanvasRenderer))]
     [ExecuteInEditMode]
-    internal class RoundedFilledImageComponent : Image
+    public sealed class RoundedFilledImageComponent : Image
     {
-        [field: SerializeField] internal bool RoundedCaps { get; set; } = true;
-        [field: SerializeField, Range(3, 36)] internal int RoundedCapResolution { get; set; } = 8;
-        [field: SerializeField, Range(0, 359)] internal float CustomFillOrigin { get; set; }
-        [field: SerializeField] internal bool UseCustomFillOrigin { get; set; }
-        [field: SerializeField, Range(0.01f, 0.5f)] internal float ThicknessRatio { get; set; } = 0.2f;
+        [field: SerializeField] public bool RoundedCaps { get; set; } = true;
+        [field: SerializeField, Range(3, 36)] public int RoundedCapResolution { get; set; } = 8;
+        [field: SerializeField, Range(0, 359)] public float CustomFillOrigin { get; set; }
+        [field: SerializeField] public bool UseCustomFillOrigin { get; set; }
+        [field: SerializeField, Range(0.01f, 0.5f)] public float ThicknessRatio { get; set; } = 0.2f;
 
         protected override void Reset()
         {
