@@ -7,8 +7,11 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Providers
 {
+    /// <summary>
+    /// PlayerPrefs provider with TryDeleteAll support
+    /// </summary>
     [UsedImplicitly]
-    public sealed class PlayerPrefsProvider : BaseStorageProvider
+    internal sealed class PlayerPrefsProvider : BaseStorageProvider
     {
         public PlayerPrefsProvider() : base(new StringDataTransformer()) { }
 
@@ -35,6 +38,12 @@ namespace CustomUtils.Runtime.Storage.Providers
             PlayerPrefs.Save();
 
             return UniTask.CompletedTask;
+        }
+
+        protected override UniTask<bool> PlatformTryDeleteAllAsync(CancellationToken cancellationToken)
+        {
+            PlayerPrefs.DeleteAll();
+            return UniTask.FromResult(true);
         }
     }
 }

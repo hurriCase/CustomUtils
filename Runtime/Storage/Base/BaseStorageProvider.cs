@@ -7,12 +7,12 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Base
 {
-    public abstract class BaseStorageProvider : IStorageProvider
+    internal abstract class BaseStorageProvider : IStorageProvider
     {
         private readonly Dictionary<string, byte[]> _cache = new();
         private readonly IDataTransformer _dataTransformer;
 
-        internal BaseStorageProvider(IDataTransformer dataTransformer)
+        protected BaseStorageProvider(IDataTransformer dataTransformer)
         {
             _dataTransformer = dataTransformer;
         }
@@ -36,7 +36,6 @@ namespace CustomUtils.Runtime.Storage.Base
             catch (Exception ex)
             {
                 Debug.LogError($"[{GetType().Name}::SaveAsync] Error during saving data: {ex.Message}");
-
                 return false;
             }
         }
@@ -102,9 +101,33 @@ namespace CustomUtils.Runtime.Storage.Base
             }
         }
 
+        public virtual async UniTask<bool> TryDeleteAllAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                _cache.Clear();
+                var success = await PlatformTryDeleteAllAsync(cancellationToken);
+
+#if IS_TEST
+                if (success)
+                    Debug.Log($"[{GetType().Name}::TryDeleteAllAsync] Successfully deleted all data");
+                else
+                    Debug.LogWarning($"[{GetType().Name}::TryDeleteAllAsync] DeleteAll not supported or failed");
+#endif
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[{GetType().Name}::TryDeleteAllAsync] Error deleting all data: {ex.Message}");
+                return false;
+            }
+        }
+
         protected abstract UniTask PlatformSaveAsync(string key, object transformData, CancellationToken cancellationToken);
         protected abstract UniTask<object> PlatformLoadAsync(string key, CancellationToken cancellationToken);
         protected abstract UniTask<bool> PlatformHasKeyAsync(string key, CancellationToken cancellationToken);
         protected abstract UniTask PlatformDeleteKeyAsync(string key, CancellationToken cancellationToken);
+        protected abstract UniTask<bool> PlatformTryDeleteAllAsync(CancellationToken cancellationToken);
     }
 }

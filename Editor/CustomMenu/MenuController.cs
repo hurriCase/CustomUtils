@@ -39,6 +39,8 @@ namespace CustomUtils.Editor.CustomMenu
         private static string GenerateMenuItemsScriptContentFromSettings(CustomMenuSettings settings)
         {
             var content = @"using CustomUtils.Editor.CustomMenu.MenuItems.Helpers;
+using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems.MethodExecution;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -330,12 +332,11 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 
             return menuItem.MenuTarget switch
             {
-                MethodExecutionType.DeleteAllPlayerPrefs => $@"
+                MethodExecutionType.DeleteAllData => $@"
         [MenuItem(""{menuItem.MenuPath}"", priority = {menuItem.Priority})]
         private static void {methodName}()
         {{
-            PlayerPrefs.DeleteAll();
-            Debug.Log(""All PlayerPrefs deleted."");
+            StorageHelper.TryDeleteAllAsync().Forget();
         }}",
 
                 MethodExecutionType.ToggleDefaultSceneAutoLoad => $@"

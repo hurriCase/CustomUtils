@@ -6,11 +6,12 @@ using CustomUtils.Runtime.Storage.DataTransformers;
 using Cysharp.Threading.Tasks;
 using Firebase.Extensions;
 using Firebase.Storage;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Providers
 {
-    // ReSharper disable once UnusedType.Global
+    [UsedImplicitly]
     internal sealed class FirebaseStorageProvider : BaseStorageProvider
     {
         private const long MaxDownloadSize = 5 * 1024 * 1024;
@@ -125,5 +126,8 @@ namespace CustomUtils.Runtime.Storage.Providers
                                $"Error deleting key {key}: {ex.Message}");
             }
         }
+
+        protected override UniTask<bool> PlatformTryDeleteAllAsync(CancellationToken cancellationToken) =>
+            UniTask.FromResult(false);
     }
 }

@@ -7,11 +7,11 @@ using JetBrains.Annotations;
 namespace CustomUtils.Runtime.Storage.Providers
 {
     /// <summary>
-    /// Hybrid storage provider that automatically migrates from local to cloud storage.
+    /// Hybrid storage provider with smart TryDeleteAll behavior
     /// Reads from local first, then cloud. Writes to cloud with local fallback.
     /// </summary>
     [UsedImplicitly]
-    public sealed class HybridStorageProvider : BaseStorageProvider
+    internal sealed class HybridStorageProvider : BaseStorageProvider
     {
         private readonly IStorageProvider _localProvider;
         private readonly IStorageProvider _cloudProvider;
@@ -84,6 +84,15 @@ namespace CustomUtils.Runtime.Storage.Providers
         {
             await _cloudProvider.TryDeleteKeyAsync(key, cancellationToken);
             await _localProvider.TryDeleteKeyAsync(key, cancellationToken);
+        }
+
+        protected override async UniTask<bool> PlatformTryDeleteAllAsync(CancellationToken cancellationToken)
+        {
+            var localSuccess = await _localProvider.TryDeleteAllAsync(cancellationToken);
+            var cloudSuccess = await _cloudProvider.TryDeleteAllAsync(cancellationToken);
+
+            var overallSuccess = localSuccess || cloudSuccess;
+            return overallSuccess;
         }
     }
 }

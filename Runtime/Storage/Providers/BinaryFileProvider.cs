@@ -3,11 +3,15 @@ using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using CustomUtils.Runtime.Storage.DataTransformers;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage.Providers
 {
-    // ReSharper disable once UnusedType.Global
+    /// <summary>
+    /// Binary file provider with TryDeleteAll support
+    /// </summary>
+    [UsedImplicitly]
     internal sealed class BinaryFileProvider : BaseStorageProvider
     {
         private readonly string _saveDirectory;
@@ -22,8 +26,7 @@ namespace CustomUtils.Runtime.Storage.Providers
 
         private string GetFilePath(string key) => Path.Combine(_saveDirectory, $"{key}.dat");
 
-        protected override async UniTask PlatformSaveAsync(string key, object transformData,
-            CancellationToken cancellationToken)
+        protected override async UniTask PlatformSaveAsync(string key, object transformData, CancellationToken cancellationToken)
         {
             if (transformData is byte[] byteData)
                 await File.WriteAllBytesAsync(GetFilePath(key), byteData, cancellationToken);
@@ -56,6 +59,19 @@ namespace CustomUtils.Runtime.Storage.Providers
                 filePath,
                 configureAwait: true,
                 cancellationToken: cancellationToken);
+        }
+
+        protected override UniTask<bool> PlatformTryDeleteAllAsync(CancellationToken cancellationToken)
+        {
+            return UniTask.RunOnThreadPool(() =>
+            {
+                if (Directory.Exists(_saveDirectory) is false)
+                    return true;
+
+                Directory.Delete(_saveDirectory, true);
+                Directory.CreateDirectory(_saveDirectory);
+                return true;
+            }, configureAwait: true, cancellationToken: cancellationToken);
         }
     }
 }

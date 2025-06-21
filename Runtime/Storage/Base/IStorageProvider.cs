@@ -51,5 +51,14 @@ namespace CustomUtils.Runtime.Storage.Base
         /// <returns>True if successful, false on error.</returns>
         [UsedImplicitly]
         UniTask<bool> TryDeleteKeyAsync(string key, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Attempts to delete ALL data from storage.
+        /// This operation cannot be undone!
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>True if successful, false if not supported or failed.</returns>
+        [UsedImplicitly]
+        UniTask<bool> TryDeleteAllAsync(CancellationToken cancellationToken = default);
     }
 }
