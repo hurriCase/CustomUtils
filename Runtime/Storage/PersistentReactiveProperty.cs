@@ -19,6 +19,7 @@ namespace CustomUtils.Runtime.Storage
         private IStorageProvider _provider;
         private bool _savingEnabled;
         private bool _loadAttempted;
+        private bool _isLoading;
 
         /// <summary>
         /// Gets or sets the current value of the property
@@ -29,7 +30,6 @@ namespace CustomUtils.Runtime.Storage
             get
             {
                 EnsureLoaded();
-
                 return _property.Value;
             }
             set => _property.Value = value;
@@ -120,8 +120,10 @@ namespace CustomUtils.Runtime.Storage
         [UsedImplicitly]
         public async UniTask InitializeAsync()
         {
-            if (_loadAttempted)
+            if (_loadAttempted || _isLoading)
                 return;
+
+            _isLoading = true;
 
             try
             {
@@ -143,6 +145,7 @@ namespace CustomUtils.Runtime.Storage
             {
                 _loadAttempted = true;
                 _savingEnabled = true;
+                _isLoading = false;
             }
         }
 
