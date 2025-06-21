@@ -71,10 +71,10 @@ namespace CustomUtils.Runtime.Audio
             _audioDatabaseGeneric.Init();
 
             var soundDisposable = SoundVolume
-                .Subscribe(this, (handler, volume) => handler.OnSoundVolumeChanged(volume));
+                .Subscribe(this, (volume, handler) => handler.OnSoundVolumeChanged(volume));
 
             var musicDisposable = MusicVolume
-                .Subscribe(this, (handler, volume) => handler.OnMusicVolumeChanged(volume));
+                .Subscribe(this, (volume, handler) => handler.OnMusicVolumeChanged(volume));
 
             _disposable = Disposable.Combine(soundDisposable, musicDisposable);
         }

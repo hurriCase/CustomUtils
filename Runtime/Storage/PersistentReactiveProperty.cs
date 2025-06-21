@@ -36,6 +36,21 @@ namespace CustomUtils.Runtime.Storage
         }
 
         /// <summary>
+        /// Modifies the current value of the property
+        /// </summary>
+        /// <param name="input">Input value</param>
+        /// <param name="modifier">Modifier function</param>
+        /// <typeparam name="TInput">Type of the input value</typeparam>
+        /// <returns>Modified value</returns>
+        [UsedImplicitly]
+        public void ModifyValue<TInput>(TInput input, Action<TInput, TProperty> modifier)
+        {
+            var value = Value;
+            modifier(input, value);
+            Value = value;
+        }
+
+        /// <summary>
         /// Creates a new persistent reactive property with automatic provider resolution
         /// </summary>
         /// <param name="key">Unique key for storing the value</param>
@@ -46,10 +61,10 @@ namespace CustomUtils.Runtime.Storage
             _key = key;
             _property = new ReactiveProperty<TProperty>(defaultValue);
 
-            _subscription = _property.Subscribe(this, static (_, state) =>
+            _subscription = _property.Subscribe(this, static (_, self) =>
             {
-                if (state._savingEnabled)
-                    state.SaveAsync().Forget();
+                if (self._savingEnabled)
+                    self.SaveAsync().Forget();
             });
         }
 
@@ -76,13 +91,13 @@ namespace CustomUtils.Runtime.Storage
         /// <param name="onNext">Action to execute when value changes</param>
         /// <returns>Disposable subscription</returns>
         [UsedImplicitly]
-        public IDisposable Subscribe<TTarget>(TTarget target, Action<TTarget, TProperty> onNext) where TTarget : class
+        public IDisposable Subscribe<TTarget>(TTarget target, Action<TProperty, TTarget> onNext) where TTarget : class
         {
             EnsureLoaded();
 
             return _property.Subscribe(
                 (target, onNext),
-                static (value, tuple) => tuple.onNext(tuple.target, value));
+                static (property, tuple) => tuple.onNext(property, tuple.target));
         }
 
         /// <summary>
