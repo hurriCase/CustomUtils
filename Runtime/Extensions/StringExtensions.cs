@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using CustomUtils.Runtime.Localization;
+using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.Extensions
 {
@@ -10,6 +12,7 @@ namespace CustomUtils.Runtime.Extensions
         /// </summary>
         /// <param name="text">The camelCase or PascalCase string to convert.</param>
         /// <returns>A string with spaces between words.</returns>
+        [UsedImplicitly]
         public static string ToSpacedWords(this string text) =>
             string.IsNullOrEmpty(text) ? text : Regex.Replace(text, "([a-z])([A-Z])", "$1 $2");
 
@@ -22,6 +25,7 @@ namespace CustomUtils.Runtime.Extensions
         /// The substring after the first occurrence of the specified character.
         /// Returns an empty string if the character is not found or if it's the last character in the string.
         /// </returns>
+        [UsedImplicitly]
         public static string GetTextAfter(this string input, char symbol) =>
             input[(input.IndexOf(symbol) + 1)..];
 
@@ -34,10 +38,19 @@ namespace CustomUtils.Runtime.Extensions
         /// The substring after the first occurrence of the specified delimiter.
         /// Returns an empty string if the delimiter is not found or if it appears at the end of the string.
         /// </returns>
+        [UsedImplicitly]
         public static string GetTextAfter(this string input, string delimiter)
         {
             var index = input.IndexOf(delimiter, StringComparison.Ordinal);
             return index >= 0 ? input[(index + delimiter.Length)..] : string.Empty;
         }
+
+        /// <summary>
+        /// Gets the localized string for the specified localization key.
+        /// </summary>
+        /// <param name="key">The localization key to retrieve the translated text for.</param>
+        /// <returns>The localized string corresponding to the key, or the key itself if no localization is found.</returns>
+        [UsedImplicitly]
+        public static string GetLocalization(this string key) => LocalizationController.Localize(key);
     }
 }
