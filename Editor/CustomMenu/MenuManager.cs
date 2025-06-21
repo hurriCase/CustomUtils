@@ -293,16 +293,16 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
         private static void {methodName}(MenuCommand menuCommand)
         {{
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(""{prefabPath}"");
-            
-            if (prefab == null)
+
+            if (!prefab)
             {{
                 Debug.LogError(""Prefab not found at path: {prefabPath}"");
                 return;
             }}
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-            
-            if (instance == null)
+
+            if (!instance)
             {{
                 Debug.LogError(""Failed to instantiate prefab"");
                 return;
@@ -311,7 +311,7 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
 
             Undo.RegisterCreatedObjectUndo(instance, ""Create "" + instance.name);
-   
+
             Selection.activeObject = instance;
         }}";
 
