@@ -22,7 +22,7 @@ namespace CustomUtils.Editor.Localization
         private static SerializedObject _serializedObject;
         private Vector2 _scrollPosition;
 
-        private static LocalizationSettings LocalizationSettings => LocalizationSettings.Instance;
+        private static LocalizationDatabase LocalizationDatabase => LocalizationDatabase.Instance;
 
         private static CancellationTokenSource _cancellationTokenSource;
 
@@ -38,7 +38,7 @@ namespace CustomUtils.Editor.Localization
 
         protected override void InitializeWindow()
         {
-            serializedObject = new SerializedObject(LocalizationSettings);
+            serializedObject = new SerializedObject(LocalizationDatabase);
         }
 
         protected override void DrawWindowContent()
@@ -51,16 +51,16 @@ namespace CustomUtils.Editor.Localization
                 "1. Set Table Id\n2. Press Resolve Sheets*\n3. Press Download Sheets\n" +
                 "*You can set Sheets manually: fill Name and Id, leave Text Asset empty");
 
-            LocalizationSettings.TableId = EditorStateControls.TextField("Table Id", LocalizationSettings.TableId);
+            LocalizationDatabase.TableId = EditorStateControls.TextField("Table Id", LocalizationDatabase.TableId);
 
-            PropertyField(nameof(LocalizationSettings.Sheets));
-            PropertyField(nameof(LocalizationSettings.FontMappings));
+            PropertyField(nameof(LocalizationDatabase.Sheets));
+            PropertyField(nameof(LocalizationDatabase.FontMappings));
 
             DisplayButtons();
             DisplayWarnings();
 
             if (serializedObject.ApplyModifiedProperties())
-                EditorUtility.SetDirty(LocalizationSettings);
+                EditorUtility.SetDirty(LocalizationDatabase);
         }
 
         private void DisplayButtons()
@@ -69,12 +69,12 @@ namespace CustomUtils.Editor.Localization
                 ProcessDownloadSheetsAsync().Forget();
 
             if (EditorVisualControls.Button("❖ Open Google Sheets"))
-                Application.OpenURL(string.Format(SpreedSettings.TableUrlPattern, LocalizationSettings.TableId));
+                Application.OpenURL(string.Format(SpreedSettings.TableUrlPattern, LocalizationDatabase.TableId));
         }
 
         private async UniTaskVoid ProcessDownloadSheetsAsync()
         {
-            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
+            if (string.IsNullOrEmpty(LocalizationDatabase.TableId))
             {
                 EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
                 return;
@@ -100,11 +100,11 @@ namespace CustomUtils.Editor.Localization
 
         private void DisplayWarnings()
         {
-            if (string.IsNullOrEmpty(LocalizationSettings.TableId))
+            if (string.IsNullOrEmpty(LocalizationDatabase.TableId))
                 EditorVisualControls.WarningBox("Table Id is empty.");
-            else if (LocalizationSettings.Sheets.Count == 0)
+            else if (LocalizationDatabase.Sheets.Count == 0)
                 EditorVisualControls.WarningBox("Sheets are empty.");
-            else if (LocalizationSettings.Sheets.AsValueEnumerable().Any(sheet => !sheet.TextAsset))
+            else if (LocalizationDatabase.Sheets.AsValueEnumerable().Any(sheet => !sheet.TextAsset))
                 EditorVisualControls.WarningBox("Sheets are not downloaded.");
         }
 
@@ -115,14 +115,14 @@ namespace CustomUtils.Editor.Localization
             await ProcessSheetsDownload(_cancellationTokenSource.Token);
 
             EditorUtility.DisplayDialog("Message",
-                $"{LocalizationSettings.Sheets.Count} localization sheets downloaded!", "OK");
+                $"{LocalizationDatabase.Sheets.Count} localization sheets downloaded!", "OK");
         }
 
         private async UniTask ResolveGoogleSheetsInternalAsync()
         {
             EditorUtility.DisplayProgressBar("Resolving sheets...", "Executing Google App Script...", 0.5f);
 
-            var requestUrl = $"{SpreedSettings.SheetResolverUrl}?tableUrl={LocalizationSettings.TableId}";
+            var requestUrl = $"{SpreedSettings.SheetResolverUrl}?tableUrl={LocalizationDatabase.TableId}";
             using var request = UnityWebRequest.Get(requestUrl);
 
             await request.SendWebRequest().ToUniTask(cancellationToken: _cancellationTokenSource.Token);
@@ -145,15 +145,15 @@ namespace CustomUtils.Editor.Localization
 
         private async UniTask ProcessSheetsDownload(CancellationToken cancellationToken)
         {
-            for (var i = 0; i < LocalizationSettings.Sheets.Count; i++)
+            for (var i = 0; i < LocalizationDatabase.Sheets.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var sheet = LocalizationSettings.Sheets[i];
-                var progress = (float)(i + 1) / LocalizationSettings.Sheets.Count;
+                var sheet = LocalizationDatabase.Sheets[i];
+                var progress = (float)(i + 1) / LocalizationDatabase.Sheets.Count;
 
                 var progressText =
-                    $"[{(int)(100 * progress)}%] [{i + 1}/{LocalizationSettings.Sheets.Count}] Downloading {sheet.Name}...";
+                    $"[{(int)(100 * progress)}%] [{i + 1}/{LocalizationDatabase.Sheets.Count}] Downloading {sheet.Name}...";
 
                 if (EditorUtility.DisplayCancelableProgressBar("Downloading sheets...", progressText, progress))
                     cancellationToken.ThrowIfCancellationRequested();
@@ -166,7 +166,7 @@ namespace CustomUtils.Editor.Localization
 
         private async UniTask DownloadSingleSheet(Sheet sheet, int index, CancellationToken cancellationToken)
         {
-            var url = string.Format(UrlPattern, LocalizationSettings.TableId, sheet.Id);
+            var url = string.Format(UrlPattern, LocalizationDatabase.TableId, sheet.Id);
 
             using var request = UnityWebRequest.Get(url);
             await request.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
@@ -201,7 +201,7 @@ namespace CustomUtils.Editor.Localization
             await UniTask.SwitchToMainThread();
 
             AssetDatabase.Refresh();
-            LocalizationSettings.Sheets[index].TextAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+            LocalizationDatabase.Sheets[index].TextAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
             EditorUtility.SetDirty(this);
 
             Debug.Log("[LocalizationSettingsWindow::SaveSheetData] " +
@@ -222,10 +222,10 @@ namespace CustomUtils.Editor.Localization
             if (sheetsDict == null)
                 throw new Exception("Failed to parse sheets response");
 
-            LocalizationSettings.Sheets.Clear();
+            LocalizationDatabase.Sheets.Clear();
             foreach (var (sheetName, id) in sheetsDict)
             {
-                LocalizationSettings.Sheets.Add(new Sheet
+                LocalizationDatabase.Sheets.Add(new Sheet
                 {
                     Id = id,
                     Name = sheetName

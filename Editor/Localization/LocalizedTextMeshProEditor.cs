@@ -28,7 +28,7 @@ namespace CustomUtils.Editor.Localization
 
             _localizationKeyProperty = serializedObject.FindField(nameof(LocalizedTextMeshPro.LocalizationKey));
 
-            _selectedLanguage = LocalizationSettings.Instance.DefaultLanguage;
+            _selectedLanguage = LocalizationDatabase.Instance.DefaultLanguage;
         }
 
         public override void OnInspectorGUI()

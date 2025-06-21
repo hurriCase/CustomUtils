@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.Localization
         ResourcePaths.LocalizationSettingsAssetName,
         ResourcePaths.LocalizationSettingsResourcesPath
     )]
-    internal sealed class LocalizationSettings : SingletonScriptableObject<LocalizationSettings>
+    internal sealed class LocalizationDatabase : SingletonScriptableObject<LocalizationDatabase>
     {
         [field: SerializeField] internal string DefaultLanguage { get; private set; } = "English";
         [field: SerializeField] internal string TableId { get; set; }

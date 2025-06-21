@@ -18,7 +18,7 @@
         internal const string ImagePixelPerUnitResourcePath = "ImagePixelPerUnit";
 
         internal const string LocalizationSettingsFullPath = ResourcesPath + "/" + LocalizationSettingsResourcesPath;
-        internal const string LocalizationSettingsAssetName = "LocalizationSettings";
+        internal const string LocalizationSettingsAssetName = "LocalizationDatabase";
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
         internal const string LocalizationSheetsPath =
             ResourcesPath + "/" + LocalizationSettingsResourcesPath + "/" + "Localization";
@@ -29,8 +29,6 @@
 
         internal const string ResourceReferencesFullPath = "Assets/CustomUtils/Resources";
         internal const string ResourceReferencesAssetName = "ResourceReferences";
-
-        internal const string LocalizationsFolderPath = "CustomLocalization/Localization";
 
         internal const string LoggerSettingsResourcesPath = "Logger";
         internal const string LoggerSettingsFullPath = ResourcesPath + LoggerSettingsResourcesPath;

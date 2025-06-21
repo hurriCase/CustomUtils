@@ -25,7 +25,7 @@ namespace CustomUtils.Runtime.Localization
         /// Reactive property for current language with automatic localization updates.
         /// </summary>
         [UsedImplicitly]
-        public static ReactiveProperty<string> Language { get; } = new(LocalizationSettings.Instance.DefaultLanguage);
+        public static ReactiveProperty<string> Language { get; } = new(LocalizationDatabase.Instance.DefaultLanguage);
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
@@ -64,7 +64,7 @@ namespace CustomUtils.Runtime.Localization
         {
             fontMapping = null;
 
-            var fontMappings = LocalizationSettings.Instance.FontMappings;
+            var fontMappings = LocalizationDatabase.Instance.FontMappings;
             if (fontMappings == null)
                 return false;
 
@@ -158,7 +158,7 @@ namespace CustomUtils.Runtime.Localization
 
         internal static void ReadLocalizationData()
         {
-            var settings = LocalizationSettings.Instance;
+            var settings = LocalizationDatabase.Instance;
             if (!settings || settings.Sheets == null)
             {
                 Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
