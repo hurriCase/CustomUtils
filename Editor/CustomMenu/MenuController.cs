@@ -9,8 +9,11 @@ using ZLinq;
 
 namespace CustomUtils.Editor.CustomMenu
 {
-    internal static class MenuManager
+    internal static class MenuController
     {
+        private const string ScriptPath =
+            "Assets/Editor Default Resources/CustomMenu/Scripts/Editor/GeneratedMenuItems.cs";
+
         internal static void GenerateMenuItemsScriptFromSettings(CustomMenuSettings settings)
         {
             var scriptContent = GenerateMenuItemsScriptContentFromSettings(settings);
@@ -23,15 +26,14 @@ namespace CustomUtils.Editor.CustomMenu
 
         private static void WriteScriptFile(string scriptContent)
         {
-            var scriptPath = "Assets/Editor Default Resources/CustomMenu/Scripts/Editor/GeneratedMenuItems.cs";
-            var directory = Path.GetDirectoryName(scriptPath);
+            var directory = Path.GetDirectoryName(ScriptPath);
             if (string.IsNullOrEmpty(directory) is false && Directory.Exists(directory) is false)
                 Directory.CreateDirectory(directory);
 
-            File.WriteAllText(scriptPath, scriptContent);
+            File.WriteAllText(ScriptPath, scriptContent);
             AssetDatabase.Refresh();
 
-            Debug.Log("Generated menu items script successfully at: " + scriptPath);
+            Debug.Log("Generated menu items script successfully at: " + ScriptPath);
         }
 
         private static string GenerateMenuItemsScriptContentFromSettings(CustomMenuSettings settings)
@@ -128,7 +130,8 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             if (settings.AssetMenuItems == null)
                 return true;
 
-            foreach (var item in settings.AssetMenuItems.AsValueEnumerable().Where(assetMenuItem => assetMenuItem.MenuTarget))
+            foreach (var item in settings.AssetMenuItems.AsValueEnumerable()
+                         .Where(assetMenuItem => assetMenuItem.MenuTarget))
             {
                 if (ValidateMenuPath(item.MenuPath) is false)
                     return false;
@@ -168,7 +171,8 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             if (settings.PrefabMenuItems == null)
                 return true;
 
-            foreach (var item in settings.PrefabMenuItems.AsValueEnumerable().Where(prefabMenuItem => prefabMenuItem.MenuTarget))
+            foreach (var item in settings.PrefabMenuItems.AsValueEnumerable()
+                         .Where(prefabMenuItem => prefabMenuItem.MenuTarget))
             {
                 if (ValidateMenuPath(item.MenuPath) is false)
                     return false;
@@ -318,7 +322,8 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             return content;
         }
 
-        private static string GenerateMethodExecutionContent(MethodExecutionMenuItem menuItem, HashSet<string> usedMethodNames)
+        private static string GenerateMethodExecutionContent(MethodExecutionMenuItem menuItem,
+            HashSet<string> usedMethodNames)
         {
             var baseMethodName = menuItem.MenuTarget.ToString();
             var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
@@ -407,33 +412,36 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
         {
             if (string.IsNullOrEmpty(path))
             {
-                Debug.LogError("[MenuManager] Menu Path cannot be empty");
+                Debug.LogError("[MenuController::ValidateMenuPath] Menu Path cannot be empty");
                 return false;
             }
 
             if (path.Contains('/') is false)
             {
-                Debug.LogError($"[MenuManager] Menu path '{path}' should contain a submenu " +
+                Debug.LogError($"[MenuController::ValidateMenuPath] Menu path '{path}' should contain a submenu " +
                                "(using forward slash to specify it, e.g. 'Tools/Custom')");
                 return false;
             }
 
             if (path.EndsWith('/'))
             {
-                Debug.LogError($"[MenuManager] Menu path '{path}' cannot end with a forward slash");
+                Debug.LogError("[MenuController::ValidateMenuPath] " +
+                               $"Menu path '{path}' cannot end with a forward slash");
                 return false;
             }
 
             if (path.StartsWith('/'))
             {
-                Debug.LogError($"[MenuManager] Menu path '{path}' cannot start with a forward slash");
+                Debug.LogError("[MenuController::ValidateMenuPath] " +
+                               $"Menu path '{path}' cannot start with a forward slash");
                 return false;
             }
 
             if (path.Contains("//") is false)
                 return true;
 
-            Debug.LogError($"[MenuManager] Menu path '{path}' contains double slashes which would create empty menu items");
+            Debug.LogError("[MenuController::ValidateMenuPath] " +
+                           $"Menu path '{path}' contains double slashes which would create empty menu items");
             return false;
         }
 

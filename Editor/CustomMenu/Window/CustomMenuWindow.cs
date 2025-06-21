@@ -53,7 +53,7 @@ namespace CustomUtils.Editor.CustomMenu.Window
             {
                 serializedObject.ApplyModifiedProperties();
 
-                MenuManager.GenerateMenuItemsScriptFromSettings(CustomMenuSettings.Instance);
+                MenuController.GenerateMenuItemsScriptFromSettings(CustomMenuSettings.Instance);
 
                 EditorUtility.SetDirty(CustomMenuSettings.Instance);
                 AssetDatabase.SaveAssets();
