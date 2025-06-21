@@ -9,7 +9,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Storage
 {
     [UsedImplicitly]
-    public sealed class PersistentReactiveProperty<TProperty> : Observable<TProperty>, IDisposable
+    public sealed class PersistentReactiveProperty<TProperty> : IDisposable
     {
         private readonly ReactiveProperty<TProperty> _property;
 
@@ -48,6 +48,16 @@ namespace CustomUtils.Runtime.Storage
             var value = Value;
             modifier(input, value);
             Value = value;
+        }
+
+        /// <summary>
+        /// Gets the observable stream for this property
+        /// </summary>
+        [UsedImplicitly]
+        public Observable<TProperty> AsObservable()
+        {
+            EnsureLoaded();
+            return _property.AsObservable();
         }
 
         /// <summary>
@@ -147,12 +157,6 @@ namespace CustomUtils.Runtime.Storage
                 _savingEnabled = true;
                 _isLoading = false;
             }
-        }
-
-        protected override IDisposable SubscribeCore(Observer<TProperty> observer)
-        {
-            EnsureLoaded();
-            return _property.Subscribe(observer);
         }
 
         private void EnsureLoaded()
