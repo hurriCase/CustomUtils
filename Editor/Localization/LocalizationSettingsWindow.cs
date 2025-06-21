@@ -47,12 +47,7 @@ namespace CustomUtils.Editor.Localization
 
             using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
 
-            EditorVisualControls.InfoBox(
-                "1. Set Table Id\n2. Press Resolve Sheets*\n3. Press Download Sheets\n" +
-                "*You can set Sheets manually: fill Name and Id, leave Text Asset empty");
-
-            LocalizationDatabase.TableId = EditorStateControls.TextField("Table Id", LocalizationDatabase.TableId);
-
+            PropertyField(nameof(LocalizationDatabase.TableId));
             PropertyField(nameof(LocalizationDatabase.Sheets));
             PropertyField(nameof(LocalizationDatabase.FontMappings));
 
@@ -86,6 +81,7 @@ namespace CustomUtils.Editor.Localization
             {
                 await ResolveGoogleSheetsInternalAsync();
                 await DownloadGoogleSheetsInternalAsync();
+                EditorUtility.SetDirty(LocalizationDatabase);
             }
             catch (Exception ex)
             {
