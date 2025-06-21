@@ -5,9 +5,6 @@
         internal const string CustomMenuResourcePath = "CustomMenu";
         internal const string CustomMenuSettingsAssetName = "CustomMenuSettings";
 
-        internal const string EditorThemeResourcePath = "EditorTheme";
-        internal const string EditorThemeSettingsAssetName = "EditorThemeSettings";
-
         internal const string ThemeFullPath = ResourcesPath + "/" + ThemeResourcePath;
         internal const string ThemeHandlerAssetName = "ThemeHandler";
         internal const string ThemeColorDatabaseAssetName = "ThemeColorDatabase";
