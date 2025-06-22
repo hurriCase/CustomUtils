@@ -101,7 +101,7 @@ namespace CustomUtils.Runtime.Storage
         /// <param name="onNext">Action to execute when value changes</param>
         /// <returns>Disposable subscription</returns>
         [UsedImplicitly]
-        public IDisposable Subscribe<TTarget>(TTarget target, Action<TProperty, TTarget> onNext) where TTarget : class
+        public IDisposable Subscribe<TTarget>(TTarget target, Action<TProperty, TTarget> onNext)
         {
             EnsureLoaded();
 
