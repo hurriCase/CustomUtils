@@ -23,14 +23,21 @@ namespace CustomUtils.Editor.UI.Theme
             _themeComponent = target as IBaseThemeComponent;
         }
 
-        protected override void DrawCustomSections()
+        public override void OnInspectorGUI()
         {
-            DrawFoldoutSection("Theme Settings", () =>
-            {
-                DrawColorTypeProperty();
-                DrawThemeToggle();
-                DrawColorSelector();
-            });
+            serializedObject.Update();
+
+            DrawColorTypeProperty();
+
+            EditorGUILayout.Space();
+
+            DrawThemeToggle();
+
+            EditorGUILayout.Space();
+
+            DrawColorSelector();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void DrawColorTypeProperty()
@@ -67,8 +74,6 @@ namespace CustomUtils.Editor.UI.Theme
         private void DrawColorSelector()
         {
             var (colorNames, currentColorName) = GetColorSelectorData(_themeComponent.ColorType);
-
-            using var changeCheck = EditorVisualControls.BeginBoxedSection("Color");
 
             if (colorNames is null || colorNames.Count == 0)
             {
