@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.ImagePixelPerUnit;
 using UnityEditor;
@@ -35,7 +36,7 @@ namespace CustomUtils.Editor.AttributeDrawers
         {
             if (ValidatePixelPerUnitTypes(out var pixelPerUnitTypeNames) is false)
             {
-                EditorGUI.HelpBox(position, "No pixel per unit types in database", MessageType.Warning);
+                EditorVisualControls.WarningBox(position, "No pixel per unit types in database");
                 return;
             }
 
