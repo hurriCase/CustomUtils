@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Audio
 {
-    internal struct AliveAudioData<T> where T : unmanaged, Enum
+    internal struct AliveAudioData<TEnum> where TEnum : unmanaged, Enum
     {
-        internal T SoundType { get; set; }
+        internal TEnum SoundType { get; set; }
         internal AudioSource AudioSource { get; set; }
     }
 }
