@@ -332,7 +332,7 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 
             return menuItem.MenuTarget switch
             {
-                MethodExecutionType.DeleteAllData => $@"
+                MethodExecutionType.DeleteAllStoredData => $@"
         [MenuItem(""{menuItem.MenuPath}"", priority = {menuItem.Priority})]
         private static void {methodName}()
         {{
