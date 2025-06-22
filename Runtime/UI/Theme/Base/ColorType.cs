@@ -1,6 +1,6 @@
 ﻿namespace CustomUtils.Runtime.UI.Theme.Base
 {
-    internal enum ColorType
+    public enum ColorType
     {
         Shared = 0,
         Solid = 1,
