@@ -3,7 +3,7 @@ using CustomUtils.Runtime.UI.Theme.ThemeColors;
 
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
-    internal interface IBaseThemeComponent
+    public interface IBaseThemeComponent
     {
         public void OnApplyColor();
         public ColorType ColorType { get; set; }
