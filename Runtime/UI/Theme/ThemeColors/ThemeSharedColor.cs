@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.Theme.ThemeColors
 {
     [Serializable]
-    internal sealed class ThemeSharedColor : IThemeColor
+    public sealed class ThemeSharedColor : IThemeColor
     {
         [field: SerializeField] public string Name { get; private set; }
         [field: SerializeField] internal Color Color { get; private set; }

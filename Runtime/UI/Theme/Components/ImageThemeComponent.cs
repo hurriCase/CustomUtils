@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
 {
     [ExecuteInEditMode]
     [RequireComponent(typeof(Image))]
-    internal sealed class ImageThemeComponent : BaseThemeComponent<Image>
+    public sealed class ImageThemeComponent : BaseThemeComponent<Image>
     {
         private Material _originalMaterial;
 

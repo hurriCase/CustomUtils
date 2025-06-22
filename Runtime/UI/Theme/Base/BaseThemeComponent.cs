@@ -7,7 +7,7 @@ using Component = UnityEngine.Component;
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
     [ExecuteInEditMode]
-    internal abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
+    public abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
     {
         [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.Solid;
         [field: SerializeField] public GradientDirection GradientDirection { get; set; }

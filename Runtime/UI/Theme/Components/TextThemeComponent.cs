@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.UI.Theme.Components
 {
     [ExecuteInEditMode]
     [RequireComponent(typeof(TextMeshProUGUI))]
-    internal sealed class TextThemeComponent : BaseThemeComponent<TextMeshProUGUI>
+    public sealed class TextThemeComponent : BaseThemeComponent<TextMeshProUGUI>
     {
         private Material _originalFontMaterial;
 
