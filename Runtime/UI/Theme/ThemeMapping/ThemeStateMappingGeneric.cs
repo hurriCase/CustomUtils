@@ -28,6 +28,12 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
             };
         }
 
+        public string GetColorNameForState(TEnum state)
+        {
+            var mapping = GetMappingForState(state);
+            return mapping?.ColorName;
+        }
+
         public Gradient GetGradientForState(TEnum state)
         {
             var mapping = GetMappingForState(state);
