@@ -51,6 +51,19 @@ namespace CustomUtils.Runtime.Storage
         }
 
         /// <summary>
+        /// Modifies the current value of the property
+        /// </summary>
+        /// <param name="modifier">Modifier function</param>
+        /// <returns>Modified value</returns>
+        [UsedImplicitly]
+        public void ModifyValue(Action<TProperty> modifier)
+        {
+            var value = Value;
+            modifier(value);
+            Value = value;
+        }
+
+        /// <summary>
         /// Gets the observable stream for this property
         /// </summary>
         [UsedImplicitly]
