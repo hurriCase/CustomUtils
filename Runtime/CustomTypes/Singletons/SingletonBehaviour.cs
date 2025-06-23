@@ -17,11 +17,13 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
         public static event Action OnDestroyed;
 
 #if UNITY_EDITOR
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticVariables()
+        static SingletonBehaviour()
         {
-            Instance = null;
-            OnDestroyed = null;
+            SingletonResetter.RegisterResetAction(() =>
+            {
+                Instance = null;
+                OnDestroyed = null;
+            });
         }
 #endif
 

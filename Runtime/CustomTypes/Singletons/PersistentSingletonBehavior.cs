@@ -35,12 +35,14 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
         private static bool _created;
 
 #if UNITY_EDITOR
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticVariables()
+        static PersistentSingletonBehavior()
         {
-            _instance = null;
-            OnDestroyed = null;
-            _created = false;
+            SingletonResetter.RegisterResetAction(() =>
+            {
+                _instance = null;
+                OnDestroyed = null;
+                _created = false;
+            });
         }
 #endif
         protected virtual void Awake()
@@ -78,7 +80,8 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 
             var gameObject = prefab ? Instantiate(prefab.gameObject) : new GameObject(prefabName);
 
-            return gameObject.GetComponent<T>() ? gameObject.GetComponent<T>() : gameObject.AddComponent<T>();
+            var component = gameObject.GetComponent<T>();
+            return component ? component : gameObject.AddComponent<T>();
         }
     }
 }

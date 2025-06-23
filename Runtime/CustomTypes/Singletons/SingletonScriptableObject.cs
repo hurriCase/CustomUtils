@@ -37,11 +37,15 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
             }
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticVariables()
+#if UNITY_EDITOR
+        static SingletonScriptableObject()
         {
-            _instance = null;
+            SingletonResetter.RegisterResetAction(() =>
+            {
+                _instance = null;
+            });
         }
+#endif
 
         /// <summary>
         /// Loads an existing instance or creates a new one if not found.
