@@ -11,7 +11,7 @@ namespace CustomUtils.Editor.CustomMenu.MenuItems.Helpers
     public static class DefaultSceneLoader
     {
         // ReSharper disable once MemberCanBePrivate.Global
-        public const string EnableSetPlayModeSceneKey = "EnableSetPlayModeScene";
+        public static string EnableSetPlayModeSceneKey => $"{PlayerSettings.applicationIdentifier}.enableSetPlayModeScene";
 
         private static bool IsChangePlayModeScene
         {
