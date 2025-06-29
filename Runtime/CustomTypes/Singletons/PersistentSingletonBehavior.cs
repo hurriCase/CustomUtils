@@ -49,14 +49,12 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
         {
             if (!_instance)
             {
-                if (_created is false)
-                    _instance = CreateInstance();
+                _instance = this as T;
+                _created = true;
 
                 DontDestroyOnLoad(gameObject);
-                return;
             }
-
-            if (_instance != this)
+            else if (_instance != this)
                 Destroy(gameObject);
         }
 
