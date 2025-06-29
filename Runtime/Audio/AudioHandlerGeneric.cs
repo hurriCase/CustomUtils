@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
@@ -24,10 +25,12 @@ namespace CustomUtils.Runtime.Audio
         [UsedImplicitly] public static AudioHandlerGeneric<TMusicType, TSoundType> Instance { get; private set; }
 
 #if UNITY_EDITOR
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStaticVariables()
+        static AudioHandlerGeneric()
         {
-            Instance = null;
+            SingletonResetter.RegisterResetAction(() =>
+            {
+                Instance = null;
+            });
         }
 #endif
         protected virtual void Awake()
@@ -50,8 +53,11 @@ namespace CustomUtils.Runtime.Audio
         [SerializeField] protected AudioSource _oneShotSource;
         [SerializeField] protected int _defaultSoundPoolCount = 3;
 
-        protected virtual PersistentReactiveProperty<float> MusicVolume { get; } = new("music_volume_key", 1);
-        protected virtual PersistentReactiveProperty<float> SoundVolume { get; } = new("sound_volume_key", 1);
+        [UsedImplicitly]
+        public virtual PersistentReactiveProperty<float> MusicVolume { get; } = new("music_volume_key", 1);
+
+        [UsedImplicitly]
+        public virtual PersistentReactiveProperty<float> SoundVolume { get; } = new("sound_volume_key", 1);
 
         private readonly Dictionary<int, float> _lastPlayedTimes = new();
         private readonly SortedDictionary<float, AliveAudioData<TSoundType>> _sortedAliveAudioData = new();
@@ -78,20 +84,6 @@ namespace CustomUtils.Runtime.Audio
 
             _disposable = Disposable.Combine(soundDisposable, musicDisposable);
         }
-
-        /// <summary>
-        /// Changes the global sound effects volume
-        /// </summary>
-        /// <param name="volume">Volume level from 0 to 1</param>
-        [UsedImplicitly]
-        public virtual void ChangeSoundVolume(float volume) => SoundVolume.Value = volume;
-
-        /// <summary>
-        /// Changes the global music volume
-        /// </summary>
-        /// <param name="volume">Volume level from 0 to 1</param>
-        [UsedImplicitly]
-        public virtual void ChangeMusicVolume(float volume) => MusicVolume.Value = volume;
 
         /// <summary>
         /// Plays a sound with the specified parameters
