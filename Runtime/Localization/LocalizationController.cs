@@ -54,27 +54,6 @@ namespace CustomUtils.Runtime.Localization
         public static bool HasLanguage(string language) => _dictionary.ContainsKey(language);
 
         /// <summary>
-        /// Attempts to get font mapping for the specified language.
-        /// </summary>
-        /// <param name="language">The language to get font mapping for.</param>
-        /// <param name="fontMapping">The found font mapping, if any.</param>
-        /// <returns>True if font mapping was found, false otherwise.</returns>
-        [UsedImplicitly]
-        public static bool TryGetFontForLanguage(string language, out LanguageFontMapping fontMapping)
-        {
-            fontMapping = null;
-
-            var fontMappings = LocalizationDatabase.Instance.FontMappings;
-            if (fontMappings == null)
-                return false;
-
-            fontMapping = fontMappings.AsValueEnumerable()
-                .FirstOrDefault(mapping => mapping.Language.Equals(language, StringComparison.OrdinalIgnoreCase));
-
-            return fontMapping != null;
-        }
-
-        /// <summary>
         /// Gets localized text for the specified key.
         /// </summary>
         /// <param name="localizationKey">The localization key.</param>
@@ -85,13 +64,12 @@ namespace CustomUtils.Runtime.Localization
             if (string.IsNullOrEmpty(localizationKey))
                 return localizationKey;
 
-            if (_dictionary.ContainsKey(Language.Value) is false)
+            if (_dictionary.TryGetValue(Language.Value, out var languageDict) is false)
             {
                 Debug.LogError($"[LocalizationController::Localize] Language not found: {Language.Value}");
                 return localizationKey;
             }
 
-            var languageDict = _dictionary[Language.Value];
             if (languageDict.ContainsKey(localizationKey) &&
                 string.IsNullOrEmpty(languageDict[localizationKey]) is false)
                 return languageDict[localizationKey];
@@ -292,7 +270,7 @@ namespace CustomUtils.Runtime.Localization
                 var translation = columns[j];
 
                 if (_dictionary[language].ContainsKey(key))
-                    Debug.LogError($"[LocalizationController::AddTranslationsForKey] " +
+                    Debug.LogError("[LocalizationController::AddTranslationsForKey] " +
                                    $"Duplicated key '{key}' in '{sheetName}' for language '{language}'.");
                 else
                     _dictionary[language][key] = translation;

@@ -15,6 +15,5 @@ namespace CustomUtils.Runtime.Localization
         [field: SerializeField] internal string DefaultLanguage { get; private set; } = "English";
         [field: SerializeField] internal string TableId { get; set; }
         [field: SerializeField] internal List<Sheet> Sheets { get; set; } = new();
-        [field: SerializeField] internal LanguageFontMapping[] FontMappings { get; private set; }
     }
 }
