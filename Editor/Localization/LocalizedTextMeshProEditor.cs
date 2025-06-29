@@ -157,10 +157,10 @@ namespace CustomUtils.Editor.Localization
             var localizedText = LocalizationController.GetLocalizedText(key, language);
 
             if (EditorVisualControls.Button(localizedText, GUI.skin.textField))
-                ApplyPreviewText(localizedText, language);
+                ApplyPreviewText(localizedText);
         }
 
-        private void ApplyPreviewText(string text, string language)
+        private void ApplyPreviewText(string text)
         {
             if (string.IsNullOrEmpty(text) || text == "[Empty]")
                 return;
@@ -168,8 +168,6 @@ namespace CustomUtils.Editor.Localization
             Undo.RecordObject(_textComponent, "Apply Localized Text Preview");
             _textComponent.text = text.Replace("...", string.Empty);
             EditorUtility.SetDirty(_textComponent);
-
-            ApplyLocalizedFont(language);
         }
 
         private void ApplyLocalizedText()
@@ -182,19 +180,6 @@ namespace CustomUtils.Editor.Localization
 
             Undo.RecordObject(_textComponent, "Apply Localized Text");
             _textComponent.text = localizedText;
-            EditorUtility.SetDirty(_textComponent);
-
-            ApplyLocalizedFont(_selectedLanguage);
-        }
-
-        private void ApplyLocalizedFont(string language)
-        {
-            if (LocalizationController.TryGetFontForLanguage(language, out var fontMapping) is false ||
-                !fontMapping.Font)
-                return;
-
-            Undo.RecordObject(_textComponent, "Apply Localized Font");
-            _textComponent.font = fontMapping.Font;
             EditorUtility.SetDirty(_textComponent);
         }
     }

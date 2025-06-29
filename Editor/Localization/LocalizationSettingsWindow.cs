@@ -49,7 +49,6 @@ namespace CustomUtils.Editor.Localization
 
             PropertyField(nameof(LocalizationDatabase.TableId));
             PropertyField(nameof(LocalizationDatabase.Sheets));
-            PropertyField(nameof(LocalizationDatabase.FontMappings));
 
             DisplayButtons();
             DisplayWarnings();
