@@ -7,7 +7,7 @@ namespace CustomUtils.Runtime.CustomBehaviours
     public class RectTransformBehaviour : MonoBehaviour
     {
         [UsedImplicitly]
-        protected RectTransform RectTransform =>
+        public RectTransform RectTransform =>
             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
         private RectTransform _rectTransform;
     }

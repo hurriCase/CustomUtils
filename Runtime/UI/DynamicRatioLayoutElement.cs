@@ -1,6 +1,5 @@
 ﻿using System;
 using CustomUtils.Runtime.CustomBehaviours;
-using CustomUtils.Runtime.UI.RatioLayout;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +7,8 @@ namespace CustomUtils.Runtime.UI
 {
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
-    [RequireComponent(typeof(RatioLayoutElement))]
-    internal sealed class DynamicRatioLayoutElement : RatioLayoutBehaviour
+    [RequireComponent(typeof(AspectRatioFitter))]
+    internal sealed class DynamicRatioLayoutElement : AspectRatioBehaviour
     {
         [SerializeField] private RectTransform _referenceObject;
         [SerializeField] private DimensionType _dimensionType;
@@ -55,7 +54,7 @@ namespace CustomUtils.Runtime.UI
 
         private void UpdateMargins(float differenceRatio)
         {
-            if (!_ratioLayoutGroup)
+            if (!_ratioLayoutGroup || _dimensionType == DimensionType.None)
                 return;
 
             switch (_dimensionType)
@@ -77,13 +76,16 @@ namespace CustomUtils.Runtime.UI
 
         private void UpdateAspectRatio(float differenceRatio)
         {
-            if (!_referenceObject || _parentReferenceSize == 0 || _otherContentReferenceSize == 0)
+            if (!_referenceObject || _parentReferenceSize == 0 || _otherContentReferenceSize == 0 ||
+                _dimensionType == DimensionType.None)
                 return;
 
+            // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             var (referenceObjectSize, size) = _dimensionType switch
             {
                 DimensionType.Width => (_referenceObject.rect.height, RectTransform.rect.width),
-                DimensionType.Height => (_referenceObject.rect.width, RectTransform.rect.height)
+                DimensionType.Height => (_referenceObject.rect.width, RectTransform.rect.height),
+                _ => throw new ArgumentOutOfRangeException()
             };
 
             var currentOtherContentWidth = _otherContentReferenceSize / differenceRatio;
@@ -92,7 +94,7 @@ namespace CustomUtils.Runtime.UI
             if (newRatio <= 0)
                 return;
 
-            RatioLayoutElement.AspectRatio = newRatio;
+            AspectRatioFitter.aspectRatio = newRatio;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.CustomBehaviours
     public class ImageBehaviour : MonoBehaviour
     {
         [UsedImplicitly]
-        protected Image Image => _image = _image ? _image : GetComponent<Image>();
+        public Image Image => _image = _image ? _image : GetComponent<Image>();
         private Image _image;
     }
 }

@@ -11,7 +11,8 @@ namespace CustomUtils.Runtime.Logger
     [Resource(
         ResourcePaths.LoggerSettingsFullPath,
         ResourcePaths.LoggerSettingsAssetName,
-        ResourcePaths.LoggerSettingsResourcesPath)]
+        ResourcePaths.LoggerSettingsResourcesPath
+    )]
     internal sealed class LogCollectorSettings : SingletonScriptableObject<LogCollectorSettings>
     {
         [field: SerializeField] internal int MaxLogEntries { get; private set; } = 500;
