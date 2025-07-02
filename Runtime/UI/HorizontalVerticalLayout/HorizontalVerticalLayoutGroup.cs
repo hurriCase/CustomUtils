@@ -6,8 +6,8 @@ namespace CustomUtils.Runtime.UI.HorizontalVerticalLayout
     [RequireComponent(typeof(RectTransform))]
     public sealed class HorizontalVerticalLayoutGroup : LayoutGroup
     {
-        [field: SerializeField] public LayoutDirection Direction { get; private set; } = LayoutDirection.Horizontal;
         [field: SerializeField] public float Spacing { get; private set; }
+        [field: SerializeField] public LayoutDirection Direction { get; private set; } = LayoutDirection.Horizontal;
         [field: SerializeField] public bool ReverseArrangement { get; private set; }
 
         [field: SerializeField] public bool ChildForceExpandWidth { get; private set; } = true;

@@ -16,6 +16,7 @@ namespace CustomUtils.Editor
     {
         private SerializedProperty _padding;
         private SerializedProperty _spacing;
+        private SerializedProperty _direction;
         private SerializedProperty _childAlignment;
         private SerializedProperty _childControlWidth;
         private SerializedProperty _childControlHeight;
@@ -30,6 +31,7 @@ namespace CustomUtils.Editor
             _padding = serializedObject.FindProperty("m_Padding");
             _spacing = serializedObject.FindField(nameof(HorizontalVerticalLayoutGroup.Spacing));
             _childAlignment = serializedObject.FindProperty("m_ChildAlignment");
+            _direction = serializedObject.FindField(nameof(HorizontalVerticalLayoutGroup.Direction));
             _childControlWidth = serializedObject.FindField(nameof(HorizontalVerticalLayoutGroup.ChildControlWidth));
             _childControlHeight = serializedObject.FindField(nameof(HorizontalVerticalLayoutGroup.ChildControlHeight));
             _childScaleWidth = serializedObject.FindField(nameof(HorizontalVerticalLayoutGroup.ChildScaleWidth));
@@ -44,6 +46,7 @@ namespace CustomUtils.Editor
             serializedObject.Update();
             EditorGUILayout.PropertyField(_padding, true);
             EditorGUILayout.PropertyField(_spacing, true);
+            EditorGUILayout.PropertyField(_direction, true);
             EditorGUILayout.PropertyField(_childAlignment, true);
             EditorGUILayout.PropertyField(_reverseArrangement, true);
 
