@@ -1,5 +1,5 @@
 ﻿using CustomUtils.Editor.Extensions;
-using CustomUtils.Runtime.UI.RatioLayout;
+using CustomUtils.Runtime.UI.HorizontalVerticalLayout;
 using UnityEditor;
 using UnityEngine;
 

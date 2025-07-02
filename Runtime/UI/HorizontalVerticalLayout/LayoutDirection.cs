@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace CustomUtils.Runtime.UI.RatioLayout
+namespace CustomUtils.Runtime.UI.HorizontalVerticalLayout
 {
     [UsedImplicitly]
     public enum LayoutDirection

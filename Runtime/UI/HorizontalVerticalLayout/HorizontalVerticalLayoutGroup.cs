@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.RatioLayout
+namespace CustomUtils.Runtime.UI.HorizontalVerticalLayout
 {
     [RequireComponent(typeof(RectTransform))]
     public sealed class HorizontalVerticalLayoutGroup : LayoutGroup
@@ -178,7 +178,9 @@ namespace CustomUtils.Runtime.UI.RatioLayout
                         SetChildAlongAxisWithScale(child, axis, pos, childSize, scaleFactor);
                     else
                     {
-                        var offsetInCell = (childSize - child.sizeDelta[axis]) * alignmentOnAxis;
+                        float offsetInCell = 0;
+                        if (childForceExpandSize is false)
+                            offsetInCell = (childSize - child.sizeDelta[axis]) * alignmentOnAxis;
                         SetChildAlongAxisWithScale(child, axis, pos + offsetInCell, scaleFactor);
                     }
 
