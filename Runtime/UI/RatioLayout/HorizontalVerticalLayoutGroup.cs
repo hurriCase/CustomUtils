@@ -212,6 +212,8 @@ namespace CustomUtils.Runtime.UI.RatioLayout
         {
             base.Reset();
 
+            m_ChildAlignment = TextAnchor.MiddleCenter;
+
             // For new added components we want these to be set to false,
             // so that the user's sizes won't be overwritten before they
             // have a chance to turn these settings off.
