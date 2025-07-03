@@ -36,6 +36,12 @@ namespace CustomUtils.Editor.CustomMenu.Window
         {
             using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
 
+            EditorVisualControls.InfoBox(
+                "Shortcut Format: _[modifiers][key]\n" +
+                "Modifiers: % = Ctrl, & = Alt, # = Shift (can be combined)\n" +
+                "Examples: _h (H key), _%h (Ctrl+H), _&h (Alt+H), _#h (Shift+H), _#&g (Shift+Alt+G), _%#s (Ctrl+Shift+S), _F5 (F5 key)\n" +
+                "Valid keys: a-z, F1-F12");
+
             PropertyField(nameof(CustomMenuSettings.DefaultSceneAsset));
             PropertyField(nameof(CustomMenuSettings.SceneMenuItems));
             PropertyField(nameof(CustomMenuSettings.AssetMenuItems));

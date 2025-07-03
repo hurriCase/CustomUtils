@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using CustomUtils.Editor.CustomMenu.MenuItems.Helpers;
 using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems;
 using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems.MethodExecution;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace CustomUtils.Editor.CustomMenu
         private static void WriteScriptFile(string scriptContent)
         {
             var directory = Path.GetDirectoryName(ScriptPath);
-            if (string.IsNullOrEmpty(directory) is false && Directory.Exists(directory) is false)
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
             File.WriteAllText(ScriptPath, scriptContent);
@@ -53,17 +54,18 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             var isFirstMenuItem = true;
             var usedMethodNames = new HashSet<string>();
             var usedMenuPaths = new HashSet<string>();
+            var usedShortcuts = new HashSet<string>();
 
-            if (GenerateSceneMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
-                    usedMenuPaths) is false ||
-                GenerateAssetMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
-                    usedMenuPaths) is false ||
-                GeneratePrefabMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
-                    usedMenuPaths) is false ||
-                GenerateMethodExecutionMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
-                    usedMenuPaths) is false ||
-                GenerateScriptingSymbolMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
-                    usedMenuPaths) is false)
+            if (!GenerateSceneMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames, usedMenuPaths,
+                    usedShortcuts) ||
+                !GenerateAssetMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames, usedMenuPaths,
+                    usedShortcuts) ||
+                !GeneratePrefabMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames, usedMenuPaths,
+                    usedShortcuts) ||
+                !GenerateMethodExecutionMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
+                    usedMenuPaths, usedShortcuts) ||
+                !GenerateScriptingSymbolMenuItems(settings, ref content, ref isFirstMenuItem, usedMethodNames,
+                    usedMenuPaths, usedShortcuts))
                 return string.Empty;
 
             content += @"
@@ -78,37 +80,25 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             ref string content,
             ref bool isFirstMenuItem,
             HashSet<string> usedMethodNames,
-            HashSet<string> usedMenuPaths)
+            HashSet<string> usedMenuPaths,
+            HashSet<string> usedShortcuts)
         {
             if (settings.SceneMenuItems == null)
                 return true;
 
             foreach (var item in settings.SceneMenuItems)
             {
-                if (!item.MenuTarget)
-                {
-                    Debug.LogError(
-                        "[MenuManager::GenerateMenuItemsScriptContent] Scene Asset must be assigned to create Menu Items");
-                    return false;
-                }
-
-                if (ValidateMenuPath(item.MenuPath) is false)
+                if (MenuValidationHelper.Validate(item.MenuTarget, item.MenuPath, item.Shortcut, item.SceneName, "scene", usedMenuPaths,
+                        usedShortcuts) is false)
                     return false;
 
-                if (usedMenuPaths.Add(item.MenuPath) is false)
-                {
-                    Debug.LogError($"[MenuManager] Duplicate menu path '{item.MenuPath}' " +
-                                   $"for scene '{item.SceneName}'. Skipping this item.");
-                    continue;
-                }
-
-                var baseMethodName = $"OpenScene{SanitizeMethodName(item.SceneName)}";
-                var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
+                var baseMethodName = $"OpenScene{MenuValidationHelper.SanitizeMethodName(item.SceneName)}";
+                var methodName = MenuValidationHelper.GetUniqueMethodName(baseMethodName, usedMethodNames);
 
                 AddMethodSeparator(ref content, ref isFirstMenuItem);
 
                 content += $@"
-        [MenuItem(""{item.MenuPath}"", priority = {item.Priority})]
+        [MenuItem(""{item.GetMenuPathWithShortcut()}"", priority = {item.Priority})]
         private static void {methodName}()
         {{
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo() is false)
@@ -127,32 +117,26 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             ref string content,
             ref bool isFirstMenuItem,
             HashSet<string> usedMethodNames,
-            HashSet<string> usedMenuPaths)
+            HashSet<string> usedMenuPaths,
+            HashSet<string> usedShortcuts)
         {
             if (settings.AssetMenuItems == null)
                 return true;
 
-            foreach (var item in settings.AssetMenuItems.AsValueEnumerable()
-                         .Where(assetMenuItem => assetMenuItem.MenuTarget))
+            foreach (var item in settings.AssetMenuItems)
             {
-                if (ValidateMenuPath(item.MenuPath) is false)
+                if (MenuValidationHelper.Validate(item.MenuTarget, item.MenuPath, item.Shortcut, item.MenuTarget.name, "asset",
+                        usedMenuPaths, usedShortcuts) is false)
                     return false;
 
-                if (usedMenuPaths.Add(item.MenuPath) is false)
-                {
-                    Debug.LogError($"[MenuManager] Duplicate menu path '{item.MenuPath}' " +
-                                   $"for asset '{item.MenuTarget.name}'. Skipping this item.");
-                    continue;
-                }
-
-                var baseMethodName = $"SelectAsset{SanitizeMethodName(item.MenuTarget.name)}";
-                var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
+                var baseMethodName = $"SelectAsset{MenuValidationHelper.SanitizeMethodName(item.MenuTarget.name)}";
+                var methodName = MenuValidationHelper.GetUniqueMethodName(baseMethodName, usedMethodNames);
                 var assetPath = AssetDatabase.GetAssetPath(item.MenuTarget);
 
                 AddMethodSeparator(ref content, ref isFirstMenuItem);
 
                 content += $@"
-        [MenuItem(""{item.MenuPath}"", priority = {item.Priority})]
+        [MenuItem(""{item.GetMenuPathWithShortcut()}"", priority = {item.Priority})]
         private static void {methodName}()
         {{
             var asset = AssetDatabase.LoadAssetAtPath<Object>(""{assetPath}"");
@@ -168,26 +152,20 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             ref string content,
             ref bool isFirstMenuItem,
             HashSet<string> usedMethodNames,
-            HashSet<string> usedMenuPaths)
+            HashSet<string> usedMenuPaths,
+            HashSet<string> usedShortcuts)
         {
             if (settings.PrefabMenuItems == null)
                 return true;
 
-            foreach (var item in settings.PrefabMenuItems.AsValueEnumerable()
-                         .Where(prefabMenuItem => prefabMenuItem.MenuTarget))
+            foreach (var item in settings.PrefabMenuItems)
             {
-                if (ValidateMenuPath(item.MenuPath) is false)
+                if (MenuValidationHelper.Validate(item.MenuTarget, item.MenuPath, item.Shortcut, item.MenuTarget.name, "prefab",
+                        usedMenuPaths, usedShortcuts) is false)
                     return false;
 
-                if (usedMenuPaths.Add(item.MenuPath) is false)
-                {
-                    Debug.LogError($"[MenuManager] Duplicate menu path '{item.MenuPath}' " +
-                                   $"for prefab '{item.MenuTarget.name}'. Skipping this item.");
-                    continue;
-                }
-
-                var baseMethodName = $"Create{SanitizeMethodName(item.MenuTarget.name)}";
-                var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
+                var baseMethodName = $"Create{MenuValidationHelper.SanitizeMethodName(item.MenuTarget.name)}";
+                var methodName = MenuValidationHelper.GetUniqueMethodName(baseMethodName, usedMethodNames);
                 var prefabPath = AssetDatabase.GetAssetPath(item.MenuTarget);
 
                 AddMethodSeparator(ref content, ref isFirstMenuItem);
@@ -203,22 +181,17 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             ref string content,
             ref bool isFirstMenuItem,
             HashSet<string> usedMethodNames,
-            HashSet<string> usedMenuPaths)
+            HashSet<string> usedMenuPaths,
+            HashSet<string> usedShortcuts)
         {
             if (settings.MethodExecutionItems == null)
                 return true;
 
             foreach (var item in settings.MethodExecutionItems)
             {
-                if (ValidateMenuPath(item.MenuPath) is false)
+                if (MenuValidationHelper.Validate(item.MenuTarget, item.MenuPath, item.Shortcut, item.MenuTarget.ToString(), "method",
+                        usedMenuPaths, usedShortcuts) is false)
                     return false;
-
-                if (usedMenuPaths.Add(item.MenuPath) is false)
-                {
-                    Debug.LogError($"[MenuManager] Duplicate menu path '{item.MenuPath}' " +
-                                   $"for method '{item.MenuTarget}'. Skipping this item.");
-                    continue;
-                }
 
                 AddMethodSeparator(ref content, ref isFirstMenuItem);
 
@@ -233,47 +206,36 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             ref string content,
             ref bool isFirstMenuItem,
             HashSet<string> usedMethodNames,
-            HashSet<string> usedMenuPaths)
+            HashSet<string> usedMenuPaths,
+            HashSet<string> usedShortcuts)
         {
             if (settings.ScriptingSymbols == null)
                 return true;
 
-            foreach (var symbol in settings.ScriptingSymbols)
+            foreach (var item in settings.ScriptingSymbols)
             {
-                if (string.IsNullOrEmpty(symbol.MenuTarget))
-                {
-                    Debug.LogError("[MenuManager] Symbol name cannot be empty");
-                    continue;
-                }
+                if (MenuValidationHelper.Validate(item.MenuTarget, item.MenuPath, item.Shortcut, item.MenuTarget, "symbol",
+                        usedMenuPaths, usedShortcuts) is false)
+                    return false;
 
-                if (ValidateMenuPath(symbol.MenuPath) is false)
-                    continue;
-
-                if (usedMenuPaths.Add(symbol.MenuPath) is false)
-                {
-                    Debug.LogError($"[MenuManager] Duplicate menu path '{symbol.MenuPath}' " +
-                                   $"for symbol '{symbol.MenuTarget}'. Skipping this item.");
-                    continue;
-                }
-
-                var baseMethodName = $"ToggleSymbol_{SanitizeMethodName(symbol.MenuTarget)}";
-                var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
+                var baseMethodName = $"ToggleSymbol_{MenuValidationHelper.SanitizeMethodName(item.MenuTarget)}";
+                var methodName = MenuValidationHelper.GetUniqueMethodName(baseMethodName, usedMethodNames);
                 var validateMethodName = $"Validate{methodName}";
-                var prefsKey = symbol.GetPrefsKey();
+                var prefsKey = item.GetPrefsKey();
 
                 AddMethodSeparator(ref content, ref isFirstMenuItem);
 
                 content += $@"
-        [MenuItem(""{symbol.MenuPath}"", priority = {symbol.Priority})]
+        [MenuItem(""{item.GetMenuPathWithShortcut()}"", priority = {item.Priority})]
         private static void {methodName}()
         {{
-            ScriptingSymbolHandler.ToggleSymbol(""{symbol.MenuTarget}"", ""{prefsKey}"");
+            ScriptingSymbolHandler.ToggleSymbol(""{item.MenuTarget}"", ""{prefsKey}"");
         }}
 
-        [MenuItem(""{symbol.MenuPath}"", true)]
+        [MenuItem(""{item.MenuPath}"", true)]
         private static bool {validateMethodName}()
         {{
-            Menu.SetChecked(""{symbol.MenuPath}"", ScriptingSymbolHandler.IsSymbolEnabled(""{prefsKey}"", false));
+            Menu.SetChecked(""{item.MenuPath}"", ScriptingSymbolHandler.IsSymbolEnabled(""{prefsKey}"", false));
             return true;
         }}";
             }
@@ -295,7 +257,7 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             string prefabPath)
         {
             var content = $@"
-        [MenuItem(""{item.MenuPath}"", priority = {item.Priority})]
+        [MenuItem(""{item.GetMenuPathWithShortcut()}"", priority = {item.Priority})]
         private static void {methodName}(MenuCommand menuCommand)
         {{
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(""{prefabPath}"");
@@ -328,19 +290,19 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             HashSet<string> usedMethodNames)
         {
             var baseMethodName = menuItem.MenuTarget.ToString();
-            var methodName = GetUniqueMethodName(baseMethodName, usedMethodNames);
+            var methodName = MenuValidationHelper.GetUniqueMethodName(baseMethodName, usedMethodNames);
 
             return menuItem.MenuTarget switch
             {
                 MethodExecutionType.DeleteAllStoredData => $@"
-        [MenuItem(""{menuItem.MenuPath}"", priority = {menuItem.Priority})]
+        [MenuItem(""{menuItem.GetMenuPathWithShortcut()}"", priority = {menuItem.Priority})]
         private static void {methodName}()
         {{
             StorageHelper.TryDeleteAllAsync().Forget();
         }}",
 
                 MethodExecutionType.ToggleDefaultSceneAutoLoad => $@"
-        [MenuItem(""{menuItem.MenuPath}"", priority = {menuItem.Priority})]
+        [MenuItem(""{menuItem.GetMenuPathWithShortcut()}"", priority = {menuItem.Priority})]
         private static void {methodName}()
         {{
             DefaultSceneLoader.ToggleAutoLoad();
@@ -355,110 +317,6 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 
                 _ => throw new ArgumentOutOfRangeException(nameof(menuItem.MenuTarget), menuItem.MenuTarget, null)
             };
-        }
-
-        private static string SanitizeMethodName(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return "Empty";
-
-            var sanitized = input
-                .Replace(" ", "_")
-                .Replace(".", "_")
-                .Replace("-", "_")
-                .Replace("+", "Plus")
-                .Replace("&", "And")
-                .Replace("@", "At")
-                .Replace("#", "Hash")
-                .Replace("$", "Dollar")
-                .Replace("%", "Percent")
-                .Replace("^", "Caret")
-                .Replace("*", "Star")
-                .Replace("(", "_")
-                .Replace(")", "_")
-                .Replace("[", "_")
-                .Replace("]", "_")
-                .Replace("{", "_")
-                .Replace("}", "_")
-                .Replace("|", "_")
-                .Replace("\\", "_")
-                .Replace("/", "_")
-                .Replace("?", "_")
-                .Replace("<", "_")
-                .Replace(">", "_")
-                .Replace(",", "_")
-                .Replace(";", "_")
-                .Replace(":", "_")
-                .Replace("'", "_")
-                .Replace("\"", "_")
-                .Replace("!", "_")
-                .Replace("~", "_")
-                .Replace("`", "_")
-                .Replace("=", "_");
-
-            while (sanitized.Contains("__"))
-            {
-                sanitized = sanitized.Replace("__", "_");
-            }
-
-            sanitized = sanitized.Trim('_');
-
-            if (string.IsNullOrEmpty(sanitized) is false && char.IsDigit(sanitized[0]))
-                sanitized = "_" + sanitized;
-
-            return string.IsNullOrEmpty(sanitized) ? "Method" : sanitized;
-        }
-
-        private static bool ValidateMenuPath(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                Debug.LogError("[MenuController::ValidateMenuPath] Menu Path cannot be empty");
-                return false;
-            }
-
-            if (path.Contains('/') is false)
-            {
-                Debug.LogError($"[MenuController::ValidateMenuPath] Menu path '{path}' should contain a submenu " +
-                               "(using forward slash to specify it, e.g. 'Tools/Custom')");
-                return false;
-            }
-
-            if (path.EndsWith('/'))
-            {
-                Debug.LogError("[MenuController::ValidateMenuPath] " +
-                               $"Menu path '{path}' cannot end with a forward slash");
-                return false;
-            }
-
-            if (path.StartsWith('/'))
-            {
-                Debug.LogError("[MenuController::ValidateMenuPath] " +
-                               $"Menu path '{path}' cannot start with a forward slash");
-                return false;
-            }
-
-            if (path.Contains("//") is false)
-                return true;
-
-            Debug.LogError("[MenuController::ValidateMenuPath] " +
-                           $"Menu path '{path}' contains double slashes which would create empty menu items");
-            return false;
-        }
-
-        private static string GetUniqueMethodName(string baseName, HashSet<string> usedNames)
-        {
-            var methodName = baseName;
-            var suffix = 1;
-
-            while (usedNames.Contains(methodName))
-            {
-                methodName = $"{baseName}_{suffix}";
-                suffix++;
-            }
-
-            usedNames.Add(methodName);
-            return methodName;
         }
     }
 }
