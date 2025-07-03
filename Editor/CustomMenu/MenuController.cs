@@ -6,7 +6,6 @@ using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems;
 using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems.MethodExecution;
 using UnityEditor;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Editor.CustomMenu
 {
@@ -264,7 +263,7 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 
             if (!prefab)
             {{
-                Debug.LogError(""Prefab not found at path: {prefabPath}"");
+                Debug.LogError(""[GeneratedMenuItems::{methodName}] Prefab not found at path: {prefabPath}"");
                 return;
             }}
 
@@ -272,11 +271,23 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
 
             if (!instance)
             {{
-                Debug.LogError(""Failed to instantiate prefab"");
+                Debug.LogError(""[GeneratedMenuItems::{methodName}] Failed to instantiate prefab"");
                 return;
             }}
 
-            GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
+            var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (prefabStage)
+            {{
+                var selectedInPrefab = Selection.activeGameObject;
+                if (selectedInPrefab && prefabStage.IsPartOfPrefabContents(selectedInPrefab))
+                    instance.transform.SetParent(selectedInPrefab.transform);
+                else
+                    instance.transform.SetParent(prefabStage.prefabContentsRoot.transform);
+
+                instance.transform.localPosition = Vector3.zero;
+            }}
+            else
+                GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
 
             Undo.RegisterCreatedObjectUndo(instance, ""Create "" + instance.name);
 
