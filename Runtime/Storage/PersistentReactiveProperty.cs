@@ -124,6 +124,18 @@ namespace CustomUtils.Runtime.Storage
         }
 
         /// <summary>
+        /// Subscribes to value changes with a static action that ignores the value
+        /// </summary>
+        /// <param name="onNext">Static action to execute when value changes</param>
+        /// <returns>Disposable subscription</returns>
+        [UsedImplicitly]
+        public IDisposable Subscribe(Action onNext)
+        {
+            EnsureLoaded();
+            return _property.Subscribe(onNext, static (_, action) => action());
+        }
+
+        /// <summary>
         /// Manually saves the current value to storage
         /// </summary>
         /// <returns>Task representing the save operation</returns>
