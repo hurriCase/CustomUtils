@@ -74,14 +74,17 @@ namespace CustomUtils.Runtime.UI
                 return;
 
             ForceMeshUpdate();
-
-            var currentSize = rectTransform.sizeDelta;
-            rectTransform.sizeDelta = DimensionType switch
+            Debug.LogWarning($"[AdaptiveTextMeshProUGUI::ExpandContainerIfNeeded] preferredWidth: {preferredWidth}");
+            switch (DimensionType)
             {
-                DimensionType.Width => new Vector2(currentSize.x, preferredHeight),
-                DimensionType.Height => new Vector2(preferredWidth, currentSize.y),
-                _ => new Vector2(currentSize.x, currentSize.y)
-            };
+                case DimensionType.Width:
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, preferredHeight);
+                    break;
+
+                case DimensionType.Height:
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, preferredWidth);
+                    break;
+            }
         }
     }
 }
