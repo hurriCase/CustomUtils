@@ -5,8 +5,9 @@ namespace CustomUtils.Runtime.UI
 {
     public sealed class AdaptiveTextMeshProUGUI : TextMeshProUGUI
     {
+        [field: SerializeField] public DimensionType DimensionType { get; private set; }
         [field: SerializeField] public float BaseFontSize { get; private set; }
-        [field: SerializeField] public float ReferenceWidth { get; private set; }
+        [field: SerializeField] public float ReferenceSize { get; private set; }
 
         protected override void OnRectTransformDimensionsChange()
         {
@@ -17,10 +18,15 @@ namespace CustomUtils.Runtime.UI
 
         private void SetCategoriesText()
         {
-            if (ReferenceWidth == 0)
+            if (ReferenceSize == 0 || DimensionType == DimensionType.None)
                 return;
 
-            var scaleFactor = rectTransform.rect.width / ReferenceWidth;
+            var scaleFactor = DimensionType switch
+            {
+                DimensionType.Width => rectTransform.rect.width / ReferenceSize,
+                DimensionType.Height => rectTransform.rect.height / ReferenceSize,
+                _ => 0,
+            };
 
             if (scaleFactor <= 0)
                 return;

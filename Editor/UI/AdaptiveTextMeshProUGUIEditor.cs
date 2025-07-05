@@ -26,8 +26,9 @@ namespace CustomUtils.Editor.UI
 
             EditorVisualControls.LabelField("Adaptive Settings");
 
+            _editorStateControls.PropertyField(nameof(AdaptiveTextMeshProUGUI.DimensionType));
             _editorStateControls.PropertyField(nameof(AdaptiveTextMeshProUGUI.BaseFontSize));
-            _editorStateControls.PropertyField(nameof(AdaptiveTextMeshProUGUI.ReferenceWidth));
+            _editorStateControls.PropertyField(nameof(AdaptiveTextMeshProUGUI.ReferenceSize));
 
             serializedObject.ApplyModifiedProperties();
         }
