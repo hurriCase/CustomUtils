@@ -17,7 +17,15 @@ namespace CustomUtils.Runtime.UI
 
         private void SetCategoriesText()
         {
-            var adaptiveFontSize = BaseFontSize * rectTransform.rect.width / ReferenceWidth;
+            if (ReferenceWidth == 0)
+                return;
+
+            var scaleFactor = rectTransform.rect.width / ReferenceWidth;
+
+            if (scaleFactor <= 0)
+                return;
+
+            var adaptiveFontSize = BaseFontSize * scaleFactor;
 
             fontSize = adaptiveFontSize;
         }
