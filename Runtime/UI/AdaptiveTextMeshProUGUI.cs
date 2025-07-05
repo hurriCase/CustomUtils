@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using R3;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,8 +14,7 @@ namespace CustomUtils.Runtime.UI
         [field: SerializeField] public float ReferenceSize { get; private set; }
         [field: SerializeField] public bool ExpandToFitText { get; private set; }
 
-        [UsedImplicitly]
-        public event Action<string> OnTextChanged;
+        private readonly Subject<string> _textChangedSubject = new();
 
         private DrivenRectTransformTracker _tracker;
         private string _lastText = string.Empty;
@@ -22,18 +22,21 @@ namespace CustomUtils.Runtime.UI
         protected override void OnEnable()
         {
             base.OnEnable();
+
             SetDirty();
         }
 
         protected override void OnDisable()
         {
             _tracker.Clear();
+
             base.OnDisable();
         }
 
         protected override void OnValidate()
         {
             base.OnValidate();
+
             SetTextFont();
         }
 
@@ -45,6 +48,20 @@ namespace CustomUtils.Runtime.UI
             ExpandContainerIfNeeded();
         }
 
+        /// <summary>
+        /// Subscribes to value changes
+        /// </summary>
+        /// <param name="target">Target object to pass to the callback</param>
+        /// <param name="onNext">Action to execute when value changes</param>
+        /// <returns>Disposable subscription</returns>
+        [UsedImplicitly]
+        public IDisposable Subscribe<TTarget>(TTarget target, Action<string, TTarget> onNext)
+        {
+            return _textChangedSubject.Subscribe(
+                (target, onNext),
+                static (property, tuple) => tuple.onNext(property, tuple.target));
+        }
+
         public override void Rebuild(CanvasUpdate executing)
         {
             base.Rebuild(executing);
@@ -54,6 +71,7 @@ namespace CustomUtils.Runtime.UI
         }
 
         public void SetLayoutHorizontal() { }
+
         public void SetLayoutVertical() { }
 
         private void SetDirty()
@@ -68,7 +86,7 @@ namespace CustomUtils.Runtime.UI
         {
             _lastText = newText;
 
-            OnTextChanged?.Invoke(newText);
+            _textChangedSubject.OnNext(newText);
 
             ExpandContainerIfNeeded();
         }

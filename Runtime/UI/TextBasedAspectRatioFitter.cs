@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.CustomBehaviours;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +9,9 @@ namespace CustomUtils.Runtime.UI
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
     [RequireComponent(typeof(AspectRatioFitter))]
-    internal sealed class DynamicRatioLayoutElement : AspectRatioBehaviour
+    internal sealed class TextBasedAspectRatioFitter : AspectRatioBehaviour
     {
-        [SerializeField] private RectTransform _referenceObject;
+        [SerializeField] private AdaptiveTextMeshProUGUI _adaptiveText;
         [SerializeField] private DimensionType _dimensionType;
         [SerializeField] private float _parentReferenceSize;
         [SerializeField] private float _otherContentReferenceSize;
@@ -19,19 +20,20 @@ namespace CustomUtils.Runtime.UI
             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
         private RectTransform _rectTransform;
 
-        private void OnRectTransformDimensionsChange()
+        private void OnEnable()
         {
-            UpdateAspectRatio();
+            _adaptiveText.Subscribe(this, static (_, element) => element.UpdateAspectRatio())
+                .RegisterTo(destroyCancellationToken);
         }
 
-        private void OnValidate()
+        private void OnRectTransformDimensionsChange()
         {
             UpdateAspectRatio();
         }
 
         private void UpdateAspectRatio()
         {
-            if (!_referenceObject || _parentReferenceSize <= 0 || _otherContentReferenceSize <= 0 ||
+            if (!_adaptiveText || _parentReferenceSize <= 0 || _otherContentReferenceSize <= 0 ||
                 _dimensionType == DimensionType.None)
                 return;
 
@@ -47,8 +49,8 @@ namespace CustomUtils.Runtime.UI
 
             var (referenceObjectSize, size) = _dimensionType switch
             {
-                DimensionType.Width => (_referenceObject.rect.height, currentSize),
-                DimensionType.Height => (_referenceObject.rect.width, currentSize),
+                DimensionType.Width => (_adaptiveText.rectTransform.rect.height, currentSize),
+                DimensionType.Height => (_adaptiveText.rectTransform.rect.width, currentSize),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
