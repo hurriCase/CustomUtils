@@ -1,5 +1,8 @@
-﻿using TMPro;
+﻿using System;
+using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI
 {
@@ -8,15 +11,45 @@ namespace CustomUtils.Runtime.UI
         [field: SerializeField] public DimensionType DimensionType { get; private set; }
         [field: SerializeField] public float BaseFontSize { get; private set; }
         [field: SerializeField] public float ReferenceSize { get; private set; }
+        [field: SerializeField] public bool ExpandToFitText { get; private set; }
+
+        [UsedImplicitly]
+        public event Action<string> OnTextChanged;
+
+        private string _lastText = string.Empty;
+
+        public override void Rebuild(CanvasUpdate executing)
+        {
+            base.Rebuild(executing);
+
+            if (executing == CanvasUpdate.PreRender && _lastText != text)
+                HandleTextChanged(text);
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+            SetTextFont();
+        }
+
+        private void HandleTextChanged(string newText)
+        {
+            _lastText = newText;
+            OnTextChanged?.Invoke(newText);
+
+            ExpandContainerIfNeeded();
+        }
 
         protected override void OnRectTransformDimensionsChange()
         {
             base.OnRectTransformDimensionsChange();
 
-            SetCategoriesText();
+            SetTextFont();
+            ExpandContainerIfNeeded();
         }
 
-        private void SetCategoriesText()
+        private void SetTextFont()
         {
             if (ReferenceSize == 0 || DimensionType == DimensionType.None)
                 return;
@@ -32,8 +65,23 @@ namespace CustomUtils.Runtime.UI
                 return;
 
             var adaptiveFontSize = BaseFontSize * scaleFactor;
-
             fontSize = adaptiveFontSize;
+        }
+
+        private void ExpandContainerIfNeeded()
+        {
+            if (ExpandToFitText is false || DimensionType == DimensionType.None)
+                return;
+
+            ForceMeshUpdate();
+
+            var currentSize = rectTransform.sizeDelta;
+            rectTransform.sizeDelta = DimensionType switch
+            {
+                DimensionType.Width => new Vector2(currentSize.x, preferredHeight),
+                DimensionType.Height => new Vector2(preferredWidth, currentSize.y),
+                _ => new Vector2(currentSize.x, currentSize.y)
+            };
         }
     }
 }
