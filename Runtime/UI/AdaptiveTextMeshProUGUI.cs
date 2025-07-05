@@ -74,7 +74,7 @@ namespace CustomUtils.Runtime.UI
                 return;
 
             ForceMeshUpdate();
-            Debug.LogWarning($"[AdaptiveTextMeshProUGUI::ExpandContainerIfNeeded] preferredWidth: {preferredWidth}");
+
             switch (DimensionType)
             {
                 case DimensionType.Width:
