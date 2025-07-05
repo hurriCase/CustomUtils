@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI
 {
-    public sealed class AdaptiveTextMeshProUGUI : TextMeshProUGUI, ILayoutSelfController
+    public sealed class AdaptiveTextMeshProUGUI : TextMeshProUGUI, ILayoutSelfController, ITextPreprocessor
     {
         [field: SerializeField] public DimensionType DimensionType { get; private set; }
         [field: SerializeField] public float BaseFontSize { get; private set; }
@@ -33,6 +33,13 @@ namespace CustomUtils.Runtime.UI
             base.OnDisable();
         }
 
+        protected override void OnDestroy()
+        {
+            _textChangedSubject?.Dispose();
+
+            base.OnDestroy();
+        }
+
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -46,6 +53,18 @@ namespace CustomUtils.Runtime.UI
 
             SetTextFont();
             ExpandContainerIfNeeded();
+        }
+
+        public string PreprocessText(string text)
+        {
+            if (_lastText == text)
+                return text;
+
+            _lastText = text;
+            _textChangedSubject.OnNext(text);
+            ExpandContainerIfNeeded();
+
+            return text;
         }
 
         /// <summary>
@@ -62,14 +81,6 @@ namespace CustomUtils.Runtime.UI
                 static (property, tuple) => tuple.onNext(property, tuple.target));
         }
 
-        public override void Rebuild(CanvasUpdate executing)
-        {
-            base.Rebuild(executing);
-
-            if (executing == CanvasUpdate.PreRender && _lastText != text)
-                HandleTextChanged(text);
-        }
-
         public void SetLayoutHorizontal() { }
 
         public void SetLayoutVertical() { }
@@ -80,15 +91,6 @@ namespace CustomUtils.Runtime.UI
                 return;
 
             LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
-        }
-
-        private void HandleTextChanged(string newText)
-        {
-            _lastText = newText;
-
-            _textChangedSubject.OnNext(newText);
-
-            ExpandContainerIfNeeded();
         }
 
         private void SetTextFont()
