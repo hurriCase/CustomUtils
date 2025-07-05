@@ -20,10 +20,27 @@ namespace CustomUtils.Runtime.UI
             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
         private RectTransform _rectTransform;
 
+        private bool _isSubscribed;
+
         private void OnEnable()
         {
+            TrySubscribe();
+        }
+
+        private void OnValidate()
+        {
+            TrySubscribe();
+        }
+
+        private void TrySubscribe()
+        {
+            if (!_adaptiveText || _isSubscribed)
+                return;
+
             _adaptiveText.Subscribe(this, static (_, element) => element.UpdateAspectRatio())
                 .RegisterTo(destroyCancellationToken);
+
+            _isSubscribed = true;
         }
 
         private void OnRectTransformDimensionsChange()
