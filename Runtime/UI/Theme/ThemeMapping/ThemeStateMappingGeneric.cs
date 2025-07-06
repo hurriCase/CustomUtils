@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
+using CustomUtils.Runtime.CustomTypes;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using JetBrains.Annotations;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="ScriptableObject" />
     /// <summary>
     /// Abstract base class for mapping enum states to theme colors.
     /// Provides a unified way to associate enum values with colors from the theme database.
@@ -16,7 +15,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
     /// <typeparam name="TEnum">The enum type to map colors to. Must be an unmanaged enum type.</typeparam>
     public abstract class ThemeStateMappingGeneric<TEnum> : ScriptableObject where TEnum : unmanaged, Enum
     {
-        [field: SerializeField] internal List<StateColorMapping<TEnum>> StateMappings { get; private set; } = new();
+        [field: SerializeField] public EnumArray<TEnum, ColorMapping> StateMappings { get; private set; }
 
         private ThemeColorDatabase ThemeColorDatabase => ThemeColorDatabase.Instance;
         private ThemeHandler ThemeHandler => ThemeHandler.Instance;
@@ -26,16 +25,12 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         /// </summary>
         /// <param name="state">The enum state to get the color for</param>
         /// <returns>
-        /// The resolved color from the theme database, or Color.white if no mapping exists or the color cannot be resolved.
-        /// The returned color respects the current theme (Light/Dark) for solid colors.
+        /// The resolved color from the theme database, or Color.white if no mapping exists.
         /// </returns>
         [UsedImplicitly]
         public Color GetColorForState(TEnum state)
         {
-            var mapping = GetMappingForState(state);
-            if (mapping == null)
-                return Color.white;
-
+            var mapping = StateMappings[state];
             return mapping.ColorType switch
             {
                 ColorType.Solid => GetSolidColor(mapping.ColorName),
@@ -48,39 +43,31 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         /// Gets the color name associated with the specified enum state.
         /// </summary>
         /// <param name="state">The enum state to get the color name for</param>
-        /// <returns>
-        /// The color name from the theme database, or null if no mapping exists for the specified state.
-        /// </returns>
+        /// <returns>The color name or empty string if no mapping exists.</returns>
         [UsedImplicitly]
-        public string GetColorNameForState(TEnum state)
-        {
-            var mapping = GetMappingForState(state);
-            return mapping?.ColorName;
-        }
+        public string GetColorNameForState(TEnum state) => StateMappings[state].ColorName;
 
         /// <summary>
         /// Gets the resolved gradient for the specified enum state.
         /// </summary>
         /// <param name="state">The enum state to get the gradient for</param>
-        /// <returns>
-        /// The resolved gradient from the theme database, or null if no mapping exists,
-        /// the color type is not Gradient, or the gradient cannot be resolved.
-        /// The returned gradient respects the current theme (Light/Dark).
-        /// </returns>
+        /// <returns>The resolved gradient or null if not found/applicable.</returns>
         [UsedImplicitly]
         public Gradient GetGradientForState(TEnum state)
         {
-            var mapping = GetMappingForState(state);
-            if (mapping?.ColorType != ColorType.Gradient)
+            var mapping = StateMappings[state];
+            if (mapping.ColorType != ColorType.Gradient)
                 return null;
 
             if (ThemeColorDatabase.TryGetColorByName<ThemeGradientColor>(mapping.ColorName, out var gradientColor))
+            {
                 return ThemeHandler.CurrentThemeType switch
                 {
                     ThemeType.Light => gradientColor.LightThemeColor,
                     ThemeType.Dark => gradientColor.DarkThemeColor,
                     _ => null
                 };
+            }
 
             return null;
         }
@@ -89,28 +76,27 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         /// Gets the color type associated with the specified enum state.
         /// </summary>
         /// <param name="state">The enum state to get the color type for</param>
-        /// <returns>
-        /// The ColorType for the specified state, or ColorType.Solid if no mapping exists.
-        /// </returns>
+        /// <returns>The ColorType for the specified state.</returns>
         [UsedImplicitly]
-        public ColorType GetColorTypeForState(TEnum state)
-        {
-            var mapping = GetMappingForState(state);
-            return mapping?.ColorType ?? ColorType.Solid;
-        }
+        public ColorType GetColorTypeForState(TEnum state) => StateMappings[state].ColorType;
+
+        /// <summary>
+        /// Gets the mapping for the specified state.
+        /// </summary>
+        /// <param name="state">The enum state to get the mapping for</param>
+        /// <returns>The color mapping for the specified state</returns>
+        [UsedImplicitly]
+        public ColorMapping GetMappingForState(TEnum state) => StateMappings[state];
 
         /// <summary>
         /// Configures a theme component to use the color mapping for the specified enum state.
-        /// This method sets the appropriate color name and type on the theme component and applies the color.
         /// </summary>
         /// <param name="state">The enum state to configure the theme component for</param>
         /// <param name="themeComponent">The theme component to configure</param>
         [UsedImplicitly]
         public void SetComponentForState(TEnum state, IBaseThemeComponent themeComponent)
         {
-            var mapping = GetMappingForState(state);
-            if (mapping == null)
-                return;
+            var mapping = StateMappings[state];
 
             themeComponent.ColorType = mapping.ColorType;
 
@@ -135,25 +121,44 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
             themeComponent.OnApplyColor();
         }
 
-        private StateColorMapping<TEnum> GetMappingForState(TEnum state) =>
-            StateMappings.AsValueEnumerable().FirstOrDefault(mapping =>
-                EqualityComparer<TEnum>.Default.Equals(mapping.State, state));
+        /// <summary>
+        /// Compares the content of this mapping with another mapping.
+        /// This is what you probably want for detecting theme changes.
+        /// </summary>
+        [UsedImplicitly]
+        public bool HasSameContentAs(ThemeStateMappingGeneric<TEnum> other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            // Compare each mapping in the enum array
+            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            foreach (var enumValue in enumValues)
+            {
+                if (StateMappings[enumValue].Equals(other.StateMappings[enumValue]) is false)
+                    return false;
+            }
+
+            return true;
+        }
 
         private Color GetSolidColor(string colorName)
         {
             if (ThemeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
+            {
                 return ThemeHandler.CurrentThemeType switch
                 {
                     ThemeType.Light => solidColor.LightThemeColor,
                     ThemeType.Dark => solidColor.DarkThemeColor,
                     _ => Color.white
                 };
+            }
 
             return Color.white;
         }
 
-        private Color GetSharedColor(string colorName)
-            => ThemeColorDatabase.TryGetColorByName<ThemeSharedColor>(colorName, out var sharedColor)
+        private Color GetSharedColor(string colorName) =>
+            ThemeColorDatabase.TryGetColorByName<ThemeSharedColor>(colorName, out var sharedColor)
                 ? sharedColor.Color
                 : Color.white;
     }
