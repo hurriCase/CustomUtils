@@ -74,7 +74,7 @@ namespace CustomUtils.Editor.AttributeDrawers
         {
             var parentPath = property.propertyPath[..property.propertyPath.LastIndexOf('.')];
             var parentProperty = property.serializedObject.FindProperty(parentPath);
-            var colorTypeProperty = parentProperty?.FindFieldRelative(nameof(StateColorMapping<ColorType>.ColorType));
+            var colorTypeProperty = parentProperty?.FindFieldRelative(nameof(ColorMapping.ColorType));
 
             return colorTypeProperty != null ? (ColorType)colorTypeProperty.enumValueIndex : ColorType.Solid;
         }

@@ -128,10 +128,12 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         [UsedImplicitly]
         public bool HasSameContentAs(ThemeStateMappingGeneric<TEnum> other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+                return false;
 
-            // Compare each mapping in the enum array
+            if (ReferenceEquals(this, other))
+                return true;
+
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
             foreach (var enumValue in enumValues)
             {
