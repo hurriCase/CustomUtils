@@ -27,7 +27,11 @@ namespace CustomUtils.Editor.AttributeDrawers
                 ValidateColorDatabase(out _, colorType) is false)
                 return EditorGUIUtility.singleLineHeight * 1.5f + EditorGUIUtility.standardVerticalSpacing;
 
-            return EditorGUIUtility.singleLineHeight;
+            var showPreview = string.IsNullOrEmpty(property.stringValue) is false && property.stringValue != "None";
+
+            return showPreview
+                ? EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing
+                : EditorGUIUtility.singleLineHeight;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -54,7 +58,7 @@ namespace CustomUtils.Editor.AttributeDrawers
                 property.stringValue = string.Empty;
             }
 
-            var popupRect = new Rect(position.x, position.y, position.width, position.height);
+            var popupRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
             var newIndex = EditorGUI.Popup(popupRect, label.text, currentIndex, colorNames.ToArray());
 
@@ -67,7 +71,15 @@ namespace CustomUtils.Editor.AttributeDrawers
             if (string.IsNullOrEmpty(property.stringValue) || property.stringValue == "None")
                 return;
 
-            EditorVisualControls.ColorField("Preview", GetPreviewColor(colorType, property.stringValue));
+            var previewRect = new Rect(
+                position.x,
+                position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing,
+                position.width,
+                EditorGUIUtility.singleLineHeight
+            );
+
+            var previewColor = GetPreviewColor(colorType, property.stringValue);
+            EditorGUI.ColorField(previewRect, "Preview", previewColor);
         }
 
         private ColorType GetColorTypeFromParent(SerializedProperty property)
