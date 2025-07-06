@@ -1,19 +1,37 @@
-﻿// EnumArray.cs
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes
 {
-    [Serializable]
+    /// <summary>
+    /// A generic struct that associates an array of values with an underlying enum type as keys.
+    /// </summary>
+    /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
+    /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
+    /// <remarks>
+    /// This struct is useful for efficiently handling data mapped to enumeration keys.
+    /// It enforces type safety and ensures that the array operates based on the size of the associated enum.
+    /// </remarks>
+    [Serializable, UsedImplicitly]
     public struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
         where TEnum : unmanaged, Enum
     {
         [SerializeField] private TValue[] _values;
 
+        /// <summary>
+        /// Gets the array of values associated with the underlying enum type as keys.
+        /// </summary>
+        /// <remarks>
+        /// If the internal array is not initialized, it is created with a size equal to the number
+        /// of elements in the enum type. This ensures that the array length always matches the
+        /// number of keys in the enum type.
+        /// </remarks>
+        [UsedImplicitly]
         public TValue[] Values
         {
             get
@@ -28,6 +46,15 @@ namespace CustomUtils.Runtime.CustomTypes
             }
         }
 
+        /// <summary>
+        /// A generic structure that associates an array of values with an enum type as keys.
+        /// </summary>
+        /// <typeparam name="TEnum">The enumeration type used as keys. Must be unmanaged and of Enum type.</typeparam>
+        /// <typeparam name="TValue">The type of values stored in the array.</typeparam>
+        /// <remarks>
+        /// Provides convenient and type-safe access to a fixed-size array structured around the keys of an enum.
+        /// </remarks>
+        [UsedImplicitly]
         public EnumArray(TValue defaultValue)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
@@ -36,15 +63,61 @@ namespace CustomUtils.Runtime.CustomTypes
                 _values[i] = defaultValue;
         }
 
+        /// <summary>
+        /// Indexer property that allows accessing or modifying values in the array using the associated enum type as the key.
+        /// </summary>
+        /// <param name="key">The enum key corresponding to the value in the array.</param>
+        /// <returns>The value stored in the array at the position corresponding to the enum key.</returns>
+        /// <remarks>
+        /// This indexer leverages the underlying integer representation of the enum to retrieve or update the value
+        /// in the array. It ensures type safety by preventing invalid keys, aligning with the enum's defined range.
+        /// </remarks>
+        [UsedImplicitly]
         public TValue this[TEnum key]
         {
             get => Values[UnsafeEnumConverter<TEnum>.ToInt32(key)];
             set => Values[UnsafeEnumConverter<TEnum>.ToInt32(key)] = value;
         }
 
+        /// <summary>
+        /// Enumerates over (key, value) tuples like a dictionary
+        /// </summary>
+        [UsedImplicitly]
+        public IEnumerable<(TEnum Key, TValue Value)> AsTuples()
+        {
+            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            for (var i = 0; i < enumValues.Length && i < Values.Length; i++)
+                yield return (enumValues[i], Values[i]);
+        }
+
+        /// <summary>
+        /// Executes an action for each key-value pair
+        /// </summary>
+        [UsedImplicitly]
+        public void ForEach<TTarget>(TTarget target, Action<TTarget, TEnum, TValue> action)
+        {
+            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            for (var i = 0; i < enumValues.Length && i < Values.Length; i++)
+                action(target, enumValues[i], Values[i]);
+        }
+
+        /// <summary>
+        /// Gets the total number of elements in the array associated with the underlying enum type.
+        /// </summary>
+        /// <remarks>
+        /// The length corresponds to the number of elements in the enum type, ensuring that the
+        /// structure maintains a fixed size based on the enum's key count.
+        /// </remarks>
+        [UsedImplicitly]
         public int Length => Values.Length;
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the array of values associated with the enum keys.
+        /// </summary>
+        /// <returns>An enumerator for the array of values.</returns>
+        [UsedImplicitly]
         public IEnumerator<TValue> GetEnumerator() => Values.AsEnumerable().GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
