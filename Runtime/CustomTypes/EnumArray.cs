@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
+using MemoryPack;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes
@@ -17,8 +18,8 @@ namespace CustomUtils.Runtime.CustomTypes
     /// This struct is useful for efficiently handling data mapped to enumeration keys.
     /// It enforces type safety and ensures that the array operates based on the size of the associated enum.
     /// </remarks>
-    [Serializable, UsedImplicitly]
-    public struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
+    [Serializable, UsedImplicitly, MemoryPackable]
+    public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
         where TEnum : unmanaged, Enum
     {
         [SerializeField] private TValue[] _values;
@@ -61,6 +62,12 @@ namespace CustomUtils.Runtime.CustomTypes
             _values = new TValue[enumValues.Length];
             for (var i = 0; i < _values.Length; i++)
                 _values[i] = defaultValue;
+        }
+
+        [MemoryPackConstructor]
+        public EnumArray(TValue[] values)
+        {
+            _values = values;
         }
 
         /// <summary>
