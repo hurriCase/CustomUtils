@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using MemoryPack;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.CustomTypes
+namespace CustomUtils.Runtime.CustomTypes.Collections
 {
     /// <summary>
     /// A generic struct that associates an array of values with an underlying enum type as keys.
     /// </summary>
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
-    /// <remarks>
-    /// This struct is useful for efficiently handling data mapped to enumeration keys.
-    /// It enforces type safety and ensures that the array operates based on the size of the associated enum.
-    /// </remarks>
     [Serializable, UsedImplicitly, MemoryPackable]
     public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
         where TEnum : unmanaged, Enum
@@ -87,15 +82,10 @@ namespace CustomUtils.Runtime.CustomTypes
         }
 
         /// <summary>
-        /// Enumerates over (key, value) tuples like a dictionary
+        /// Enumerates over (key, value) tuples like a dictionary without allocations
         /// </summary>
         [UsedImplicitly]
-        public IEnumerable<(TEnum Key, TValue Value)> AsTuples()
-        {
-            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            for (var i = 0; i < enumValues.Length && i < Values.Length; i++)
-                yield return (enumValues[i], Values[i]);
-        }
+        public TupleEnumerator<TEnum, TValue> AsTuples() => new(this);
 
         /// <summary>
         /// Executes an action for each key-value pair
@@ -119,12 +109,23 @@ namespace CustomUtils.Runtime.CustomTypes
         public int Length => Values.Length;
 
         /// <summary>
-        /// Returns an enumerator that iterates through the array of values associated with the enum keys.
+        /// Returns a high-performance struct enumerator that iterates through the array of values.
+        /// This method creates zero GC pressure and is optimized for Unity's performance requirements.
         /// </summary>
-        /// <returns>An enumerator for the array of values.</returns>
+        /// <returns>A struct enumerator for the array of values.</returns>
         [UsedImplicitly]
-        public IEnumerator<TValue> GetEnumerator() => Values.AsEnumerable().GetEnumerator();
+        public Enumerator<TValue> GetEnumerator() => new(Values);
 
+        /// <summary>
+        /// Explicit interface implementation that boxes the struct enumerator only when needed.
+        /// Use the non-generic GetEnumerator() for better performance.
+        /// </summary>
+        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Explicit interface implementation for non-generic enumeration.
+        /// Use the non-generic GetEnumerator() for better performance.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

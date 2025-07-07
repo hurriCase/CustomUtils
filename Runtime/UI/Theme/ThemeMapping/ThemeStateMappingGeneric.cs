@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Runtime.CustomTypes;
+using CustomUtils.Runtime.CustomTypes.Collections;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using JetBrains.Annotations;

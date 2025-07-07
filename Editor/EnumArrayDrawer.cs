@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Runtime.CustomTypes;
+using CustomUtils.Runtime.CustomTypes.Collections;
 using UnityEditor;
 using UnityEngine;
 
