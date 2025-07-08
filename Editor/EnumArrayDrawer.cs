@@ -11,6 +11,8 @@ namespace CustomUtils.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var valuesProperty = property.FindPropertyRelative("_values");
+            var skipFirstProperty = property.FindPropertyRelative("_skipFirst");
+
             if (valuesProperty == null)
             {
                 EditorGUI.LabelField(position, label.text, "EnumArray not initialized");
@@ -19,6 +21,7 @@ namespace CustomUtils.Editor
 
             var enumType = fieldInfo.FieldType.GetGenericArguments()[0];
             var enumNames = Enum.GetNames(enumType);
+            var skipFirst = skipFirstProperty?.boolValue ?? false;
 
             if (valuesProperty.arraySize != enumNames.Length)
                 valuesProperty.arraySize = enumNames.Length;
@@ -34,7 +37,9 @@ namespace CustomUtils.Editor
                 EditorGUI.indentLevel++;
                 var yPos = position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-                for (var i = 0; i < valuesProperty.arraySize && i < enumNames.Length; i++)
+                var startIndex = skipFirst ? 1 : 0;
+
+                for (var i = startIndex; i < valuesProperty.arraySize && i < enumNames.Length; i++)
                 {
                     var elementProperty = valuesProperty.GetArrayElementAtIndex(i);
                     var elementHeight = EditorGUI.GetPropertyHeight(elementProperty, true);
@@ -54,15 +59,19 @@ namespace CustomUtils.Editor
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var valuesProperty = property.FindPropertyRelative("_values");
+            var skipFirstProperty = property.FindPropertyRelative("_skipFirst");
+
             if (valuesProperty == null || property.isExpanded is false)
                 return EditorGUIUtility.singleLineHeight;
 
             var enumType = fieldInfo.FieldType.GetGenericArguments()[0];
             var enumNames = Enum.GetNames(enumType);
+            var skipFirst = skipFirstProperty?.boolValue ?? false;
 
             var height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-            for (var i = 0; i < valuesProperty.arraySize && i < enumNames.Length; i++)
+            var startIndex = skipFirst ? 1 : 0;
+            for (var i = startIndex; i < valuesProperty.arraySize && i < enumNames.Length; i++)
             {
                 var elementProperty = valuesProperty.GetArrayElementAtIndex(i);
                 height += EditorGUI.GetPropertyHeight(elementProperty, true) + EditorGUIUtility.standardVerticalSpacing;
