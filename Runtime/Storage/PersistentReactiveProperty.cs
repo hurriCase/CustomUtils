@@ -92,22 +92,6 @@ namespace CustomUtils.Runtime.Storage
         }
 
         /// <summary>
-        /// Factory method that ensures proper async initialization
-        /// Recommended for Unity environments
-        /// </summary>
-        /// <param name="key">Unique key for storing the value</param>
-        /// <param name="defaultValue">Default value if no saved value exists</param>
-        /// <returns>Fully initialized PersistentReactiveProperty</returns>
-        [UsedImplicitly]
-        public static async UniTask<PersistentReactiveProperty<TProperty>> CreateAsync(string key,
-            TProperty defaultValue = default)
-        {
-            var property = new PersistentReactiveProperty<TProperty>(key, defaultValue);
-            await property.InitializeAsync();
-            return property;
-        }
-
-        /// <summary>
         /// Subscribes to value changes
         /// </summary>
         /// <param name="target">Target object to pass to the callback</param>
@@ -121,6 +105,18 @@ namespace CustomUtils.Runtime.Storage
             return _property.Subscribe(
                 (target, onNext),
                 static (property, tuple) => tuple.onNext(property, tuple.target));
+        }
+
+        /// <summary>
+        /// Subscribes to value changes with a static action that ignores the value
+        /// </summary>
+        /// <param name="onNext">Static action to execute when value changes</param>
+        /// <returns>Disposable subscription</returns>
+        [UsedImplicitly]
+        public IDisposable Subscribe(Action<TProperty> onNext)
+        {
+            EnsureLoaded();
+            return _property.Subscribe(onNext, static (property, action) => action(property));
         }
 
         /// <summary>
