@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 {
+    [ExecuteInEditMode]
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
     [RequireComponent(typeof(RectTransform))]
-    [ExecuteInEditMode]
     internal sealed class ImagePixelsPerUnitAdjuster : ImageBehaviour
     {
         [field: SerializeField, PixelPerUnitPopup] internal PixelPerUnitData PixelPerUnitData { get; set; }

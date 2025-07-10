@@ -7,6 +7,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.Theme.Components
 {
     [ExecuteInEditMode]
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(TextMeshProUGUI))]
     public sealed class TextThemeComponent : BaseThemeComponent<TextMeshProUGUI>
     {

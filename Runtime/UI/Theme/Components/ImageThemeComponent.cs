@@ -7,6 +7,7 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.UI.Theme.Components
 {
     [ExecuteInEditMode]
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
     public sealed class ImageThemeComponent : BaseThemeComponent<Image>
     {

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Localization
 {
+    [DisallowMultipleComponent]
     [RequireComponent(typeof(TextMeshProUGUI))]
     internal sealed class LocalizedTextMeshPro : TextBehaviour
     {
