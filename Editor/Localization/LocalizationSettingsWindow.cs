@@ -47,6 +47,7 @@ namespace CustomUtils.Editor.Localization
 
             using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
 
+            PropertyField(nameof(LocalizationDatabase.DefaultLanguage));
             PropertyField(nameof(LocalizationDatabase.TableId));
             PropertyField(nameof(LocalizationDatabase.Sheets));
 

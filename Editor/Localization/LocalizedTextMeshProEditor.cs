@@ -15,7 +15,7 @@ namespace CustomUtils.Editor.Localization
     internal sealed class LocalizedTextMeshProEditor : EditorBase
     {
         private TextMeshProUGUI _textComponent;
-        private string _selectedLanguage;
+        private SystemLanguage _selectedLanguage;
 
         private SerializedProperty _localizationKeyProperty;
 
@@ -129,8 +129,14 @@ namespace CustomUtils.Editor.Localization
                 return;
             }
 
-            _selectedLanguage =
-                EditorStateControls.Dropdown("Preview Language", _selectedLanguage, availableLanguages);
+            var languageStrings = availableLanguages.AsValueEnumerable()
+                .Select(lang => lang.ToString()).ToArray();
+            var currentIndex = Array.IndexOf(languageStrings, _selectedLanguage.ToString());
+
+            if (currentIndex == -1) currentIndex = 0;
+
+            var newIndex = EditorStateControls.Dropdown("Preview Language", currentIndex, languageStrings);
+            _selectedLanguage = availableLanguages[newIndex];
 
             if (EditorGUI.EndChangeCheck())
                 ApplyLocalizedText();
@@ -148,11 +154,11 @@ namespace CustomUtils.Editor.Localization
                 DrawLanguageRow(currentKey, language);
         }
 
-        private void DrawLanguageRow(string key, string language)
+        private void DrawLanguageRow(string key, SystemLanguage language)
         {
             using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
 
-            EditorVisualControls.LabelField(language, GUILayout.Width(100));
+            EditorVisualControls.LabelField(language.ToString(), GUILayout.Width(100));
 
             var localizedText = LocalizationController.GetLocalizedText(key, language);
 

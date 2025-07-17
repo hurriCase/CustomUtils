@@ -14,18 +14,19 @@ using UnityEditor;
 namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
-    /// Reactive localization controller with automatic font management.
+    /// Reactive localization controller with SystemLanguage support.
     /// </summary>
     [UsedImplicitly]
     public static class LocalizationController
     {
-        private static readonly Dictionary<string, Dictionary<string, string>> _dictionary = new();
+        private static readonly Dictionary<SystemLanguage, Dictionary<string, string>> _dictionary = new();
 
         /// <summary>
         /// Reactive property for current language with automatic localization updates.
         /// </summary>
         [UsedImplicitly]
-        public static ReactiveProperty<string> Language { get; } = new(LocalizationDatabase.Instance.DefaultLanguage);
+        public static ReactiveProperty<SystemLanguage> Language { get; } =
+            new(LocalizationDatabase.Instance.DefaultLanguage);
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
@@ -35,11 +36,25 @@ namespace CustomUtils.Runtime.Localization
         }
 #endif
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeInRuntime()
+        {
+            ReadLocalizationData();
+
+            var systemLanguage = Application.systemLanguage;
+            if (HasLanguage(systemLanguage))
+                Language.Value = systemLanguage;
+        }
+
+        /// <summary>
+        /// Tries to parse a string language name to SystemLanguage enum.
+        /// </summary>
+        private static bool TryParseSystemLanguage(string languageName, out SystemLanguage systemLanguage)
+            => Enum.TryParse(languageName, true, out systemLanguage);
+
         /// <summary>
         /// Checks if a localization key exists for the current language.
         /// </summary>
-        /// <param name="localizationKey">The key to check.</param>
-        /// <returns>True if the key exists, false otherwise.</returns>
         [UsedImplicitly]
         public static bool HasKey(string localizationKey) =>
             _dictionary.ContainsKey(Language.Value) &&
@@ -48,16 +63,12 @@ namespace CustomUtils.Runtime.Localization
         /// <summary>
         /// Checks if a language exists in the localization data.
         /// </summary>
-        /// <param name="language">The language to check.</param>
-        /// <returns>True if the language exists, false otherwise.</returns>
         [UsedImplicitly]
-        public static bool HasLanguage(string language) => _dictionary.ContainsKey(language);
+        public static bool HasLanguage(SystemLanguage language) => _dictionary.ContainsKey(language);
 
         /// <summary>
         /// Gets localized text for the specified key.
         /// </summary>
-        /// <param name="localizationKey">The localization key.</param>
-        /// <returns>The localized text or fallback text if not found.</returns>
         [UsedImplicitly]
         public static string Localize(string localizationKey)
         {
@@ -83,9 +94,6 @@ namespace CustomUtils.Runtime.Localization
         /// <summary>
         /// Gets localized text with string formatting.
         /// </summary>
-        /// <param name="localizationKey">The localization key.</param>
-        /// <param name="args">Arguments for string formatting.</param>
-        /// <returns>The formatted localized text.</returns>
         [UsedImplicitly]
         public static string Localize(string localizationKey, params object[] args)
         {
@@ -115,9 +123,10 @@ namespace CustomUtils.Runtime.Localization
             return allKeys.OrderBy(k => k).ToArray();
         }
 
-        internal static string[] GetAllLanguages() => _dictionary.Keys.OrderBy(language => language).ToArray();
+        internal static SystemLanguage[] GetAllLanguages() =>
+            _dictionary.Keys.OrderBy(language => language.ToString()).ToArray();
 
-        internal static string GetLocalizedText(string key, string language)
+        internal static string GetLocalizedText(string key, SystemLanguage language)
         {
             if (_dictionary.ContainsKey(language) && _dictionary[language].ContainsKey(key))
                 return _dictionary[language][key];
@@ -127,9 +136,9 @@ namespace CustomUtils.Runtime.Localization
 
         private static string GetFallbackText(string localizationKey)
         {
-            if (_dictionary.ContainsKey("English") &&
-                _dictionary["English"].ContainsKey(localizationKey))
-                return _dictionary["English"][localizationKey];
+            if (_dictionary.ContainsKey(SystemLanguage.English) &&
+                _dictionary[SystemLanguage.English].ContainsKey(localizationKey))
+                return _dictionary[SystemLanguage.English][localizationKey];
 
             return localizationKey;
         }
@@ -204,13 +213,28 @@ namespace CustomUtils.Runtime.Localization
                 .Replace("）", "） ")
                 .Trim();
 
-        private static List<string> ParseLanguageHeader(string headerLine) =>
-            headerLine.Split(',')
+        private static List<SystemLanguage> ParseLanguageHeader(string headerLine)
+        {
+            var languageStrings = headerLine.Split(',')
                 .AsValueEnumerable()
                 .Select(lang => lang.Trim())
                 .ToList();
 
-        private static bool ValidateLanguages(List<string> languages, string sheetName)
+            var systemLanguages = new List<SystemLanguage>();
+
+            for (var i = 1; i < languageStrings.Count; i++)
+            {
+                if (TryParseSystemLanguage(languageStrings[i], out var systemLang))
+                    systemLanguages.Add(systemLang);
+                else
+                    Debug.LogWarning("[LocalizationController::ParseLanguageHeader] " +
+                                     $"Unknown language '{languageStrings[i]}' - skipping");
+            }
+
+            return systemLanguages;
+        }
+
+        private static bool ValidateLanguages(List<SystemLanguage> languages, string sheetName)
         {
             if (languages.Count == languages.Distinct().Count())
                 return true;
@@ -220,17 +244,16 @@ namespace CustomUtils.Runtime.Localization
             return false;
         }
 
-        private static void InitializeLanguageDictionaries(List<string> languages)
+        private static void InitializeLanguageDictionaries(List<SystemLanguage> languages)
         {
-            for (var i = 1; i < languages.Count; i++)
+            foreach (var language in languages)
             {
-                var language = languages[i];
                 if (_dictionary.ContainsKey(language) is false)
                     _dictionary[language] = new Dictionary<string, string>();
             }
         }
 
-        private static void ProcessDataRows(List<string> lines, List<string> languages,
+        private static void ProcessDataRows(List<string> lines, List<SystemLanguage> languages,
             HashSet<string> processedKeys, string sheetName)
         {
             for (var i = 1; i < lines.Count; i++)
@@ -262,12 +285,12 @@ namespace CustomUtils.Runtime.Localization
                 .ToList();
 
         private static void AddTranslationsForKey(string key, List<string> columns,
-            List<string> languages, string sheetName)
+            List<SystemLanguage> languages, string sheetName)
         {
-            for (var j = 1; j < languages.Count && j < columns.Count; j++)
+            for (var j = 0; j < languages.Count && j + 1 < columns.Count; j++)
             {
                 var language = languages[j];
-                var translation = columns[j];
+                var translation = columns[j + 1]; // +1 because first column is the key
 
                 if (_dictionary[language].ContainsKey(key))
                     Debug.LogError("[LocalizationController::AddTranslationsForKey] " +
