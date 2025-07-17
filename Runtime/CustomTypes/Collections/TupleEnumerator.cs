@@ -7,7 +7,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// <summary>
     /// Provides an enumerator for iterating through a collection of tuples represented by key-value pairs,
     /// where the keys are enumeration values and the values are associated data types.
-    /// Supports optional skipping of the first enum element during enumeration.
+    /// Supports different enumeration modes, including optional skipping of the first enum element during enumeration.
     /// </summary>
     /// <typeparam name="TEnum">The enumeration type that represents the keys in the (key, value) pairs.</typeparam>
     /// <typeparam name="TValue">The type of the associated values in the (key, value) pairs.</typeparam>
@@ -23,12 +23,13 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// Initializes a new instance of the TupleEnumerator struct.
         /// </summary>
         /// <param name="enumArray">The EnumArray instance to enumerate over.</param>
-        /// <param name="skipFirst">If true, the enumeration will start from the second enum element.</param>
-        internal TupleEnumerator(EnumArray<TEnum, TValue> enumArray, bool skipFirst = false)
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior.
+        /// If set to SkipFirst, the enumeration will start from the second enum element.</param>
+        internal TupleEnumerator(EnumArray<TEnum, TValue> enumArray, EnumMode enumMode = EnumMode.Default)
         {
             _enumArray = enumArray;
             _enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            _startIndex = skipFirst ? 1 : 0;
+            _startIndex = enumMode == EnumMode.SkipFirst ? 1 : 0;
             _index = _startIndex - 1;
         }
 
@@ -65,6 +66,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 
         /// <summary>
         /// Sets the enumerator to its initial position, which is before the first element in the collection.
+        /// The initial position respects the configured enumeration mode.
         /// </summary>
         public void Reset() => _index = _startIndex - 1;
 

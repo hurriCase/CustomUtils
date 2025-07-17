@@ -8,7 +8,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// <summary>
     /// Provides a high-performance struct-based enumerator for iterating over an array of elements.
     /// This enumerator is designed to minimize garbage collection overhead and is suitable for performance-critical scenarios.
-    /// Supports optional skipping of the first element in the array.
+    /// Supports different enumeration modes, including optional skipping of the first element in the array.
     /// </summary>
     /// <typeparam name="TValue">The type of the elements in the array.</typeparam>
     [UsedImplicitly]
@@ -19,15 +19,16 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         private int _index;
 
         /// <summary>
-        /// Initializes a new instance of the Enumerator struct.
+        /// Initializes a new instance of the Enumerator struct with the specified array and enumeration mode.
         /// </summary>
-        /// <param name="array">The array to enumerate over. Cannot be null.</param>
-        /// <param name="skipFirst">If true, the enumeration will start from the second element (index 1).</param>
+        /// <param name="array">The array to enumerate over.</param>
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior.
+        /// If set to SkipFirst, enumeration will start from the second element.</param>
         /// <exception cref="ArgumentNullException">Thrown when the array parameter is null.</exception>
-        internal Enumerator(TValue[] array, bool skipFirst = false)
+        internal Enumerator(TValue[] array, EnumMode enumMode = EnumMode.Default)
         {
             _array = array ?? throw new ArgumentNullException(nameof(array));
-            _startIndex = skipFirst ? 1 : 0;
+            _startIndex = enumMode == EnumMode.SkipFirst ? 1 : 0;
             _index = _startIndex - 1;
         }
 
@@ -63,6 +64,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 
         /// <summary>
         /// Sets the enumerator to its initial position, which is before the first element in the collection.
+        /// The initial position respects the configured enumeration mode.
         /// </summary>
         public void Reset()
         {

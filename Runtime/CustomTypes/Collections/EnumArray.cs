@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 {
     /// <summary>
     /// A generic struct that associates an array of values with an underlying enum type as keys.
-    /// Supports optional skipping of the first enum element during enumeration.
+    /// Supports different enumeration modes, including optional skipping of the first enum element.
     /// </summary>
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
@@ -19,7 +19,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         where TEnum : unmanaged, Enum
     {
         [SerializeField] private TValue[] _values;
-        [SerializeField] private bool _skipFirst;
+        [SerializeField] private EnumMode _enumMode;
 
         /// <summary>
         /// Gets the total number of elements in the array associated with the underlying enum type.
@@ -28,10 +28,10 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public int Length => Values.Length;
 
         /// <summary>
-        /// Gets a value indicating whether the first enum element should be skipped during enumeration.
+        /// Gets the enumeration mode that determines how elements are processed during iteration.
         /// </summary>
         [UsedImplicitly]
-        public bool SkipFirst => _skipFirst;
+        public EnumMode EnumMode => _enumMode;
 
         /// <summary>
         /// Gets the array of values associated with the underlying enum type as keys.
@@ -52,43 +52,43 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         }
 
         /// <summary>
-        /// Initializes a new instance of the EnumArray struct with all elements set to the specified default value.
+        /// Initializes a new instance of the EnumArray with all elements set to the specified default value.
         /// </summary>
         /// <param name="defaultValue">The default value to assign to all elements in the array.</param>
-        /// <param name="skipFirst">If true, the first enum element will be skipped during enumeration operations.</param>
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior. Defaults to EnumMode.Default.</param>
         [UsedImplicitly]
-        public EnumArray(TValue defaultValue, bool skipFirst = false)
+        public EnumArray(TValue defaultValue, EnumMode enumMode = EnumMode.Default)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
             _values = new TValue[enumValues.Length];
-            _skipFirst = skipFirst;
+            _enumMode = enumMode;
             for (var i = 0; i < _values.Length; i++)
                 _values[i] = defaultValue;
         }
 
         /// <summary>
-        /// Initializes a new instance of the EnumArray struct without setting default values.
+        /// Initializes a new instance of the EnumArray with default values for all elements.
         /// </summary>
-        /// <param name="skipFirst">If true, the first enum element will be skipped during enumeration operations.</param>
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior.</param>
         [UsedImplicitly]
-        public EnumArray(bool skipFirst)
+        public EnumArray(EnumMode enumMode)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
             _values = new TValue[enumValues.Length];
-            _skipFirst = skipFirst;
+            _enumMode = enumMode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the EnumArray struct with the specified array of values.
+        /// Initializes a new instance of the EnumArray with the specified values and enumeration mode.
         /// This constructor is used by MemoryPack for deserialization.
         /// </summary>
-        /// <param name="values">The array of values to associate with the enum keys.</param>
-        /// <param name="skipFirst">If true, the first enum element will be skipped during enumeration operations.</param>
+        /// <param name="values">The array of values to store.</param>
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior.</param>
         [MemoryPackConstructor]
-        public EnumArray(TValue[] values, bool skipFirst)
+        public EnumArray(TValue[] values, EnumMode enumMode)
         {
             _values = values;
-            _skipFirst = skipFirst;
+            _enumMode = enumMode;
         }
 
         /// <summary>
@@ -105,13 +105,15 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 
         /// <summary>
         /// Enumerates over (key, value) tuples like a dictionary without allocations.
+        /// Respects the configured enumeration mode for iteration behavior.
         /// </summary>
         /// <returns>A struct enumerator that iterates through key-value pairs.</returns>
         [UsedImplicitly]
-        public TupleEnumerator<TEnum, TValue> AsTuples() => new(this, _skipFirst);
+        public TupleEnumerator<TEnum, TValue> AsTuples() => new(this, _enumMode);
 
         /// <summary>
         /// Executes an action for each key-value pair in the array.
+        /// Respects the configured enumeration mode - if set to SkipFirst, the first enum element will be skipped.
         /// </summary>
         /// <typeparam name="TTarget">The type of the target object passed to the action.</typeparam>
         /// <param name="target">The target object to pass to the action method.</param>
@@ -120,7 +122,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public void ForEach<TTarget>(TTarget target, Action<TTarget, TEnum, TValue> action)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            var startIndex = _skipFirst ? 1 : 0;
+            var startIndex = _enumMode == EnumMode.SkipFirst ? 1 : 0;
 
             for (var i = startIndex; i < enumValues.Length && i < Values.Length; i++)
                 action(target, enumValues[i], Values[i]);
@@ -129,10 +131,11 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <summary>
         /// Returns a high-performance struct enumerator that iterates through the array of values.
         /// This method creates zero GC pressure and is optimized for Unity's performance requirements.
+        /// Respects the configured enumeration mode for iteration behavior.
         /// </summary>
         /// <returns>A struct enumerator for the array of values.</returns>
         [UsedImplicitly]
-        public Enumerator<TValue> GetEnumerator() => new(Values, _skipFirst);
+        public Enumerator<TValue> GetEnumerator() => new(Values, _enumMode);
 
         /// <summary>
         /// Explicit interface implementation that boxes the struct enumerator only when needed.
