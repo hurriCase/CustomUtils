@@ -6,10 +6,18 @@ using UnityEngine;
 namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 {
     [CustomPropertyDrawer(typeof(EnumArray<,>))]
-    public class EnumArrayDrawer : PropertyDrawer
+    public class EnumArrayDrawer : PropertyDrawer, IDisposable
     {
+        private static bool _eventsSubscribed;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            if (_eventsSubscribed is false)
+            {
+                EditorApplication.contextualPropertyMenu += OnPropertyContextMenu;
+                _eventsSubscribed = true;
+            }
+
             var info = GetEnumArrayInfo(property, isNested: false);
             if (!info.IsValid)
             {
@@ -33,7 +41,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
         private EnumArrayInfo GetEnumArrayInfo(SerializedProperty property, bool isNested)
         {
             var valuesProperty = property.FindPropertyRelative("_values");
-            var skipFirstProperty = property.FindPropertyRelative("_skipFirst");
+            var enumModeProperty = property.FindPropertyRelative("_enumMode");
             var enumType = isNested ? GetNestedEnumType() : GetEnumTypeFromField();
 
             var info = new EnumArrayInfo
@@ -46,7 +54,8 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
                 return info;
 
             info.EnumNames = Enum.GetNames(enumType);
-            info.SkipFirst = skipFirstProperty?.boolValue ?? false;
+            var enumMode = (EnumMode)(enumModeProperty?.enumValueIndex ?? 0);
+            info.SkipFirst = enumMode == EnumMode.SkipFirst;
             info.StartIndex = info.SkipFirst ? 1 : 0;
 
             return info;
@@ -57,6 +66,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
             EditorGUI.BeginProperty(position, label, property);
 
             var foldoutRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+
             property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, label);
 
             if (property.isExpanded)
@@ -67,6 +77,26 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
             }
 
             EditorGUI.EndProperty();
+        }
+
+        private void OnPropertyContextMenu(GenericMenu menu, SerializedProperty property)
+        {
+            var enumModeProperty = property.FindPropertyRelative("_enumMode");
+            var currentMode = (EnumMode)enumModeProperty.enumValueIndex;
+
+            menu.AddItem(new GUIContent("Set Mode to Default"),
+                currentMode == EnumMode.Default,
+                () => {
+                    enumModeProperty.enumValueIndex = (int)EnumMode.Default;
+                    property.serializedObject.ApplyModifiedProperties();
+                });
+
+            menu.AddItem(new GUIContent("Set Mode to SkipFirst"),
+                currentMode == EnumMode.SkipFirst,
+                () => {
+                    enumModeProperty.enumValueIndex = (int)EnumMode.SkipFirst;
+                    property.serializedObject.ApplyModifiedProperties();
+                });
         }
 
         private void DrawEnumElements(Rect position, EnumArrayInfo info)
@@ -173,6 +203,12 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 
         private bool IsNestedEnumArray(SerializedProperty elementProperty) =>
             elementProperty.FindPropertyRelative("_values") != null &&
-            elementProperty.FindPropertyRelative("_skipFirst") != null;
+            elementProperty.FindPropertyRelative("_enumMode") != null;
+
+        public void Dispose()
+        {
+            EditorApplication.contextualPropertyMenu -= OnPropertyContextMenu;
+            _eventsSubscribed = false;
+        }
     }
 }
