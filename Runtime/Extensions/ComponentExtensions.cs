@@ -24,5 +24,14 @@ namespace CustomUtils.Runtime.Extensions
             result = component.GetComponentInParent<T>();
             return result;
         }
+
+        /// <summary>
+        /// Sets the active state of the GameObject associated with the specified component.
+        /// </summary>
+        /// <param name="component">The component whose associated GameObject's active state will be set.</param>
+        /// <param name="isActive">A boolean value indicating whether to activate (<c>true</c>) or deactivate (<c>false</c>) the GameObject.</param>
+        [UsedImplicitly]
+        public static void SetActive(this Component component, bool isActive)
+            => component.gameObject.SetActive(isActive);
     }
 }
