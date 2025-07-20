@@ -104,6 +104,18 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         }
 
         /// <summary>
+        /// Indexer property that allows accessing or modifying values in the array using the index of the associated enum value.
+        /// </summary>
+        /// <param name="index">The index corresponding to the value in the array.</param>
+        /// <returns>The value stored in the array at the position corresponding to the index.</returns>
+        [UsedImplicitly]
+        public TValue this[int index]
+        {
+            get => Values[index];
+            set => Values[index] = value;
+        }
+
+        /// <summary>
         /// Enumerates over (key, value) tuples like a dictionary without allocations.
         /// Respects the configured enumeration mode for iteration behavior.
         /// </summary>
