@@ -67,6 +67,21 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         }
 
         /// <summary>
+        /// Initializes a new instance of the EnumArray with all elements set to values created by the specified factory method.
+        /// </summary>
+        /// <param name="factory">A factory method that creates default values for each array element.</param>
+        /// <param name="enumMode">The enumeration mode that determines iteration behavior. Defaults to EnumMode.Default.</param>
+        [UsedImplicitly]
+        public EnumArray(Func<TValue> factory, EnumMode enumMode = EnumMode.Default)
+        {
+            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            _values = new TValue[enumValues.Length];
+            _enumMode = enumMode;
+            for (var i = 0; i < _values.Length; i++)
+                _values[i] = factory();
+        }
+
+        /// <summary>
         /// Initializes a new instance of the EnumArray with default values for all elements.
         /// </summary>
         /// <param name="enumMode">The enumeration mode that determines iteration behavior.</param>
