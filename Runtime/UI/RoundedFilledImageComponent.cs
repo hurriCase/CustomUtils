@@ -11,7 +11,6 @@ namespace CustomUtils.Runtime.UI
         [field: SerializeField] public bool RoundedCaps { get; set; } = true;
         [field: SerializeField, Range(3, 36)] public int RoundedCapResolution { get; set; } = 8;
         [field: SerializeField, Range(0, 359)] public float CustomFillOrigin { get; set; }
-        [field: SerializeField] public bool UseCustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] public float ThicknessRatio { get; set; } = 0.2f;
 
         private readonly List<Vector2> _innerPointsCashed = new();
@@ -73,20 +72,7 @@ namespace CustomUtils.Runtime.UI
             var innerRadius = radius - thickness;
 
             var fullAngle = fillClockwise ? 360f : -360f;
-
-            float startAngle;
-            if (UseCustomFillOrigin)
-                startAngle = CustomFillOrigin;
-            else
-                startAngle = fillOrigin switch
-                {
-                    0 => 270f,
-                    1 => 0f,
-                    2 => 90f,
-                    3 => 180f,
-                    _ => 0f
-                };
-
+            var startAngle = CustomFillOrigin;
             var endAngle = startAngle + fullAngle * fillAmount;
 
             var startRad = startAngle * Mathf.Deg2Rad;

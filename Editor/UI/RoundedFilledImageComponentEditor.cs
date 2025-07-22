@@ -52,13 +52,7 @@ namespace CustomUtils.Editor.UI
                 roundedCapsProperty.boolValue is false,
                 nameof(RoundedFilledImageComponent.RoundedCapResolution));
 
-            var (_, useCustomFillOriginProperty) = _editorStateControls
-                .PropertyField(nameof(RoundedFilledImageComponent.UseCustomFillOrigin));
-
-            _editorStateControls.PropertyFieldIf(
-                useCustomFillOriginProperty.boolValue is false,
-                nameof(RoundedFilledImageComponent.CustomFillOrigin));
-
+            _editorStateControls.PropertyField(nameof(RoundedFilledImageComponent.CustomFillOrigin));
             _editorStateControls.PropertyField(nameof(RoundedFilledImageComponent.ThicknessRatio));
 
             if (isRadial360 is false && roundedCapsProperty.boolValue)
