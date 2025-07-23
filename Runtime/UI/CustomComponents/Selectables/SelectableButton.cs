@@ -3,9 +3,9 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    internal sealed class ButtonComponent : Button
+    public sealed class SelectableButton : Button
     {
-        [field: SerializeField] internal SelectableColorMapping SelectableColorMapping { get; private set; }
+        [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
 
         protected override void Awake()
         {

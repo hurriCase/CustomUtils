@@ -5,9 +5,9 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
     [CreateAssetMenu(fileName = nameof(SelectableColorMapping), menuName = nameof(SelectableColorMapping))]
-    internal sealed class SelectableColorMapping : ThemeStateMappingGeneric<SelectableStateType>
+    public sealed class SelectableColorMapping : ThemeStateMappingGeneric<SelectableStateType>
     {
-        internal ColorBlock GetThemeBlockColors(ColorBlock colorBlock)
+        public ColorBlock GetThemeBlockColors(ColorBlock colorBlock)
         {
             colorBlock.normalColor = GetColorForState(SelectableStateType.Normal);
             colorBlock.highlightedColor = GetColorForState(SelectableStateType.Highlighted);

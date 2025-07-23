@@ -4,10 +4,10 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    internal sealed class ThemeToggle : Toggle
+    public sealed class ThemeToggle : Toggle
     {
-        [field: SerializeField] internal SelectableColorMapping SelectableColorMapping { get; private set; }
-        [field: SerializeField] internal ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
+        [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
+        [field: SerializeField] public ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
 
         protected override void Awake()
         {

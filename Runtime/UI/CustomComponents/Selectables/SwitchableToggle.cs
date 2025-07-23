@@ -4,10 +4,10 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    internal sealed class SwitchableToggle : Toggle
+    public sealed class SwitchableToggle : Toggle
     {
-        [field: SerializeField] internal GameObject CheckedObject { get; private set; }
-        [field: SerializeField] internal GameObject UncheckedObject { get; private set; }
+        [field: SerializeField] public GameObject CheckedObject { get; private set; }
+        [field: SerializeField] public GameObject UncheckedObject { get; private set; }
 
         protected override void Reset()
         {

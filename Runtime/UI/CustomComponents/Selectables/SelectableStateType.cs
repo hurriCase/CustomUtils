@@ -1,6 +1,6 @@
 ﻿namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    internal enum SelectableStateType
+    public enum SelectableStateType
     {
         None = 0,
         Normal = 1,
