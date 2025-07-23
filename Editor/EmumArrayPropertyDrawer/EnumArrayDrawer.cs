@@ -82,6 +82,9 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
         private void OnPropertyContextMenu(GenericMenu menu, SerializedProperty property)
         {
             var enumModeProperty = property.FindPropertyRelative("_enumMode");
+            if (enumModeProperty == null)
+                return;
+
             var currentMode = (EnumMode)enumModeProperty.enumValueIndex;
 
             menu.AddItem(new GUIContent("Set Mode to Default"),
