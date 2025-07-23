@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI
+namespace CustomUtils.Runtime.UI.CustomComponents
 {
     public sealed class AdaptiveTextMeshProUGUI : TextMeshProUGUI, ILayoutSelfController, ITextPreprocessor
     {
@@ -95,7 +95,7 @@ namespace CustomUtils.Runtime.UI
 
         private void SetTextFont()
         {
-            if (ReferenceSize == 0 || DimensionType == DimensionType.None)
+            if (ReferenceSize == 0 || BaseFontSize == 0 || DimensionType == DimensionType.None)
                 return;
 
             var scaleFactor = DimensionType switch

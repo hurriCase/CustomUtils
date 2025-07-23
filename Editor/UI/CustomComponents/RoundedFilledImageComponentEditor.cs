@@ -1,10 +1,11 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Runtime.UI;
+using CustomUtils.Runtime.UI.CustomComponents;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine.UI;
 
-namespace CustomUtils.Editor.UI
+namespace CustomUtils.Editor.UI.CustomComponents
 {
     [CustomEditor(typeof(RoundedFilledImageComponent), true)]
     [CanEditMultipleObjects]

@@ -1,9 +1,10 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Runtime.UI;
+using CustomUtils.Runtime.UI.CustomComponents;
 using TMPro.EditorUtilities;
 using UnityEditor;
 
-namespace CustomUtils.Editor.UI
+namespace CustomUtils.Editor.UI.CustomComponents
 {
     [CustomEditor(typeof(AdaptiveTextMeshProUGUI), true)]
     [CanEditMultipleObjects]

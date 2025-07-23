@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI
+namespace CustomUtils.Runtime.UI.CustomComponents
 {
     [RequireComponent(typeof(CanvasRenderer))]
     [ExecuteInEditMode]

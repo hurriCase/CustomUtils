@@ -4,7 +4,7 @@ using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI
+namespace CustomUtils.Runtime.UI.CustomComponents
 {
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]

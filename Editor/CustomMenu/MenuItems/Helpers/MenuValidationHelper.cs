@@ -32,7 +32,8 @@ namespace CustomUtils.Editor.CustomMenu.MenuItems.Helpers
             { "_F5", "Refresh (F5)" },
             { "_%r", "Run (Ctrl+R)" },
             { "_%b", "Build (Ctrl+B)" },
-            { "_%#b", "Build and Run (Ctrl+Shift+B)" }
+            { "_%#b", "Build and Run (Ctrl+Shift+B)" },
+            { "_%0", "Services (Ctrl+0)" }
         };
 
         private static readonly string[] _validModifiers = { "%", "&", "#" };

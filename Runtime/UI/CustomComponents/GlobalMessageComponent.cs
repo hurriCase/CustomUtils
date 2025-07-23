@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI
+namespace CustomUtils.Runtime.UI.CustomComponents
 {
     [UsedImplicitly]
     [RequireComponent(typeof(CanvasGroup))]
