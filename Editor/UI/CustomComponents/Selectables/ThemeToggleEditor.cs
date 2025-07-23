@@ -5,7 +5,7 @@ using UnityEditor.UI;
 
 namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 {
-    [CustomEditor(typeof(ThemeToggle))]
+    [CustomEditor(typeof(ThemeToggle), true)]
     internal sealed class ThemeToggleEditor : ToggleEditor
     {
         private EditorStateControls _editorStateControls;

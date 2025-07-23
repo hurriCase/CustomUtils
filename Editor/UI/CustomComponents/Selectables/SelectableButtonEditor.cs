@@ -5,7 +5,7 @@ using UnityEditor.UI;
 
 namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 {
-    [CustomEditor(typeof(SelectableButton))]
+    [CustomEditor(typeof(SelectableButton), true)]
     internal sealed class SelectableButtonEditor : ButtonEditor
     {
         private EditorStateControls _editorStateControls;
