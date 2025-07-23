@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    public sealed class SwitchableToggle : Toggle
+    public class SwitchableToggle : Toggle
     {
         [field: SerializeField] public GameObject CheckedObject { get; private set; }
         [field: SerializeField] public GameObject UncheckedObject { get; private set; }

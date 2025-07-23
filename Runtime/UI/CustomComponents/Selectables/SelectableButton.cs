@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    public sealed class SelectableButton : Button
+    public class SelectableButton : Button
     {
         [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
 

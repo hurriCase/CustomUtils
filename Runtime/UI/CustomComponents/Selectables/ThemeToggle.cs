@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
-    public sealed class ThemeToggle : Toggle
+    public class ThemeToggle : Toggle
     {
         [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
         [field: SerializeField] public ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
