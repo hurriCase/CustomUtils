@@ -1,9 +1,11 @@
-﻿using R3;
+﻿using JetBrains.Annotations;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
+    [UsedImplicitly]
     public class ThemeToggle : Toggle
     {
         [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
@@ -37,20 +39,20 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
             }
         }
 
-        private void ApplyAdditionalGraphics(SelectionState state)
-        {
-            var mappedState = MapSelectionStateToSelectableState(state);
-
-            foreach (var graphicMapping in AdditionalGraphics)
-                graphicMapping.ApplyColor(mappedState);
-        }
-
         private void ApplyTheme()
         {
             if (!SelectableColorMapping || transition != Transition.ColorTint)
                 return;
 
             colors = SelectableColorMapping.GetThemeBlockColors(colors);
+        }
+
+        private void ApplyAdditionalGraphics(SelectionState state)
+        {
+            var mappedState = MapSelectionStateToSelectableState(state);
+
+            foreach (var graphicMapping in AdditionalGraphics)
+                graphicMapping.ApplyColor(mappedState);
         }
 
         private SelectableStateType MapSelectionStateToSelectableState(SelectionState state) =>

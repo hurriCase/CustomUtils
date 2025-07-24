@@ -1,9 +1,11 @@
-﻿using R3;
+﻿using JetBrains.Annotations;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
+    [UsedImplicitly]
     public class SwitchableToggle : Toggle
     {
         [field: SerializeField] public GameObject CheckedObject { get; private set; }
