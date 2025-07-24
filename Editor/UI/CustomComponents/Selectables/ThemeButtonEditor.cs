@@ -5,8 +5,8 @@ using UnityEditor.UI;
 
 namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 {
-    [CustomEditor(typeof(SelectableButton), true)]
-    internal sealed class SelectableButtonEditor : ButtonEditor
+    [CustomEditor(typeof(ThemeButton), true)]
+    internal sealed class ThemeButtonEditor : ButtonEditor
     {
         private EditorStateControls _editorStateControls;
 
@@ -25,7 +25,8 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 
             EditorVisualControls.LabelField("Custom Settings");
 
-            _editorStateControls.PropertyField(nameof(SelectableButton.SelectableColorMapping));
+            _editorStateControls.PropertyField(nameof(ThemeButton.SelectableColorMapping));
+            _editorStateControls.PropertyField(nameof(ThemeButton.AdditionalGraphics), true);
 
             serializedObject.ApplyModifiedProperties();
         }
