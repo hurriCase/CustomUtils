@@ -49,6 +49,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 
         private void ApplyAdditionalGraphics(SelectionState state)
         {
+            if (AdditionalGraphics is null || AdditionalGraphics.Length == 0)
+                return;
+
             var mappedState = MapSelectionStateToSelectableState(state);
 
             foreach (var graphicMapping in AdditionalGraphics)

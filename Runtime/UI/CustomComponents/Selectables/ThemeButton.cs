@@ -29,6 +29,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
         {
             base.DoStateTransition(state, instant);
 
+            if (AdditionalGraphics is null || AdditionalGraphics.Length == 0)
+                return;
+
             ApplyAdditionalGraphics(state);
         }
 
