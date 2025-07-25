@@ -17,6 +17,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         private readonly List<Vector2> _outerPointsCashed = new();
         private readonly List<Vector2> _pointsCashed = new();
 
+#if UNITY_EDITOR
         protected override void Reset()
         {
             base.Reset();
@@ -25,6 +26,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             type = Type.Filled;
             fillMethod = FillMethod.Radial360;
         }
+#endif
 
         protected override void OnEnable()
         {
@@ -33,12 +35,14 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             SetAllDirty();
         }
 
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
 
             SetAllDirty();
         }
+#endif
 
         public override void SetAllDirty()
         {

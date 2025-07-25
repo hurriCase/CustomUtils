@@ -11,12 +11,14 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
         [field: SerializeField] public GameObject CheckedObject { get; private set; }
         [field: SerializeField] public GameObject UncheckedObject { get; private set; }
 
+#if UNITY_EDITOR
         protected override void Reset()
         {
             base.Reset();
 
             transition = Transition.None;
         }
+#endif
 
         protected override void Awake()
         {

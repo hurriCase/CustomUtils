@@ -40,12 +40,14 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             base.OnDestroy();
         }
 
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
 
             SetTextFont();
         }
+#endif
 
         protected override void OnRectTransformDimensionsChange()
         {
