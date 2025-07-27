@@ -11,8 +11,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents
     internal sealed class TextBasedAspectRatioFitter : AspectRatioBehaviour, ITextSizeNotifiable
     {
         [SerializeField] private AdaptiveTextMeshProUGUI[] _adaptiveTexts;
-        [SerializeField] private DimensionType _dimensionType;
-        [SerializeField] private float _parentReferenceSize;
+        [SerializeField] private DimensionType _staticDimensionType;
+        [SerializeField] private float _staticReferenceSize;
         [SerializeField] private float _otherContentReferenceSize;
 
         private RectTransform RectTransform =>
@@ -34,11 +34,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         private void OnValidate()
         {
             ChangeRegistrationState(true);
-        }
-
-        private void OnRectTransformDimensionsChange()
-        {
-            UpdateAspectRatio();
         }
 
         private void ChangeRegistrationState(bool newState)
@@ -85,7 +80,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         {
             newRatio = 0f;
 
-            var currentSize = _dimensionType switch
+            var currentSize = _staticDimensionType switch
             {
                 DimensionType.Width => RectTransform.rect.width,
                 DimensionType.Height => RectTransform.rect.height,
@@ -95,11 +90,13 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             if (currentSize.IsReasonable() is false)
                 return false;
 
-            var scaledOtherContentSize = _otherContentReferenceSize * currentSize / _parentReferenceSize;
-            newRatio = _dimensionType switch
+            var scaledOtherContentSize = _otherContentReferenceSize * (currentSize / _staticReferenceSize);
+            var targetDynamicSize = scaledOtherContentSize + totalTextSize;
+
+            newRatio = _staticDimensionType switch
             {
-                DimensionType.Width => currentSize / (scaledOtherContentSize + totalTextSize),
-                DimensionType.Height => (scaledOtherContentSize + totalTextSize) / currentSize,
+                DimensionType.Width => currentSize / targetDynamicSize,
+                DimensionType.Height => targetDynamicSize / currentSize,
                 _ => 1f
             };
 
@@ -115,7 +112,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                 if (!adaptiveText)
                     continue;
 
-                totalTextSize += _dimensionType switch
+                totalTextSize += _staticDimensionType switch
                 {
                     DimensionType.Width => adaptiveText.rectTransform.rect.height,
                     DimensionType.Height => adaptiveText.rectTransform.rect.width,
@@ -128,7 +125,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
 
         private bool Validate() =>
             _adaptiveTexts is { Length: > 0 } &&
-            _parentReferenceSize > 0 && _otherContentReferenceSize > 0 &&
-            _dimensionType != DimensionType.None;
+            _staticReferenceSize > 0 && _otherContentReferenceSize > 0 &&
+            _staticDimensionType != DimensionType.None;
     }
 }
