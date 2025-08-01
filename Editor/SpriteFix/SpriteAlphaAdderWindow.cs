@@ -28,7 +28,7 @@ namespace CustomUtils.Editor.SpriteFix
         {
             DrawProgressIfNeeded();
 
-            GUI.enabled = ProgressTracker.HasOperation is false;
+            GUI.enabled = EditorProgressTracker.HasOperation is false;
 
             DrawSection("Project Scanner", DrawScan);
             DrawSection("Manual Sprite Processing", DrawManualSelection);
@@ -116,7 +116,7 @@ namespace CustomUtils.Editor.SpriteFix
         }
 
         private async UniTaskVoid FindProblematicSpritesAsync() =>
-            await ProgressTracker.CreateProgressAsync(
+            await EditorProgressTracker.CreateProgressAsync(
                 "Scanning Project",
                 "Searching for problematic sprites...",
                 ScanForProblematicSprites);
@@ -173,7 +173,7 @@ namespace CustomUtils.Editor.SpriteFix
 
         private async UniTaskVoid FixAllSpritesAsync()
         {
-            await ProgressTracker.CreateProgressAsync(
+            await EditorProgressTracker.CreateProgressAsync(
                 "Fixing Sprites",
                 "Processing problematic sprites...",
                 ProcessAllSprites);
@@ -210,7 +210,7 @@ namespace CustomUtils.Editor.SpriteFix
             if (!textureImporter)
                 return;
 
-            await ProgressTracker.CreateProgressAsync(
+            await EditorProgressTracker.CreateProgressAsync(
                 "Processing Sprite",
                 $"Adding alpha pixel to {Path.GetFileName(textureImporter.assetPath)}...",
                 async (progress, cancellationToken) =>

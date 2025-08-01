@@ -25,14 +25,14 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// This property lazily initializes the EditorGUIExtensions instance
         /// when first accessed, passing the window instance for undo operations.
         /// </remarks>
-        protected EditorStateControls EditorStateControls => _editorGUI ??= new EditorStateControls(this);
-        private EditorStateControls _editorGUI;
+        protected EditorStateControls EditorStateControls => _editorStateControls ??= new EditorStateControls(this);
+        private EditorStateControls _editorStateControls;
 
         /// <summary>
         /// Access to the progress tracker for handling long-running operations.
         /// </summary>
-        protected EditorProgressTracker ProgressTracker => _progressTracker ??= new EditorProgressTracker();
-        private EditorProgressTracker _progressTracker;
+        protected EditorProgressTracker EditorProgressTracker => _editorProgressTracker ??= new EditorProgressTracker();
+        private EditorProgressTracker _editorProgressTracker;
 
         protected SerializedObject serializedObject;
 
@@ -107,17 +107,17 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="info">Additional information</param>
         /// <param name="progress">Progress value between 0 and 1</param>
         protected void UpdateProgress(string operation, string info, float progress)
-            => ProgressTracker.UpdateProgress(operation, info, progress);
+            => EditorProgressTracker.UpdateProgress(operation, info, progress);
 
         /// <summary>
         /// Draws the progress bar if an operation is in progress
         /// </summary>
-        protected void DrawProgressIfNeeded() => ProgressTracker.DrawProgressIfNeeded();
+        protected void DrawProgressIfNeeded() => EditorProgressTracker.DrawProgressIfNeeded();
 
         /// <summary>
         /// Completes the current operation and resets progress tracking
         /// </summary>
-        protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
+        protected void CompleteOperation(string completeInfo = null) => EditorProgressTracker.CompleteOperation(completeInfo);
 
         protected void PropertyField(string fieldName, bool includeChildren = true)
         {
@@ -140,7 +140,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
 
         private void OnDisable()
         {
-            _progressTracker?.Dispose();
+            _editorProgressTracker?.Dispose();
 
             CleanupWindow();
             SaveWindowPreferences();

@@ -20,8 +20,8 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <summary>
         /// Access to the progress tracker for handling long-running operations.
         /// </summary>
-        protected EditorProgressTracker ProgressTracker => _progressTracker ??= new EditorProgressTracker();
-        private EditorProgressTracker _progressTracker;
+        protected EditorProgressTracker EditorProgressTracker => _editorProgressTracker ??= new EditorProgressTracker();
+        private EditorProgressTracker _editorProgressTracker;
 
         private const string DefaultInspectorLabelName = "Default Inspector";
         private const string PrefPrefix = "AbstractEditor_";
@@ -76,12 +76,12 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="info">Additional information</param>
         /// <param name="progress">Progress value between 0 and 1</param>
         protected void UpdateProgress(string operation, string info, float progress)
-            => ProgressTracker.UpdateProgress(operation, info, progress);
+            => EditorProgressTracker.UpdateProgress(operation, info, progress);
 
         /// <summary>
         /// Completes the current operation and resets progress tracking
         /// </summary>
-        protected void CompleteOperation(string completeInfo = null) => ProgressTracker.CompleteOperation(completeInfo);
+        protected void CompleteOperation(string completeInfo = null) => EditorProgressTracker.CompleteOperation(completeInfo);
 
         /// <summary>
         /// Draw a custom section with a foldout header.
@@ -121,7 +121,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         {
             CleanupEditor();
 
-            _progressTracker?.Dispose();
+            _editorProgressTracker?.Dispose();
 
             var targetTypeName = target.GetType().Name;
             EditorPrefs.SetBool($"{PrefPrefix}{targetTypeName}{DefaultInspectorPostfix}", _showDefaultInspector);
@@ -141,7 +141,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
                 () => DrawDefaultInspector());
         }
 
-        private void DrawProgressIfNeeded() => ProgressTracker.DrawProgressIfNeeded();
+        private void DrawProgressIfNeeded() => EditorProgressTracker.DrawProgressIfNeeded();
 
         private string SanitizeKey(string key, bool reverse = false)
             => reverse ? key.Replace("_", " ").Replace("__", ".") : key.Replace(" ", "_").Replace(".", "__");

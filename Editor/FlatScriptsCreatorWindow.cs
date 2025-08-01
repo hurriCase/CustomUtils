@@ -48,7 +48,7 @@ namespace CustomUtils.Editor
             var sourcePath = AssetDatabase.GetAssetPath(_sourceFolder);
             var targetPath = AssetDatabase.GetAssetPath(_targetFolder);
 
-            await ProgressTracker.CreateProgressAsync("Creating Flat Scripts", "Scanning for scripts...",
+            await EditorProgressTracker.CreateProgressAsync("Creating Flat Scripts", "Scanning for scripts...",
                 async (progress, cancellationToken)
                     => await ProcessFilesWithProgress(sourcePath, targetPath, progress, cancellationToken));
         }
