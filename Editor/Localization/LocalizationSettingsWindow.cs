@@ -2,6 +2,7 @@
 using System.Text;
 using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.SheetsDownloader;
+using CustomUtils.Runtime.Downloader;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
@@ -10,7 +11,7 @@ using ZLinq;
 
 namespace CustomUtils.Editor.Localization
 {
-    internal sealed class LocalizationSettingsWindow : SheetsDownloaderWindowBase<LocalizationDatabase>
+    internal sealed class LocalizationSettingsWindow : SheetsDownloaderWindowBase<LocalizationDatabase, Sheet>
     {
         private Vector2 _scrollPosition;
         private SystemLanguage _selectedLanguage = SystemLanguage.English;

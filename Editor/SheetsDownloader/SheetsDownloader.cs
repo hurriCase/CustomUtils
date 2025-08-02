@@ -19,23 +19,25 @@ namespace CustomUtils.Editor.SheetsDownloader
     /// Provides functionality to download sheets as CSV files and resolve sheet information
     /// from Google Sheets documents.
     /// </summary>
-    /// <typeparam name="T">The type of sheets database that inherits from <see cref="SheetsDatabase{T}"/>
+    /// <typeparam name="TDatabase">The type of sheet database that inherits from <see cref="SheetsDatabase{T, T}"/>
     /// .</typeparam>
+    /// <typeparam name="TSheet">The type of sheets to use it for a database</typeparam>
     [UsedImplicitly]
-    public sealed class SheetsDownloader<T> where T : SheetsDatabase<T>
+    public sealed class SheetsDownloader<TDatabase, TSheet> where TDatabase : SheetsDatabase<TDatabase, TSheet>
+        where TSheet : Sheet, new()
     {
-        private readonly T _database;
+        private readonly TDatabase _database;
 
         private const string UrlPattern = "https://docs.google.com/spreadsheets/d/{0}/export?format=csv&gid={1}";
         private const string SheetResolverUrl = "https://script.google.com/macros/s/AKfycbycW2dsGZhc2xJh2Fs8yu9KUEqdM-ssOiK1AlES3crLqQa1lkDrI4mZgP7sJhmFlGAD/exec";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SheetsDownloader{T}"/> class.
+        /// Initializes a new instance of the <see cref="SheetsDownloader{T, T}"/> class.
         /// </summary>
         /// <param name="database">The database instance that contains sheet configuration and will store downloaded data.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="database"/> is null.</exception>
         [UsedImplicitly]
-        public SheetsDownloader(T database)
+        public SheetsDownloader(TDatabase database)
         {
             _database = database;
         }
@@ -57,7 +59,7 @@ namespace CustomUtils.Editor.SheetsDownloader
             PrepareDownloadFolderIfNeeded();
 
             var changedCount = 0;
-            var sheetsToDownload = new List<Sheet>();
+            var sheetsToDownload = new List<TSheet>();
 
             foreach (var sheet in _database.Sheets)
             {
@@ -127,7 +129,7 @@ namespace CustomUtils.Editor.SheetsDownloader
                 : 0;
         }
 
-        private async UniTask DownloadSingleSheetAsync(Sheet sheet)
+        private async UniTask DownloadSingleSheetAsync(TSheet sheet)
         {
             var url = string.Format(UrlPattern, _database.TableId, sheet.Id);
 
@@ -157,7 +159,7 @@ namespace CustomUtils.Editor.SheetsDownloader
                 : null;
         }
 
-        private async UniTask SaveSheetDataAsync(Sheet sheet, byte[] data)
+        private async UniTask SaveSheetDataAsync(TSheet sheet, byte[] data)
         {
             var path = Path.Combine(_database.GetDownloadPath(), $"{sheet.Name}.csv");
             await File.WriteAllBytesAsync(path, data);
@@ -188,7 +190,7 @@ namespace CustomUtils.Editor.SheetsDownloader
             {
                 var contentLength = existingSheets.GetValueOrDefault(id, 0);
 
-                _database.Sheets.Add(new Sheet
+                _database.Sheets.Add(new TSheet
                 {
                     Id = id,
                     Name = sheetName,

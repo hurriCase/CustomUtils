@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Localization
+namespace CustomUtils.Runtime.Downloader
 {
     [Serializable]
     public class Sheet

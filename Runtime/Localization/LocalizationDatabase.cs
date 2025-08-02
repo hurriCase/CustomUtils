@@ -9,7 +9,7 @@ namespace CustomUtils.Runtime.Localization
         ResourcePaths.LocalizationSettingsAssetName,
         ResourcePaths.LocalizationSettingsResourcesPath
     )]
-    internal sealed class LocalizationDatabase : SheetsDatabase<LocalizationDatabase>
+    internal sealed class LocalizationDatabase : SheetsDatabase<LocalizationDatabase, Sheet>
     {
         [field: SerializeField] internal SystemLanguage DefaultLanguage { get; private set; }
             = SystemLanguage.English;

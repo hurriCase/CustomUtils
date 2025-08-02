@@ -16,13 +16,15 @@ namespace CustomUtils.Editor.SheetsDownloader
     /// </summary>
     /// <typeparam name="TDatabase">The type of sheets database that inherits
     /// from <see cref="T:CustomUtils.Runtime.Downloader.SheetsDatabase`1" />.</typeparam>
+    /// <typeparam name="TSheet">The type of sheets to use it for a database</typeparam>
     [UsedImplicitly]
-    public abstract class SheetsDownloaderWindowBase<TDatabase> : WindowBase
-        where TDatabase : SheetsDatabase<TDatabase>
+    public abstract class SheetsDownloaderWindowBase<TDatabase, TSheet> : WindowBase
+        where TDatabase : SheetsDatabase<TDatabase, TSheet>
+        where TSheet : Sheet, new()
     {
         private const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
 
-        private SheetsDownloader<TDatabase> _sheetsDownloader;
+        private SheetsDownloader<TDatabase, TSheet> _sheetsDownloader;
 
         /// <summary>
         /// Gets the database instance that contains sheet configuration and downloaded data.
@@ -44,7 +46,7 @@ namespace CustomUtils.Editor.SheetsDownloader
         protected override void InitializeWindow()
         {
             serializedObject = new SerializedObject(Database);
-            _sheetsDownloader = new SheetsDownloader<TDatabase>(Database);
+            _sheetsDownloader = new SheetsDownloader<TDatabase, TSheet>(Database);
         }
 
         /// <summary>

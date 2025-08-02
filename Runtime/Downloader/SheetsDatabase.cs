@@ -13,9 +13,11 @@ namespace CustomUtils.Runtime.Downloader
     /// </summary>
     /// <typeparam name="TDatabase">The concrete database type that inherits from this class, used for singleton
     /// pattern implementation.</typeparam>
+    /// <typeparam name="TSheet">The type of sheets to use it for a database</typeparam>
     [UsedImplicitly]
-    public abstract class SheetsDatabase<TDatabase> : SingletonScriptableObject<TDatabase>
-        where TDatabase : SheetsDatabase<TDatabase>
+    public abstract class SheetsDatabase<TDatabase, TSheet> : SingletonScriptableObject<TDatabase>
+        where TDatabase : SheetsDatabase<TDatabase, TSheet>
+        where TSheet : Sheet, new()
     {
         /// <summary>
         /// Gets or sets the Google Sheets table identifier used to access the spreadsheet document.
@@ -31,7 +33,7 @@ namespace CustomUtils.Runtime.Downloader
         /// </summary>
         /// <value>A list of <see cref="Sheet"/> objects representing the available sheets. Defaults to an empty list.</value>
         [UsedImplicitly]
-        [field: SerializeField] public List<Sheet> Sheets { get; set; } = new();
+        [field: SerializeField] public List<TSheet> Sheets { get; set; } = new();
 
         /// <summary>
         /// Gets the file system path where downloaded sheet CSV files should be stored.
