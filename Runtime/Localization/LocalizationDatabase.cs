@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using CustomUtils.Runtime.AssetLoader;
-using CustomUtils.Runtime.CustomTypes.Singletons;
+﻿using CustomUtils.Runtime.AssetLoader;
+using CustomUtils.Runtime.Downloader;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Localization
@@ -10,10 +9,11 @@ namespace CustomUtils.Runtime.Localization
         ResourcePaths.LocalizationSettingsAssetName,
         ResourcePaths.LocalizationSettingsResourcesPath
     )]
-    internal sealed class LocalizationDatabase : SingletonScriptableObject<LocalizationDatabase>
+    internal sealed class LocalizationDatabase : SheetsDatabase<LocalizationDatabase>
     {
-        [field: SerializeField] internal SystemLanguage DefaultLanguage { get; private set; } = SystemLanguage.English;
-        [field: SerializeField] internal string TableId { get; set; }
-        [field: SerializeField] internal List<Sheet> Sheets { get; set; } = new();
+        [field: SerializeField] internal SystemLanguage DefaultLanguage { get; private set; }
+            = SystemLanguage.English;
+
+        public override string GetDownloadPath() => ResourcePaths.LocalizationSheetsPath;
     }
 }
