@@ -25,8 +25,8 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 
             EditorVisualControls.LabelField("Custom Settings");
 
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.CheckedObject));
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.UncheckedObject));
+            _editorStateControls.PropertyField(nameof(SwitchableToggle.CheckedObjects), true);
+            _editorStateControls.PropertyField(nameof(SwitchableToggle.UncheckedObjects), true);
 
             serializedObject.ApplyModifiedProperties();
         }

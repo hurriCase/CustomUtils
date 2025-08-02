@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +9,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     [UsedImplicitly]
     public class SwitchableToggle : Toggle
     {
-        [field: SerializeField] public GameObject CheckedObject { get; private set; }
-        [field: SerializeField] public GameObject UncheckedObject { get; private set; }
+        [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
+        [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
 
 #if UNITY_EDITOR
         protected override void Reset()
@@ -25,15 +26,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
             base.Awake();
 
             this.OnValueChangedAsObservable()
-                .Subscribe(this, static (isOn, toggle) =>
-                {
-                    if (!toggle.CheckedObject || !toggle.UncheckedObject)
-                        return;
-
-                    toggle.CheckedObject.SetActive(isOn);
-                    toggle.UncheckedObject.SetActive(!isOn);
-                })
+                .Subscribe(this, static (isOn, toggle) => toggle.SwitchState(isOn))
                 .RegisterTo(destroyCancellationToken);
+        }
+
+        private void SwitchState(bool isOn)
+        {
+            foreach (var checkedObject in CheckedObjects)
+                checkedObject.SetActive(isOn);
+
+            foreach (var checkedObject in UncheckedObjects)
+                checkedObject.SetActive(isOn is false);
         }
     }
 }
