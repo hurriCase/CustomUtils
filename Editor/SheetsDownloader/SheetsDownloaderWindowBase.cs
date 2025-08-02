@@ -17,7 +17,7 @@ namespace CustomUtils.Editor.SheetsDownloader
     /// <typeparam name="TDatabase">The type of sheets database that inherits
     /// from <see cref="T:CustomUtils.Runtime.Downloader.SheetsDatabase`1" />.</typeparam>
     [UsedImplicitly]
-    internal abstract class SheetsDownloaderWindowBase<TDatabase> : WindowBase
+    public abstract class SheetsDownloaderWindowBase<TDatabase> : WindowBase
         where TDatabase : SheetsDatabase<TDatabase>
     {
         private const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
