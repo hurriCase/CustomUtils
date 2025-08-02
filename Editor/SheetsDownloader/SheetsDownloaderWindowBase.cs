@@ -33,10 +33,8 @@ namespace CustomUtils.Editor.SheetsDownloader
 
         /// <summary>
         /// Called after sheets have been successfully downloaded.
-        /// Derived classes should implement this method to perform any necessary post-download operations,
-        /// such as processing downloaded data or updating UI elements.
         /// </summary>
-        protected abstract void OnSheetsDownloaded();
+        protected virtual void OnSheetsDownloaded() { }
 
         /// <inheritdoc />
         /// <summary>
