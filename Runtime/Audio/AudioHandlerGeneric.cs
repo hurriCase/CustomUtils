@@ -75,8 +75,8 @@ namespace CustomUtils.Runtime.Audio
         [UsedImplicitly]
         public virtual async UniTask InitAsync(float defaultMusicVolume = 1f, float defaultSoundVolume = 1f)
         {
-            await MusicVolume.InitializeAsync(MusicVolumeKey, defaultMusicVolume);
-            await SoundVolume.InitializeAsync(SoundVolumeKey, defaultSoundVolume);
+            await MusicVolume.InitAsync(MusicVolumeKey, defaultMusicVolume);
+            await SoundVolume.InitAsync(SoundVolumeKey, defaultSoundVolume);
 
             _soundPool = new PoolHandler<AudioSource>();
             _soundPool.Init(_soundSourcePrefab, _defaultSoundPoolCount, _defaultSoundPoolCount * 5);

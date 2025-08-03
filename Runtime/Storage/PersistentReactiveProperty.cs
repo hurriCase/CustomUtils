@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.Storage
 {
     /// <summary>
     /// A reactive property that automatically persists its value to storage.
-    /// Must call <see cref="InitializeAsync"/> before use to load saved values.
+    /// Must call <see cref="InitAsync"/> before use to load saved values.
     /// </summary>
     /// <typeparam name="TProperty">The type of value to store and persist</typeparam>
     [UsedImplicitly]
@@ -77,7 +77,7 @@ namespace CustomUtils.Runtime.Storage
         /// <returns>A task that completes when initialization is finished</returns>
         /// <exception cref="InvalidOperationException">Thrown if called multiple times</exception>
         [UsedImplicitly]
-        public async UniTask InitializeAsync(string key, TProperty defaultValue = default)
+        public async UniTask InitAsync(string key, TProperty defaultValue = default)
         {
             _provider = ServiceProvider.Provider;
 
