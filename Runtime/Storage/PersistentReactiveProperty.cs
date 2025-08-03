@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -73,11 +74,15 @@ namespace CustomUtils.Runtime.Storage
         /// This method must be called before using the property.
         /// </summary>
         /// <param name="key">Unique storage key for this property</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="defaultValue">Default value to use if no saved value exists or loading fails</param>
         /// <returns>A task that completes when initialization is finished</returns>
         /// <exception cref="InvalidOperationException">Thrown if called multiple times</exception>
         [UsedImplicitly]
-        public async UniTask InitAsync(string key, TProperty defaultValue = default)
+        public async UniTask InitAsync(
+            string key,
+            CancellationToken cancellationToken = default,
+            TProperty defaultValue = default)
         {
             _provider = ServiceProvider.Provider;
 
@@ -92,7 +97,7 @@ namespace CustomUtils.Runtime.Storage
 
             try
             {
-                var loaded = await _provider.LoadAsync<TProperty>(_key);
+                var loaded = await _provider.LoadAsync<TProperty>(_key, cancellationToken);
                 if (loaded != null && EqualityComparer<TProperty>.Default.Equals(loaded, default) is false)
                     Property.Value = loaded;
             }
