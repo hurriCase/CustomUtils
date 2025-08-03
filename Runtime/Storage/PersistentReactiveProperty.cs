@@ -8,208 +8,121 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Storage
 {
+    /// <summary>
+    /// A reactive property that automatically persists its value to storage.
+    /// Must call <see cref="InitializeAsync"/> before use to load saved values.
+    /// </summary>
+    /// <typeparam name="TProperty">The type of value to store and persist</typeparam>
     [UsedImplicitly]
     public sealed class PersistentReactiveProperty<TProperty> : IDisposable
     {
-        private readonly ReactiveProperty<TProperty> _property;
+        /// <summary>
+        /// Gets the underlying reactive property.
+        /// </summary>
+        [UsedImplicitly]
+        public ReactiveProperty<TProperty> Property { get; private set; }
 
-        private readonly string _key;
-        private readonly IDisposable _subscription;
-
+        private string _key;
+        private IDisposable _subscription;
         private IStorageProvider _provider;
         private bool _savingEnabled;
-        private bool _loadAttempted;
-        private bool _isLoading;
 
         /// <summary>
-        /// Gets or sets the current value of the property
+        /// Gets or sets the current value of the property.
+        /// Setting this value will automatically save it to storage.
         /// </summary>
+        /// <value>The current value stored in the property</value>
         [UsedImplicitly]
         public TProperty Value
         {
-            get
-            {
-                EnsureLoaded();
-                return _property.Value;
-            }
-            set => _property.Value = value;
+            get => Property.Value;
+            set => Property.Value = value;
         }
 
         /// <summary>
-        /// Modifies the current value of the property
+        /// Subscribes to value changes with a target object and callback.
         /// </summary>
-        /// <param name="input">Input value</param>
-        /// <param name="modifier">Modifier function</param>
-        /// <typeparam name="TInput">Type of the input value</typeparam>
-        /// <returns>Modified value</returns>
+        /// <typeparam name="TTarget">The type of the target object to pass to the callback</typeparam>
+        /// <param name="target">Target object to pass to the callback</param>
+        /// <param name="onNext">Action to execute when value changes. Receives the new value and target object.</param>
+        /// <returns>A disposable subscription that can be used to unsubscribe</returns>
         [UsedImplicitly]
-        public void ModifyValue<TInput>(TInput input, Action<TInput, TProperty> modifier)
-        {
-            var value = Value;
-            modifier(input, value);
-            Value = value;
-        }
+        public IDisposable Subscribe<TTarget>(TTarget target, Action<TProperty, TTarget> onNext)
+            => Property.Subscribe((target, onNext),
+                static (property, tuple) => tuple.onNext(property, tuple.target));
 
         /// <summary>
-        /// Modifies the current value of the property
+        /// Subscribes to value changes with a simple callback.
         /// </summary>
-        /// <param name="modifier">Modifier function</param>
-        /// <returns>Modified value</returns>
+        /// <param name="onNext">Action to execute when value changes. Receives the new value.</param>
+        /// <returns>A disposable subscription that can be used to unsubscribe</returns>
         [UsedImplicitly]
-        public void ModifyValue(Action<TProperty> modifier)
-        {
-            var value = Value;
-            modifier(value);
-            Value = value;
-        }
+        public IDisposable Subscribe(Action<TProperty> onNext)
+            => Property.Subscribe(onNext, static (property, action) => action(property));
 
         /// <summary>
-        /// Gets the observable stream for this property
+        /// Gets the observable stream for this property.
+        /// Use this for advanced reactive operations like filtering, mapping, or combining with other observables.
         /// </summary>
+        /// <returns>An observable stream of value changes</returns>
         [UsedImplicitly]
-        public Observable<TProperty> AsObservable()
-        {
-            EnsureLoaded();
-            return _property.AsObservable();
-        }
+        public Observable<TProperty> AsObservable() => Property.AsObservable();
 
         /// <summary>
-        /// Creates a new persistent reactive property with automatic provider resolution
+        /// Initializes the property by loading any saved value from storage.
+        /// This method must be called before using the property.
         /// </summary>
-        /// <param name="key">Unique key for storing the value</param>
-        /// <param name="defaultValue">Default value if no saved value exists</param>
+        /// <param name="key">Unique storage key for this property</param>
+        /// <param name="defaultValue">Default value to use if no saved value exists or loading fails</param>
+        /// <returns>A task that completes when initialization is finished</returns>
+        /// <exception cref="InvalidOperationException">Thrown if called multiple times</exception>
         [UsedImplicitly]
-        public PersistentReactiveProperty(string key, TProperty defaultValue = default)
+        public async UniTask InitializeAsync(string key, TProperty defaultValue = default)
         {
+            _provider = ServiceProvider.Provider;
+
             _key = key;
-            _property = new ReactiveProperty<TProperty>(defaultValue);
+            Property = new ReactiveProperty<TProperty>(defaultValue);
 
-            _subscription = _property.Subscribe(this, static (_, self) =>
+            _subscription = Property.Subscribe(this, static (_, self) =>
             {
                 if (self._savingEnabled)
                     self.SaveAsync().Forget();
             });
-        }
-
-        /// <summary>
-        /// Subscribes to value changes
-        /// </summary>
-        /// <param name="target">Target object to pass to the callback</param>
-        /// <param name="onNext">Action to execute when value changes</param>
-        /// <returns>Disposable subscription</returns>
-        [UsedImplicitly]
-        public IDisposable Subscribe<TTarget>(TTarget target, Action<TProperty, TTarget> onNext)
-        {
-            EnsureLoaded();
-
-            return _property.Subscribe(
-                (target, onNext),
-                static (property, tuple) => tuple.onNext(property, tuple.target));
-        }
-
-        /// <summary>
-        /// Subscribes to value changes with a static action that ignores the value
-        /// </summary>
-        /// <param name="onNext">Static action to execute when value changes</param>
-        /// <returns>Disposable subscription</returns>
-        [UsedImplicitly]
-        public IDisposable Subscribe(Action<TProperty> onNext)
-        {
-            EnsureLoaded();
-            return _property.Subscribe(onNext, static (property, action) => action(property));
-        }
-
-        /// <summary>
-        /// Subscribes to value changes with a static action that ignores the value
-        /// </summary>
-        /// <param name="onNext">Static action to execute when value changes</param>
-        /// <returns>Disposable subscription</returns>
-        [UsedImplicitly]
-        public IDisposable Subscribe(Action onNext)
-        {
-            EnsureLoaded();
-            return _property.Subscribe(onNext, static (_, action) => action());
-        }
-
-        /// <summary>
-        /// Manually saves the current value to storage
-        /// </summary>
-        /// <returns>Task representing the save operation</returns>
-        [UsedImplicitly]
-        public async UniTask SaveAsync()
-        {
-            EnsureProvider();
-
-            if (_provider != null)
-                await _provider.TrySaveAsync(_key, _property.Value);
-        }
-
-        /// <summary>
-        /// Manually initializes the property (loads from storage)
-        /// </summary>
-        /// <returns>Task representing the initialization</returns>
-        [UsedImplicitly]
-        public async UniTask InitializeAsync()
-        {
-            if (_loadAttempted || _isLoading)
-                return;
-
-            _isLoading = true;
 
             try
             {
-                EnsureProvider();
-
-                if (_provider == null)
-                    return;
-
                 var loaded = await _provider.LoadAsync<TProperty>(_key);
                 if (loaded != null && EqualityComparer<TProperty>.Default.Equals(loaded, default) is false)
-                    _property.Value = loaded;
+                    Property.Value = loaded;
             }
             catch (Exception ex)
             {
-                Debug.LogError("[PersistentReactiveProperty::InitializeAsync] " +
+                Debug.LogError($"[PersistentReactiveProperty::InitializeAsync] " +
                                $"Failed to load key '{_key}': {ex.Message}");
             }
             finally
             {
-                _loadAttempted = true;
                 _savingEnabled = true;
-                _isLoading = false;
             }
         }
 
-        private void EnsureLoaded()
-        {
-            if (_loadAttempted is false)
-                InitializeAsync().Forget();
-        }
-
-        private void EnsureProvider()
-        {
-            if (_provider != null)
-                return;
-
-            try
-            {
-                _provider = ServiceProvider.Provider;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[PersistentReactiveProperty::EnsureProvider] Failed to get provider: {ex.Message}");
-            }
-        }
-
-        /// <inheritdoc />
         /// <summary>
-        /// Disposes the property and stops persistence
+        /// Manually saves the current value to storage.
+        /// Note: Values are automatically saved when changed, so this is typically not needed.
         /// </summary>
+        /// <returns>A task that completes when the save operation is finished</returns>
         [UsedImplicitly]
+        public async UniTask SaveAsync() => await _provider.TrySaveAsync(_key, Property.Value);
+
+        /// <summary>
+        /// Disposes the property and stops automatic saving.
+        /// This should be called when the property is no longer needed to prevent memory leaks.
+        /// </summary>
         public void Dispose()
         {
             _subscription?.Dispose();
-            _property.Dispose();
+            Property?.Dispose();
         }
     }
 }

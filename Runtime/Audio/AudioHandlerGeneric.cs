@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
+using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using PrimeTween;
 using R3;
@@ -54,10 +55,10 @@ namespace CustomUtils.Runtime.Audio
         [SerializeField] protected int _defaultSoundPoolCount = 3;
 
         [UsedImplicitly]
-        public virtual PersistentReactiveProperty<float> MusicVolume { get; } = new("music_volume_key", 1);
+        public virtual PersistentReactiveProperty<float> MusicVolume { get; } = new();
 
         [UsedImplicitly]
-        public virtual PersistentReactiveProperty<float> SoundVolume { get; } = new("sound_volume_key", 1);
+        public virtual PersistentReactiveProperty<float> SoundVolume { get; } = new();
 
         private readonly Dictionary<int, float> _lastPlayedTimes = new();
         private readonly SortedDictionary<float, AliveAudioData<TSoundType>> _sortedAliveAudioData = new();
@@ -65,12 +66,18 @@ namespace CustomUtils.Runtime.Audio
         private PoolHandler<AudioSource> _soundPool;
         private IDisposable _disposable;
 
+        private const string MusicVolumeKey = "MusicVolumeKey";
+        private const string SoundVolumeKey = "SoundVolumeKey";
+
         /// <summary>
         /// Initializes the audio handler with pooled audio sources and volume subscriptions
         /// </summary>
         [UsedImplicitly]
-        public virtual void Init()
+        public virtual async UniTask InitAsync(float defaultMusicVolume = 1f, float defaultSoundVolume = 1f)
         {
+            await MusicVolume.InitializeAsync(MusicVolumeKey, defaultMusicVolume);
+            await SoundVolume.InitializeAsync(SoundVolumeKey, defaultSoundVolume);
+
             _soundPool = new PoolHandler<AudioSource>();
             _soundPool.Init(_soundSourcePrefab, _defaultSoundPoolCount, _defaultSoundPoolCount * 5);
 
