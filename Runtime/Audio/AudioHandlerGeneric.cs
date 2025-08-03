@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using Cysharp.Threading.Tasks;
@@ -34,7 +35,10 @@ namespace CustomUtils.Runtime.Audio
         private const string MusicVolumeKey = "MusicVolumeKey";
         private const string SoundVolumeKey = "SoundVolumeKey";
 
-        public virtual async UniTask InitAsync(float defaultMusicVolume = 1f, float defaultSoundVolume = 1f)
+        public virtual async UniTask InitAsync(
+            float defaultMusicVolume = 1f,
+            float defaultSoundVolume = 1f,
+            CancellationToken cancellationToken = default)
         {
             await MusicVolume.InitAsync(MusicVolumeKey, destroyCancellationToken, defaultMusicVolume);
             await SoundVolume.InitAsync(SoundVolumeKey, destroyCancellationToken, defaultSoundVolume);

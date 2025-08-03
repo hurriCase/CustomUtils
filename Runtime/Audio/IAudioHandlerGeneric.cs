@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using CustomUtils.Runtime.Storage;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -36,7 +37,10 @@ namespace CustomUtils.Runtime.Audio
         /// Initializes the audio handler with pooled audio sources and volume subscriptions
         /// </summary>
         [UsedImplicitly]
-        UniTask InitAsync(float defaultMusicVolume = 1f, float defaultSoundVolume = 1f);
+        UniTask InitAsync(
+            float defaultMusicVolume = 1f,
+            float defaultSoundVolume = 1f,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Plays a sound with the specified parameters
