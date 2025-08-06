@@ -110,7 +110,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
             for (var i = info.StartIndex; i < info.ValuesProperty.arraySize && i < info.EnumNames.Length; i++)
             {
                 var entryProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
-                var valueProperty = entryProperty.FindPropertyRelative("value");
+                var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
                 var elementHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
                 var elementRect = new Rect(position.x, yPosition, position.width, elementHeight);
 
@@ -127,7 +127,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
             for (var i = info.StartIndex; i < info.ValuesProperty.arraySize && i < info.EnumNames.Length; i++)
             {
                 var entryProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
-                var valueProperty = entryProperty?.FindPropertyRelative("value");
+                var valueProperty = entryProperty?.FindFieldRelative(nameof(Entry<object>.Value));
                 if (valueProperty != null)
                     height += EditorGUI.GetPropertyHeight(valueProperty, true) +
                               EditorGUIUtility.standardVerticalSpacing;

@@ -11,7 +11,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// </summary>
     /// <typeparam name="TEnum">The enumeration type that represents the keys in the (key, value) pairs.</typeparam>
     /// <typeparam name="TValue">The type of the associated values in the (key, value) pairs.</typeparam>
-    public struct TupleEnumerator<TEnum, TValue> : IEnumerator<(TEnum Key, Entry<TValue> Value)>
+    public struct TupleEnumerator<TEnum, TValue> : IEnumerator<(TEnum Key, TValue Value)>
         where TEnum : unmanaged, Enum
     {
         private readonly EnumArray<TEnum, TValue> _enumArray;
@@ -41,13 +41,13 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <exception cref="InvalidOperationException">
         /// Thrown when the enumerator is positioned before the first element or after the last element.
         /// </exception>
-        public readonly (TEnum Key, Entry<TValue> Value) Current
+        public readonly (TEnum Key, TValue Value) Current
         {
             get
             {
                 if (_index < _startIndex || _index >= _enumValues.Length)
                     throw new InvalidOperationException("Enumerator is not positioned on a valid element.");
-                return (_enumValues[_index], _enumArray.Entries[_index]);
+                return (_enumValues[_index], _enumArray.Entries[_index].Value);
             }
         }
 

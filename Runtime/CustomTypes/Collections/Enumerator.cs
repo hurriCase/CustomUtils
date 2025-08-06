@@ -14,7 +14,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     [UsedImplicitly]
     public struct Enumerator<TValue> : IEnumerator<TValue>
     {
-        private readonly TValue[] _array;
+        private readonly Entry<TValue>[] _array;
         private readonly int _startIndex;
         private int _index;
 
@@ -25,7 +25,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <param name="enumMode">The enumeration mode that determines iteration behavior.
         /// If set to SkipFirst, enumeration will start from the second element.</param>
         /// <exception cref="ArgumentNullException">Thrown when the array parameter is null.</exception>
-        internal Enumerator(TValue[] array, EnumMode enumMode = EnumMode.Default)
+        internal Enumerator(Entry<TValue>[] array, EnumMode enumMode = EnumMode.Default)
         {
             _array = array ?? throw new ArgumentNullException(nameof(array));
             _startIndex = enumMode == EnumMode.SkipFirst ? 1 : 0;
@@ -45,7 +45,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
             {
                 if (_index < _startIndex || _index >= _array.Length)
                     throw new InvalidOperationException("Enumerator is not positioned on a valid element.");
-                return _array[_index];
+                return _array[_index].Value;
             }
         }
 

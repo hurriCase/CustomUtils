@@ -15,7 +15,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
     [Serializable, UsedImplicitly, MemoryPackable]
-    public partial struct EnumArray<TEnum, TValue> : IEnumerable<Entry<TValue>>
+    public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
         where TEnum : unmanaged, Enum
     {
         /// <summary>
@@ -152,14 +152,14 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <returns>A struct enumerator for the array of values.</returns>
         [UsedImplicitly]
-        public Enumerator<Entry<TValue>> GetEnumerator() => new(Entries, EnumMode);
+        public Enumerator<TValue> GetEnumerator() => new(Entries, EnumMode);
 
         /// <summary>
         /// Explicit interface implementation that boxes the struct enumerator only when needed.
         /// Use the non-generic GetEnumerator() for better performance.
         /// </summary>
         /// <returns>A boxed enumerator for the array of values.</returns>
-        IEnumerator<Entry<TValue>> IEnumerable<Entry<TValue>>.GetEnumerator() => GetEnumerator();
+        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// Explicit interface implementation for non-generic enumeration.

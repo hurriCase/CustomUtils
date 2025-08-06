@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.CustomTypes.Collections
 {
-    // For created to support serialization for nested type without any issues
+    // Was created to support serialization for nested types without any issues
     [Serializable]
     public struct Entry<TValue>
     {
