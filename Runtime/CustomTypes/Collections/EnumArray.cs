@@ -15,41 +15,26 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
     [Serializable, UsedImplicitly, MemoryPackable]
-    public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
+    public partial struct EnumArray<TEnum, TValue> : IEnumerable<Entry<TValue>>
         where TEnum : unmanaged, Enum
     {
-        [SerializeField] private TValue[] _values;
-        [SerializeField] private EnumMode _enumMode;
-
         /// <summary>
-        /// Gets the total number of elements in the array associated with the underlying enum type.
+        /// Gets the array of entries associated with the underlying enum type as keys.
         /// </summary>
-        [UsedImplicitly, MemoryPackIgnore]
-        public int Length => Values.Length;
+        [UsedImplicitly]
+        [field: SerializeField] public Entry<TValue>[] Entries { get; private set; }
 
         /// <summary>
         /// Gets the enumeration mode that determines how elements are processed during iteration.
         /// </summary>
         [UsedImplicitly]
-        public EnumMode EnumMode => _enumMode;
+        [field: SerializeField] public EnumMode EnumMode { get; private set; }
 
         /// <summary>
-        /// Gets the array of values associated with the underlying enum type as keys.
+        /// Gets the total number of elements in the array associated with the underlying enum type.
         /// </summary>
-        [UsedImplicitly]
-        public TValue[] Values
-        {
-            get
-            {
-                if (_values != null)
-                    return _values;
-
-                var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-                _values = new TValue[enumValues.Length];
-
-                return _values;
-            }
-        }
+        [UsedImplicitly, MemoryPackIgnore]
+        public int Length => Entries?.Length ?? 0;
 
         /// <summary>
         /// Initializes a new instance of the EnumArray with all elements set to the specified default value.
@@ -60,10 +45,11 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public EnumArray(TValue defaultValue, EnumMode enumMode = EnumMode.Default)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            _values = new TValue[enumValues.Length];
-            _enumMode = enumMode;
-            for (var i = 0; i < _values.Length; i++)
-                _values[i] = defaultValue;
+            Entries = new Entry<TValue>[enumValues.Length];
+            EnumMode = enumMode;
+
+            for (var i = 0; i < Entries.Length; i++)
+                Entries[i] = new Entry<TValue> { Value = defaultValue };
         }
 
         /// <summary>
@@ -75,10 +61,11 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public EnumArray(Func<TValue> factory, EnumMode enumMode = EnumMode.Default)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            _values = new TValue[enumValues.Length];
-            _enumMode = enumMode;
-            for (var i = 0; i < _values.Length; i++)
-                _values[i] = factory();
+            Entries = new Entry<TValue>[enumValues.Length];
+            EnumMode = enumMode;
+
+            for (var i = 0; i < Entries.Length; i++)
+                Entries[i] = new Entry<TValue> { Value = factory() };
         }
 
         /// <summary>
@@ -89,21 +76,24 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public EnumArray(EnumMode enumMode)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            _values = new TValue[enumValues.Length];
-            _enumMode = enumMode;
+            Entries = new Entry<TValue>[enumValues.Length];
+            EnumMode = enumMode;
+
+            for (var i = 0; i < Entries.Length; i++)
+                Entries[i] = new Entry<TValue>();
         }
 
         /// <summary>
-        /// Initializes a new instance of the EnumArray with the specified values and enumeration mode.
+        /// Initializes a new instance of the EnumArray with the specified entries and enumeration mode.
         /// This constructor is used by MemoryPack for deserialization.
         /// </summary>
-        /// <param name="values">The array of values to store.</param>
+        /// <param name="entries">The array of entries to store.</param>
         /// <param name="enumMode">The enumeration mode that determines iteration behavior.</param>
         [MemoryPackConstructor]
-        public EnumArray(TValue[] values, EnumMode enumMode)
+        public EnumArray(Entry<TValue>[] entries, EnumMode enumMode)
         {
-            _values = values;
-            _enumMode = enumMode;
+            Entries = entries;
+            EnumMode = enumMode;
         }
 
         /// <summary>
@@ -114,8 +104,8 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public TValue this[TEnum key]
         {
-            get => Values[UnsafeEnumConverter<TEnum>.ToInt32(key)];
-            set => Values[UnsafeEnumConverter<TEnum>.ToInt32(key)] = value;
+            get => Entries[UnsafeEnumConverter<TEnum>.ToInt32(key)].Value;
+            set => Entries[UnsafeEnumConverter<TEnum>.ToInt32(key)].Value = value;
         }
 
         /// <summary>
@@ -126,8 +116,8 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public TValue this[int index]
         {
-            get => Values[index];
-            set => Values[index] = value;
+            get => Entries[index].Value;
+            set => Entries[index].Value = value;
         }
 
         /// <summary>
@@ -136,7 +126,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <returns>A struct enumerator that iterates through key-value pairs.</returns>
         [UsedImplicitly]
-        public TupleEnumerator<TEnum, TValue> AsTuples() => new(this, _enumMode);
+        public TupleEnumerator<TEnum, TValue> AsTuples() => new(this, EnumMode);
 
         /// <summary>
         /// Executes an action for each key-value pair in the array.
@@ -149,10 +139,10 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public void ForEach<TTarget>(TTarget target, Action<TTarget, TEnum, TValue> action)
         {
             var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            var startIndex = _enumMode == EnumMode.SkipFirst ? 1 : 0;
+            var startIndex = EnumMode == EnumMode.SkipFirst ? 1 : 0;
 
-            for (var i = startIndex; i < enumValues.Length && i < Values.Length; i++)
-                action(target, enumValues[i], Values[i]);
+            for (var i = startIndex; i < enumValues.Length && i < Length; i++)
+                action(target, enumValues[i], Entries[i].Value);
         }
 
         /// <summary>
@@ -162,14 +152,14 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <returns>A struct enumerator for the array of values.</returns>
         [UsedImplicitly]
-        public Enumerator<TValue> GetEnumerator() => new(Values, _enumMode);
+        public Enumerator<Entry<TValue>> GetEnumerator() => new(Entries, EnumMode);
 
         /// <summary>
         /// Explicit interface implementation that boxes the struct enumerator only when needed.
         /// Use the non-generic GetEnumerator() for better performance.
         /// </summary>
         /// <returns>A boxed enumerator for the array of values.</returns>
-        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
+        IEnumerator<Entry<TValue>> IEnumerable<Entry<TValue>>.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// Explicit interface implementation for non-generic enumeration.

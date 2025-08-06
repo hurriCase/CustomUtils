@@ -2,6 +2,7 @@
 using CustomUtils.Runtime.CustomTypes.Collections;
 using UnityEditor;
 using UnityEngine;
+using CustomUtils.Editor.Extensions;
 
 namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 {
@@ -18,7 +19,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
                 _eventsSubscribed = true;
             }
 
-            var info = GetEnumArrayInfo(property, isNested: false);
+            var info = GetEnumArrayInfo(property);
             if (!info.IsValid)
             {
                 EditorGUI.LabelField(position, label.text, GetErrorMessage(info));
@@ -31,22 +32,22 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var info = GetEnumArrayInfo(property, isNested: false);
+            var info = GetEnumArrayInfo(property);
             if (info.IsValid is false || property.isExpanded is false)
                 return EditorGUIUtility.singleLineHeight;
 
             return CalculateHeight(info);
         }
 
-        private EnumArrayInfo GetEnumArrayInfo(SerializedProperty property, bool isNested)
+        private EnumArrayInfo GetEnumArrayInfo(SerializedProperty property)
         {
-            var valuesProperty = property.FindPropertyRelative("_values");
-            var enumModeProperty = property.FindPropertyRelative("_enumMode");
-            var enumType = isNested ? GetNestedEnumType() : GetEnumTypeFromField();
+            var entriesProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.Entries));
+            var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
+            var enumType = GetEnumTypeFromGenericArguments(fieldInfo?.FieldType);
 
             var info = new EnumArrayInfo
             {
-                ValuesProperty = valuesProperty,
+                ValuesProperty = entriesProperty,
                 EnumType = enumType
             };
 
@@ -81,7 +82,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 
         private void OnPropertyContextMenu(GenericMenu menu, SerializedProperty property)
         {
-            var enumModeProperty = property.FindPropertyRelative("_enumMode");
+            var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
             if (enumModeProperty == null)
                 return;
 
@@ -108,30 +109,15 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 
             for (var i = info.StartIndex; i < info.ValuesProperty.arraySize && i < info.EnumNames.Length; i++)
             {
-                var elementProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
-                var elementHeight = EditorGUI.GetPropertyHeight(elementProperty, true);
+                var entryProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
+                var valueProperty = entryProperty.FindPropertyRelative("value");
+                var elementHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
                 var elementRect = new Rect(position.x, yPosition, position.width, elementHeight);
 
-                if (IsNestedEnumArray(elementProperty))
-                    DrawNestedEnumArray(elementRect, elementProperty, new GUIContent(info.EnumNames[i]));
-                else
-                    EditorGUI.PropertyField(elementRect, elementProperty, new GUIContent(info.EnumNames[i]), true);
+                EditorGUI.PropertyField(elementRect, valueProperty, new GUIContent(info.EnumNames[i]), true);
 
                 yPosition += elementHeight + EditorGUIUtility.standardVerticalSpacing;
             }
-        }
-
-        private void DrawNestedEnumArray(Rect position, SerializedProperty elementProperty, GUIContent label)
-        {
-            var nestedInfo = GetEnumArrayInfo(elementProperty, isNested: true);
-            if (nestedInfo.IsValid is false)
-            {
-                EditorGUI.LabelField(position, label.text, GetErrorMessage(nestedInfo));
-                return;
-            }
-
-            EnsureArraySize(nestedInfo);
-            DrawEnumArrayGUI(position, elementProperty, label, nestedInfo);
         }
 
         private float CalculateHeight(EnumArrayInfo info)
@@ -140,9 +126,10 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 
             for (var i = info.StartIndex; i < info.ValuesProperty.arraySize && i < info.EnumNames.Length; i++)
             {
-                var elementProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
-                if (elementProperty != null)
-                    height += EditorGUI.GetPropertyHeight(elementProperty, true) +
+                var entryProperty = info.ValuesProperty.GetArrayElementAtIndex(i);
+                var valueProperty = entryProperty?.FindPropertyRelative("value");
+                if (valueProperty != null)
+                    height += EditorGUI.GetPropertyHeight(valueProperty, true) +
                               EditorGUIUtility.standardVerticalSpacing;
             }
 
@@ -163,29 +150,7 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
             return info.EnumType == null ? "Cannot determine enum type" : "Unknown error";
         }
 
-        private Type GetEnumTypeFromField() => GetEnumTypeFromGenericArguments(fieldInfo?.FieldType, argumentIndex: 0);
-
-        private Type GetNestedEnumType()
-        {
-            if (fieldInfo?.FieldType == null)
-                return null;
-
-            var fieldType = fieldInfo.FieldType;
-            if (fieldType.IsArray)
-                fieldType = fieldType.GetElementType();
-
-            if (fieldType?.IsGenericType != true)
-                return null;
-
-            var genericArgs = fieldType.GetGenericArguments();
-            if (genericArgs.Length < 2)
-                return null;
-
-            var valueType = genericArgs[1];
-            return GetEnumTypeFromGenericArguments(valueType, argumentIndex: 0);
-        }
-
-        private Type GetEnumTypeFromGenericArguments(Type type, int argumentIndex)
+        private Type GetEnumTypeFromGenericArguments(Type type)
         {
             if (type == null)
                 return null;
@@ -197,16 +162,12 @@ namespace CustomUtils.Editor.EmumArrayPropertyDrawer
                 return null;
 
             var genericArgs = type.GetGenericArguments();
-            if (genericArgs.Length <= argumentIndex)
+            if (genericArgs.Length <= 0)
                 return null;
 
-            var enumType = genericArgs[argumentIndex];
+            var enumType = genericArgs[0];
             return enumType.IsEnum ? enumType : null;
         }
-
-        private bool IsNestedEnumArray(SerializedProperty elementProperty) =>
-            elementProperty.FindPropertyRelative("_values") != null &&
-            elementProperty.FindPropertyRelative("_enumMode") != null;
 
         public void Dispose()
         {
