@@ -16,20 +16,40 @@ namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
     /// Reactive localization controller with SystemLanguage support.
+    /// Manages localized text retrieval and language switching for Unity applications.
     /// </summary>
+    /// <remarks>
+    /// This static controller automatically initializes localization data from CSV sheets and provides
+    /// reactive language switching capabilities. It supports fallback to English when translations
+    /// are missing and includes robust CSV parsing for various text formats including Asian languages.
+    /// </remarks>
     [UsedImplicitly]
     public static class LocalizationController
     {
+        /// <summary>
+        /// Internal dictionary storing all localization data organized by language and key.
+        /// </summary>
         private static readonly Dictionary<SystemLanguage, Dictionary<string, string>> _dictionary = new();
 
         /// <summary>
         /// Reactive property for current language with automatic localization updates.
         /// </summary>
+        /// <remarks>
+        /// Subscribe to this property to receive notifications when the language changes.
+        /// All UI elements using localization should react to changes in this property.
+        /// </remarks>
         [UsedImplicitly]
         public static ReactiveProperty<SystemLanguage> Language { get; } =
             new(LocalizationDatabase.Instance.DefaultLanguage);
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Initializes localization data when Unity Editor loads.
+        /// </summary>
+        /// <remarks>
+        /// This method is called automatically by Unity Editor during domain reload.
+        /// Ensures localization data is available during edit-time for inspector previews.
+        /// </remarks>
         [InitializeOnLoadMethod]
         private static void InitializeInEditor()
         {
@@ -37,6 +57,13 @@ namespace CustomUtils.Runtime.Localization
         }
 #endif
 
+        /// <summary>
+        /// Initializes localization data at runtime before scene loading.
+        /// </summary>
+        /// <remarks>
+        /// This method is called automatically by Unity during application startup.
+        /// Sets the current language to the system language if available, otherwise uses default.
+        /// </remarks>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeInRuntime()
         {
@@ -48,37 +75,74 @@ namespace CustomUtils.Runtime.Localization
         }
 
         /// <summary>
-        /// Tries to parse a string language name to SystemLanguage enum.
+        /// Attempts to parse a language name string into a SystemLanguage enum value.
         /// </summary>
+        /// <param name="languageName">The language name to parse (case-insensitive).</param>
+        /// <param name="systemLanguage">When successful, contains the parsed SystemLanguage value.</param>
+        /// <returns>True if parsing was successful; otherwise, false.</returns>
         private static bool TryParseSystemLanguage(string languageName, out SystemLanguage systemLanguage)
             => Enum.TryParse(languageName, true, out systemLanguage);
 
         /// <summary>
         /// Checks if a localization key exists for the current language.
         /// </summary>
+        /// <param name="localizationKey">The key to check for existence.</param>
+        /// <returns>True if the key exists for the current language; otherwise, false.</returns>
         [UsedImplicitly]
         public static bool HasKey(string localizationKey) =>
             _dictionary.ContainsKey(Language.Value) &&
             _dictionary[Language.Value].ContainsKey(localizationKey);
 
         /// <summary>
-        /// Checks if a language exists in the localization data.
+        /// Checks if localization data exists for the specified language.
         /// </summary>
+        /// <param name="language">The language to check for availability.</param>
+        /// <returns>True if the language is supported; otherwise, false.</returns>
         [UsedImplicitly]
         public static bool HasLanguage(SystemLanguage language) => _dictionary.ContainsKey(language);
 
         /// <summary>
-        /// Gets localized text for the specified key.
+        /// Gets the localized text for the specified key using the current language.
         /// </summary>
+        /// <param name="localizationKey">The localization key to retrieve.</param>
+        /// <returns>
+        /// The localized text if found; otherwise, returns the key itself as fallback.
+        /// If the current language doesn't have the key, attempts to use English fallback.
+        /// </returns>
         [UsedImplicitly]
-        public static string Localize(string localizationKey)
+        public static string Localize(string localizationKey) => Localize(localizationKey, Language.Value);
+
+        /// <summary>
+        /// Gets the localized text for the specified key using the current language with string formatting.
+        /// </summary>
+        /// <param name="localizationKey">The localization key to retrieve.</param>
+        /// <param name="args">Arguments for string.Format to replace placeholders in the localized text.</param>
+        /// <returns>
+        /// The formatted localized text if found; otherwise, returns the unformatted pattern.
+        /// Logs an error if formatting fails and returns the unformatted pattern.
+        /// </returns>
+        [UsedImplicitly]
+        public static string Localize(string localizationKey, params object[] args)
+            => Localize(localizationKey, Language.Value, args);
+
+        /// <summary>
+        /// Gets the localized text for the specified key and language.
+        /// </summary>
+        /// <param name="localizationKey">The localization key to retrieve.</param>
+        /// <param name="language">The specific language to use for localization.</param>
+        /// <returns>
+        /// The localized text if found; otherwise, attempts English fallback before returning the key itself.
+        /// Logs warnings when translations or languages are not found.
+        /// </returns>
+        [UsedImplicitly]
+        public static string Localize(string localizationKey, SystemLanguage language)
         {
             if (string.IsNullOrEmpty(localizationKey))
                 return localizationKey;
 
-            if (_dictionary.TryGetValue(Language.Value, out var languageDict) is false)
+            if (_dictionary.TryGetValue(language, out var languageDict) is false)
             {
-                Debug.LogError($"[LocalizationController::Localize] Language not found: {Language.Value}");
+                Debug.LogError($"[LocalizationController::Localize] Language not found: {language}");
                 return localizationKey;
             }
 
@@ -87,18 +151,25 @@ namespace CustomUtils.Runtime.Localization
                 return languageDict[localizationKey];
 
             Debug.LogWarning("[LocalizationController::Localize] " +
-                             $"Translation not found: {localizationKey} ({Language.Value})");
+                             $"Translation not found: {localizationKey} ({language})");
 
             return GetFallbackText(localizationKey);
         }
 
         /// <summary>
-        /// Gets localized text with string formatting.
+        /// Gets the localized text for the specified key and language with string formatting.
         /// </summary>
+        /// <param name="localizationKey">The localization key to retrieve.</param>
+        /// <param name="language">The specific language to use for localization.</param>
+        /// <param name="args">Arguments for string.Format to replace placeholders in the localized text.</param>
+        /// <returns>
+        /// The formatted localized text if found and formatting succeeds; otherwise, returns the unformatted pattern.
+        /// Logs an error if formatting fails.
+        /// </returns>
         [UsedImplicitly]
-        public static string Localize(string localizationKey, params object[] args)
+        public static string Localize(string localizationKey, SystemLanguage language, params object[] args)
         {
-            var pattern = Localize(localizationKey);
+            var pattern = Localize(localizationKey, language);
 
             try
             {
@@ -135,15 +206,6 @@ namespace CustomUtils.Runtime.Localization
             return key;
         }
 
-        private static string GetFallbackText(string localizationKey)
-        {
-            if (_dictionary.ContainsKey(SystemLanguage.English) &&
-                _dictionary[SystemLanguage.English].ContainsKey(localizationKey))
-                return _dictionary[SystemLanguage.English][localizationKey];
-
-            return localizationKey;
-        }
-
         internal static void ReadLocalizationData()
         {
             var settings = LocalizationDatabase.Instance;
@@ -168,6 +230,26 @@ namespace CustomUtils.Runtime.Localization
 
                 ProcessSheet(sheet, processedKeys);
             }
+        }
+
+        /// <summary>
+        /// Attempts to get fallback text in English for a localization key.
+        /// </summary>
+        /// <param name="localizationKey">The key to find fallback text for.</param>
+        /// <returns>
+        /// The English translation if available; otherwise, returns the key itself.
+        /// </returns>
+        /// <remarks>
+        /// This method is used when a translation is missing in the requested language.
+        /// English is used as the universal fallback language.
+        /// </remarks>
+        private static string GetFallbackText(string localizationKey)
+        {
+            if (_dictionary.ContainsKey(SystemLanguage.English) &&
+                _dictionary[SystemLanguage.English].ContainsKey(localizationKey))
+                return _dictionary[SystemLanguage.English][localizationKey];
+
+            return localizationKey;
         }
 
         private static void ProcessSheet(Sheet sheet, HashSet<string> processedKeys)
