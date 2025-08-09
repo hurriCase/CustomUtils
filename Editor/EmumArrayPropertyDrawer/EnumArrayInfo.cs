@@ -1,16 +1,18 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace CustomUtils.Editor.EmumArrayPropertyDrawer
 {
-    internal struct EnumArrayInfo
+    internal readonly struct EnumArrayInfo
     {
-        public SerializedProperty ValuesProperty { get; set; }
-        public Type EnumType { get; set; }
-        public string[] EnumNames { get; set; }
-        public bool SkipFirst { get; set; }
-        public int StartIndex { get; set; }
+        internal SerializedProperty EntriesProperty { get; }
+        internal string[] EnumNames { get; }
+        internal int StartIndex { get; }
 
-        public readonly bool IsValid => ValuesProperty != null && EnumType != null;
+        internal EnumArrayInfo(SerializedProperty entriesProperty, string[] enumNames, int startIndex)
+        {
+            EntriesProperty = entriesProperty;
+            EnumNames = enumNames;
+            StartIndex = startIndex;
+        }
     }
 }

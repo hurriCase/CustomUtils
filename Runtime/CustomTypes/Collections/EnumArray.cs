@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using MemoryPack;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Runtime.CustomTypes.Collections
 {
@@ -36,6 +38,12 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly, MemoryPackIgnore]
         public int Length => Entries?.Length ?? 0;
 
+        [MemoryPackIgnore]
+        private static int GetValuesCount =>
+            Enum.GetValues(typeof(TEnum)).Cast<TEnum>().AsValueEnumerable()
+                .Distinct()
+                .Count();
+
         /// <summary>
         /// Initializes a new instance of the EnumArray with all elements set to the specified default value.
         /// </summary>
@@ -44,8 +52,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public EnumArray(TValue defaultValue, EnumMode enumMode = EnumMode.Default)
         {
-            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            Entries = new Entry<TValue>[enumValues.Length];
+            Entries = new Entry<TValue>[GetValuesCount];
             EnumMode = enumMode;
 
             for (var i = 0; i < Entries.Length; i++)
@@ -60,8 +67,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public EnumArray(Func<TValue> factory, EnumMode enumMode = EnumMode.Default)
         {
-            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            Entries = new Entry<TValue>[enumValues.Length];
+            Entries = new Entry<TValue>[GetValuesCount];
             EnumMode = enumMode;
 
             for (var i = 0; i < Entries.Length; i++)
@@ -75,8 +81,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public EnumArray(EnumMode enumMode)
         {
-            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            Entries = new Entry<TValue>[enumValues.Length];
+            Entries = new Entry<TValue>[GetValuesCount];
             EnumMode = enumMode;
 
             for (var i = 0; i < Entries.Length; i++)
@@ -127,23 +132,6 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <returns>A struct enumerator that iterates through key-value pairs.</returns>
         [UsedImplicitly]
         public TupleEnumerator<TEnum, TValue> AsTuples() => new(this, EnumMode);
-
-        /// <summary>
-        /// Executes an action for each key-value pair in the array.
-        /// Respects the configured enumeration mode - if set to SkipFirst, the first enum element will be skipped.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the target object passed to the action.</typeparam>
-        /// <param name="target">The target object to pass to the action method.</param>
-        /// <param name="action">The action to execute for each key-value pair.</param>
-        [UsedImplicitly]
-        public void ForEach<TTarget>(TTarget target, Action<TTarget, TEnum, TValue> action)
-        {
-            var enumValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            var startIndex = EnumMode == EnumMode.SkipFirst ? 1 : 0;
-
-            for (var i = startIndex; i < enumValues.Length && i < Length; i++)
-                action(target, enumValues[i], Entries[i].Value);
-        }
 
         /// <summary>
         /// Returns a high-performance struct enumerator that iterates through the array of values.
