@@ -53,7 +53,7 @@ namespace CustomUtils.Editor.AttributeDrawers
 
         private Result ValidateConditionalField(HideIfAttribute hideIfAttribute, SerializedProperty property)
         {
-            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty) is false)
+            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty))
             {
                 if (sourceProperty.propertyType != SerializedPropertyType.Boolean)
                     return Result.Invalid(
