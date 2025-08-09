@@ -9,6 +9,15 @@ namespace CustomUtils.Runtime.Extensions
     public static class StringExtensions
     {
         /// <summary>
+        /// Converts a property name to its backing field representation
+        /// </summary>
+        /// <param name="propertyName">The name of the property</param>
+        /// <returns>The backing field name format</returns>
+        [UsedImplicitly]
+        public static string ConvertToBackingField(this string propertyName)
+            => $"<{propertyName}>k__BackingField";
+
+        /// <summary>
         /// Converts a camelCase or PascalCase string to a spaced string.
         /// </summary>
         /// <param name="text">The camelCase or PascalCase string to convert.</param>

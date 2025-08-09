@@ -32,14 +32,6 @@ namespace CustomUtils.Editor.Extensions
         }
 
         /// <summary>
-        /// Converts a property name to its backing field representation
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
-        /// <returns>The backing field name format</returns>
-        public static string ConvertToBackingField(this string propertyName)
-            => $"<{propertyName}>k__BackingField";
-
-        /// <summary>
         /// Attempts to calculate an MD5 hash for the specified file's content.
         /// </summary>
         /// <param name="filePath">The path to the file to hash.</param>
