@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using CustomUtils.Editor.CustomEditorUtilities;
+using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.Attributes;
 using UnityEditor;
 using UnityEngine;
@@ -44,19 +45,15 @@ namespace CustomUtils.Editor.AttributeDrawers
 
         private bool GetHideIfAttributeResult(HideIfAttribute hideIfAttribute, SerializedProperty property)
         {
-            var sourcePropertyValue = property.serializedObject.FindProperty(hideIfAttribute.ConditionalSourceField);
-
-            if (sourcePropertyValue != null)
-                return sourcePropertyValue.boolValue == hideIfAttribute.HideIfSourceTrue;
+            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty))
+                return sourceProperty.boolValue == hideIfAttribute.HideIfSourceTrue;
 
             return true;
         }
 
         private Result ValidateConditionalField(HideIfAttribute hideIfAttribute, SerializedProperty property)
         {
-            var sourceProperty = property.serializedObject.FindProperty(hideIfAttribute.ConditionalSourceField);
-
-            if (sourceProperty != null)
+            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty) is false)
             {
                 if (sourceProperty.propertyType != SerializedPropertyType.Boolean)
                     return Result.Invalid(
@@ -85,6 +82,19 @@ namespace CustomUtils.Editor.AttributeDrawers
             return Result.Invalid(info.FieldType == typeof(bool)
                 ? existError + "serialized. Add [SerializeField] to make it work."
                 : existError + " a boolean ({info.FieldType.Name}).");
+        }
+
+        private bool TryGetSourceProperty(
+            HideIfAttribute hideIfAttribute,
+            SerializedProperty property,
+            out SerializedProperty sourceProperty)
+        {
+            var serializedObject = property.serializedObject;
+            var sourceFieldName = hideIfAttribute.ConditionalSourceField;
+            sourceProperty = serializedObject.FindProperty(sourceFieldName)
+                             ?? serializedObject.FindField(sourceFieldName);
+
+            return sourceProperty != null;
         }
     }
 }
