@@ -61,7 +61,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
 
             if (ThemeColorDatabase.TryGetColorByName<ThemeGradientColor>(mapping.ColorName, out var gradientColor))
             {
-                return ThemeHandler.CurrentThemeType switch
+                return ThemeHandler.CurrentThemeType.Value switch
                 {
                     ThemeType.Light => gradientColor.LightThemeColor,
                     ThemeType.Dark => gradientColor.DarkThemeColor,
@@ -118,7 +118,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
                     throw new ArgumentOutOfRangeException();
             }
 
-            themeComponent.OnApplyColor();
+            themeComponent.ApplyColor();
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         {
             if (ThemeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
             {
-                return ThemeHandler.CurrentThemeType switch
+                return ThemeHandler.CurrentThemeType.Value switch
                 {
                     ThemeType.Light => solidColor.LightThemeColor,
                     ThemeType.Dark => solidColor.DarkThemeColor,

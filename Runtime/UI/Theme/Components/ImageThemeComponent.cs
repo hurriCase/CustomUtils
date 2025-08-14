@@ -17,34 +17,34 @@ namespace CustomUtils.Runtime.UI.Theme.Components
         {
             base.OnEnable();
 
-            _originalMaterial = _targetComponent.material;
+            _originalMaterial = targetComponent.material;
         }
 
         protected override bool ShouldUpdateColor() =>
             ColorType switch
             {
-                ColorType.Gradient => _targetComponent.CompareGradient(GetCurrentGradient()),
-                ColorType.Shared => ThemeSharedColor != null && _targetComponent.color != ThemeSharedColor.Color,
-                ColorType.Solid => _targetComponent.color != GetCurrentSolidColor(),
+                ColorType.Gradient => targetComponent.CompareGradient(GetCurrentGradient()),
+                ColorType.Shared => ThemeSharedColor != null && targetComponent.color != ThemeSharedColor.Color,
+                ColorType.Solid => targetComponent.color != GetCurrentSolidColor(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-        protected override void ApplyColor()
+        protected override void OnApplyColor()
         {
             switch (ColorType)
             {
                 case ColorType.Gradient:
-                    _targetComponent.ApplyGradient(GetCurrentGradient(), GradientDirection);
+                    targetComponent.ApplyGradient(GetCurrentGradient(), GradientDirection);
                     break;
 
                 case ColorType.Shared:
-                    _targetComponent.material = _originalMaterial;
-                    _targetComponent.color = ThemeSharedColor.Color;
+                    targetComponent.material = _originalMaterial;
+                    targetComponent.color = ThemeSharedColor.Color;
                     break;
 
                 case ColorType.Solid:
-                    _targetComponent.material = _originalMaterial;
-                    _targetComponent.color = GetCurrentSolidColor();
+                    targetComponent.material = _originalMaterial;
+                    targetComponent.color = GetCurrentSolidColor();
                     break;
 
                 default:

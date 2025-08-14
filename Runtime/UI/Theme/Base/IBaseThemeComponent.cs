@@ -5,7 +5,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
 {
     public interface IBaseThemeComponent
     {
-        public void OnApplyColor();
+        public void ApplyColor();
         public ColorType ColorType { get; set; }
         public ThemeSolidColor ThemeSolidColor { get; }
         public ThemeGradientColor ThemeGradientColor { get; }

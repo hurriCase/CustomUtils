@@ -1,12 +1,12 @@
 ﻿using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.CustomTypes.Singletons;
-using UnityEngine;
+using R3;
 
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
     [Resource(ResourcePaths.ThemeFullPath, ResourcePaths.ThemeHandlerAssetName, ResourcePaths.ThemeResourcePath)]
     internal sealed class ThemeHandler : SingletonScriptableObject<ThemeHandler>
     {
-        [field: SerializeField] internal ThemeType CurrentThemeType { get; set; }
+        internal ReactiveProperty<ThemeType> CurrentThemeType { get; } = new();
     }
 }

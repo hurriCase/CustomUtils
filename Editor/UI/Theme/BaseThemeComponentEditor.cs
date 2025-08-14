@@ -48,7 +48,7 @@ namespace CustomUtils.Editor.UI.Theme
                 return;
 
             _themeComponent.ColorType = colorType;
-            _themeComponent.OnApplyColor();
+            _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
 
@@ -65,9 +65,9 @@ namespace CustomUtils.Editor.UI.Theme
                 return;
 
             _wasDarkTheme = newSelectedTheme == 1;
-            ThemeHandler.CurrentThemeType = _wasDarkTheme ? ThemeType.Dark : ThemeType.Light;
+            ThemeHandler.CurrentThemeType.Value = _wasDarkTheme ? ThemeType.Dark : ThemeType.Light;
 
-            _themeComponent.OnApplyColor();
+            _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
 
@@ -96,7 +96,7 @@ namespace CustomUtils.Editor.UI.Theme
             switch (_themeComponent.ColorType)
             {
                 case ColorType.Gradient:
-                    var previewGradient = ThemeHandler.CurrentThemeType == ThemeType.Light
+                    var previewGradient = ThemeHandler.CurrentThemeType.Value == ThemeType.Light
                         ? _themeComponent.ThemeGradientColor.LightThemeColor
                         : _themeComponent.ThemeGradientColor.DarkThemeColor;
 
@@ -109,7 +109,7 @@ namespace CustomUtils.Editor.UI.Theme
                     break;
 
                 case ColorType.Solid:
-                    var previewSolidColor = ThemeHandler.CurrentThemeType == ThemeType.Light
+                    var previewSolidColor = ThemeHandler.CurrentThemeType.Value == ThemeType.Light
                         ? _themeComponent.ThemeSolidColor.LightThemeColor
                         : _themeComponent.ThemeSolidColor.DarkThemeColor;
 
@@ -134,7 +134,7 @@ namespace CustomUtils.Editor.UI.Theme
 
             _themeComponent.GradientDirection = (GradientDirection)selectedDirection;
 
-            _themeComponent.OnApplyColor();
+            _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
 
@@ -176,7 +176,7 @@ namespace CustomUtils.Editor.UI.Theme
                     throw new ArgumentOutOfRangeException();
             }
 
-            _themeComponent.OnApplyColor();
+            _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
     }

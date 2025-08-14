@@ -17,47 +17,47 @@ namespace CustomUtils.Runtime.UI.Theme.Components
         {
             base.OnEnable();
 
-            _originalFontMaterial = _targetComponent.fontSharedMaterial;
+            _originalFontMaterial = targetComponent.fontSharedMaterial;
         }
 
         protected override bool ShouldUpdateColor() =>
             ColorType switch
             {
-                ColorType.Gradient => !_targetComponent.CompareGradient(GetCurrentGradient()),
-                ColorType.Shared => ThemeSharedColor != null && _targetComponent.color != ThemeSharedColor.Color,
-                ColorType.Solid => _targetComponent.color != GetCurrentSolidColor(),
+                ColorType.Gradient => !targetComponent.CompareGradient(GetCurrentGradient()),
+                ColorType.Shared => ThemeSharedColor != null && targetComponent.color != ThemeSharedColor.Color,
+                ColorType.Solid => targetComponent.color != GetCurrentSolidColor(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-        protected override void ApplyColor()
+        protected override void OnApplyColor()
         {
             switch (ColorType)
             {
                 case ColorType.Gradient:
                     var gradient = GetCurrentGradient();
                     if (gradient != null)
-                        _targetComponent.ApplyGradient(gradient, GradientDirection);
+                        targetComponent.ApplyGradient(gradient, GradientDirection);
 
                     break;
 
                 case ColorType.Shared:
                     if (ThemeSharedColor != null)
                     {
-                        _targetComponent.fontSharedMaterial = _originalFontMaterial
+                        targetComponent.fontSharedMaterial = _originalFontMaterial
                             ? _originalFontMaterial
-                            : _targetComponent.fontSharedMaterial;
+                            : targetComponent.fontSharedMaterial;
 
-                        _targetComponent.color = ThemeSharedColor.Color;
+                        targetComponent.color = ThemeSharedColor.Color;
                     }
 
                     break;
 
                 case ColorType.Solid:
-                    _targetComponent.fontSharedMaterial = _originalFontMaterial
+                    targetComponent.fontSharedMaterial = _originalFontMaterial
                         ? _originalFontMaterial
-                        : _targetComponent.fontSharedMaterial;
+                        : targetComponent.fontSharedMaterial;
 
-                    _targetComponent.color = GetCurrentSolidColor();
+                    targetComponent.color = GetCurrentSolidColor();
                     break;
 
                 default:

@@ -120,7 +120,7 @@ namespace CustomUtils.Editor.AttributeDrawers
             if (_themeColorDatabase.TryGetColorByName<ThemeGradientColor>(colorName, out var gradientColor) is false)
                 return Color.white;
 
-            var gradient = _themeHandler.CurrentThemeType == ThemeType.Light
+            var gradient = _themeHandler.CurrentThemeType.Value == ThemeType.Light
                 ? gradientColor.LightThemeColor
                 : gradientColor.DarkThemeColor;
 
@@ -137,7 +137,7 @@ namespace CustomUtils.Editor.AttributeDrawers
         private Color GetSolidColor(string colorName)
         {
             if (_themeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
-                return _themeHandler.CurrentThemeType == ThemeType.Light
+                return _themeHandler.CurrentThemeType.Value == ThemeType.Light
                     ? solidColor.LightThemeColor
                     : solidColor.DarkThemeColor;
 

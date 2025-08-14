@@ -15,11 +15,15 @@ namespace CustomUtils.Editor.UI.Theme
             _themeHandler = target as ThemeHandler;
         }
 
-        protected override void DrawCustomSections()
+        public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             EditorVisualControls.H1Label("Current Theme");
 
             EditorVisualControls.DrawPanel(DrawThemeSelection);
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void DrawThemeSelection()
@@ -36,8 +40,8 @@ namespace CustomUtils.Editor.UI.Theme
 
             var targetTheme = _editingLightTheme ? ThemeType.Light : ThemeType.Dark;
 
-            if (_themeHandler && _themeHandler.CurrentThemeType != targetTheme)
-                _themeHandler.CurrentThemeType = targetTheme;
+            if (_themeHandler && _themeHandler.CurrentThemeType.Value != targetTheme)
+                _themeHandler.CurrentThemeType.Value = targetTheme;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
+using R3;
 using UnityEngine;
 using Component = UnityEngine.Component;
 
@@ -15,7 +16,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         [field: SerializeField] public string ThemeSolidColorName { get; set; }
         [field: SerializeField] public string ThemeGradientColorName { get; set; }
 
-        [SerializeField] protected T _targetComponent;
+        [SerializeField] protected T targetComponent;
 
         public ThemeSharedColor ThemeSharedColor => ThemeColorDatabase
             .TryGetColorByName<ThemeSharedColor>(ThemeSharedColorName, out var color)
@@ -48,12 +49,19 @@ namespace CustomUtils.Runtime.UI.Theme.Base
 
         protected virtual void OnEnable()
         {
-            _targetComponent = _targetComponent ? _targetComponent : GetComponent<T>();
+            targetComponent = targetComponent ? targetComponent : GetComponent<T>();
 
-            OnApplyColor();
+            ApplyColor();
         }
 
-        public virtual void OnApplyColor()
+        private void Awake()
+        {
+            ThemeHandler.Instance.CurrentThemeType
+                .Subscribe(this, (_, self) => self.ApplyColor())
+                .RegisterTo(destroyCancellationToken);
+        }
+
+        public virtual void ApplyColor()
         {
             bool colorChanged;
 
@@ -80,26 +88,28 @@ namespace CustomUtils.Runtime.UI.Theme.Base
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (!_targetComponent || (colorChanged is false && _previousThemeType == ThemeHandler.CurrentThemeType &&
-                                      _previousColorType == ColorType && ShouldUpdateColor() is false))
+            if (!targetComponent || (colorChanged is false
+                                     && _previousThemeType == ThemeHandler.CurrentThemeType.Value
+                                     && _previousColorType == ColorType
+                                     && ShouldUpdateColor() is false))
                 return;
 
-            ApplyColor();
+            OnApplyColor();
 
-            _previousThemeType = ThemeHandler.CurrentThemeType;
+            _previousThemeType = ThemeHandler.CurrentThemeType.Value;
             _previousColorType = ColorType;
         }
 
         protected abstract bool ShouldUpdateColor();
 
-        protected abstract void ApplyColor();
+        protected abstract void OnApplyColor();
 
         protected Gradient GetCurrentGradient()
         {
             if (ThemeGradientColor == null)
                 return null;
 
-            return ThemeHandler.CurrentThemeType switch
+            return ThemeHandler.CurrentThemeType.Value switch
             {
                 ThemeType.Light => ThemeGradientColor.LightThemeColor,
                 ThemeType.Dark => ThemeGradientColor.DarkThemeColor,
@@ -112,7 +122,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
             if (ThemeSolidColor == null)
                 return Color.white;
 
-            return ThemeHandler.CurrentThemeType switch
+            return ThemeHandler.CurrentThemeType.Value switch
             {
                 ThemeType.Light => ThemeSolidColor.LightThemeColor,
                 ThemeType.Dark => ThemeSolidColor.DarkThemeColor,
