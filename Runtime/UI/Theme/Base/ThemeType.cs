@@ -2,7 +2,8 @@ namespace CustomUtils.Runtime.UI.Theme.Base
 {
     public enum ThemeType
     {
-        Light = 0,
-        Dark = 1
+        None = 0,
+        Light = 1,
+        Dark = 2
     }
 }
