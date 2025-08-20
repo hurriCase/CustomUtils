@@ -72,5 +72,13 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static string GetLocalization(this string key, SystemLanguage language)
             => LocalizationController.Localize(key, language);
+
+        /// <summary>
+        /// Determines whether the given string is valid, meaning it is not null or empty.
+        /// </summary>
+        /// <param name="str">The string to validate.</param>
+        /// <returns>True if the string is not null or empty; otherwise, false.</returns>
+        [UsedImplicitly]
+        public static bool IsValid(this string str) => string.IsNullOrEmpty(str) is false;
     }
 }
