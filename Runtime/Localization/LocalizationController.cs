@@ -183,7 +183,18 @@ namespace CustomUtils.Runtime.Localization
             }
         }
 
-        internal static string[] GetAllKeys()
+        /// <summary>
+        /// Retrieves all localization keys across all available languages.
+        /// </summary>
+        /// <remarks>
+        /// Collects and consolidates all unique keys present in all language dictionaries.
+        /// Ensures the list of keys is sorted in ascending order.
+        /// </remarks>
+        /// <returns>
+        /// An array containing all unique localization keys, sorted alphabetically.
+        /// </returns>
+        [UsedImplicitly]
+        public static string[] GetAllKeys()
         {
             var allKeys = new HashSet<string>();
             foreach (var languageDict in _dictionary.Values)
@@ -195,10 +206,30 @@ namespace CustomUtils.Runtime.Localization
             return allKeys.OrderBy(k => k).ToArray();
         }
 
-        internal static SystemLanguage[] GetAllLanguages() =>
+        /// <summary>
+        /// Retrieves all supported languages available in the localization dictionary.
+        /// </summary>
+        /// <remarks>
+        /// This method returns a list of languages present in the localization system,
+        /// sorted alphabetically by their names. It provides the available languages
+        /// stored in the internal localization data.
+        /// </remarks>
+        /// <returns>
+        /// An array of <see cref="SystemLanguage"/> representing all supported languages.
+        /// Returns an empty array if no languages are defined.
+        /// </returns>
+        [UsedImplicitly]
+        public static SystemLanguage[] GetAllLanguages() =>
             _dictionary.Keys.OrderBy(language => language.ToString()).ToArray();
 
-        internal static string GetLocalizedText(string key, SystemLanguage language)
+        /// <summary>
+        /// Retrieves the localized text for a given key in the specified language.
+        /// </summary>
+        /// <param name="key">The localization key for which the text is to be retrieved.</param>
+        /// <param name="language">The language in which the localized text is requested.</param>
+        /// <returns>The localized text corresponding to the provided key and language, or the key itself if the text is not found.</returns>
+        [UsedImplicitly]
+        public static string GetLocalizedText(string key, SystemLanguage language)
         {
             if (_dictionary.ContainsKey(language) && _dictionary[language].ContainsKey(key))
                 return _dictionary[language][key];
