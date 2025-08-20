@@ -30,7 +30,7 @@ namespace CustomUtils.Runtime.Audio
         private readonly SortedDictionary<float, AliveAudioData<TSoundType>> _sortedAliveAudioData = new();
 
         private PoolHandler<AudioSource> _soundPool;
-        private IDisposable _disposable;
+        private DisposableBag _disposableBag;
 
         private const string MusicVolumeKey = "MusicVolumeKey";
         private const string SoundVolumeKey = "SoundVolumeKey";
@@ -48,13 +48,13 @@ namespace CustomUtils.Runtime.Audio
 
             audioDatabaseGeneric.Init();
 
-            var soundDisposable = SoundVolume
-                .Subscribe(this, (volume, handler) => handler.OnSoundVolumeChanged(volume));
+            SoundVolume
+                .Subscribe(this, (volume, handler) => handler.OnSoundVolumeChanged(volume))
+                .AddTo(ref _disposableBag);
 
-            var musicDisposable = MusicVolume
-                .Subscribe(this, (volume, handler) => handler.OnMusicVolumeChanged(volume));
-
-            _disposable = Disposable.Combine(soundDisposable, musicDisposable);
+            MusicVolume
+                .Subscribe(this, (volume, handler) => handler.OnMusicVolumeChanged(volume))
+                .AddTo(ref _disposableBag);
         }
 
         public virtual AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
@@ -172,7 +172,9 @@ namespace CustomUtils.Runtime.Audio
         /// </summary>
         protected virtual void OnDestroy()
         {
-            _disposable?.Dispose();
+            MusicVolume?.Dispose();
+            SoundVolume?.Dispose();
+            _disposableBag.Dispose();
         }
     }
 }
