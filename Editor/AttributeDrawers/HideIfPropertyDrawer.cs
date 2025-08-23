@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.Attributes;
@@ -23,7 +24,7 @@ namespace CustomUtils.Editor.AttributeDrawers
                 return;
             }
 
-            if (GetHideIfAttributeResult(hideIfAttribute, property))
+            if (IsHideProperty(hideIfAttribute, property) is false)
                 EditorGUI.PropertyField(position, property, label, true);
         }
 
@@ -37,18 +38,23 @@ namespace CustomUtils.Editor.AttributeDrawers
             if (validationResult.IsValid is false)
                 return EditorGUIUtility.singleLineHeight * 1.5f + EditorGUIUtility.standardVerticalSpacing;
 
-            if (GetHideIfAttributeResult(hideIfAttribute, property))
-                return EditorGUI.GetPropertyHeight(property, label);
+            if (IsHideProperty(hideIfAttribute, property))
+                return -EditorGUIUtility.standardVerticalSpacing;
 
-            return -EditorGUIUtility.standardVerticalSpacing;
+            return EditorGUI.GetPropertyHeight(property, label);
         }
 
-        private bool GetHideIfAttributeResult(HideIfAttribute hideIfAttribute, SerializedProperty property)
+        private bool IsHideProperty(HideIfAttribute hideIfAttribute, SerializedProperty property)
         {
-            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty))
-                return sourceProperty.boolValue == hideIfAttribute.HideIfSourceTrue;
+            if (TryGetSourceProperty(hideIfAttribute, property, out var sourceProperty) is false)
+                return false;
 
-            return true;
+            return hideIfAttribute.HideType switch
+            {
+                HideType.True => sourceProperty.boolValue,
+                HideType.False => sourceProperty.boolValue is false,
+                _ => false
+            };
         }
 
         private Result ValidateConditionalField(HideIfAttribute hideIfAttribute, SerializedProperty property)
