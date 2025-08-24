@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -236,9 +237,10 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
             var startColor = gradient.colorKeys[0].color;
             var endColor = gradient.colorKeys[^1].color;
 
-            return $"{startColor.r:F2}_{startColor.g:F2}_{startColor.b:F2}_{startColor.a:F2}_" +
-                   $"{endColor.r:F2}_{endColor.g:F2}_{endColor.b:F2}_{endColor.a:F2}_" +
-                   $"{(int)direction}";
+            return ZString.Format("{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}_{8}",
+                startColor.r, startColor.g, startColor.b, startColor.a,
+                endColor.r, endColor.g, endColor.b, endColor.a,
+                (int)direction);
         }
     }
 }

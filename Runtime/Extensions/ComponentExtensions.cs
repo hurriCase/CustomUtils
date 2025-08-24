@@ -33,5 +33,25 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static void SetActive(this Component component, bool isActive)
             => component.gameObject.SetActive(isActive);
+
+        /// <summary>
+        /// Determines whether the source component is rendered in front of the target component based on the sibling index.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source component, must inherit from Component.</typeparam>
+        /// <typeparam name="TTarget">The type of the target component, must inherit from Component.</typeparam>
+        /// <param name="component">The source component to compare.</param>
+        /// <param name="target">The target component to compare against.</param>
+        /// <returns>
+        /// <c>true</c> if the source component has a higher sibling index than the target (appears in front);
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// In Unity's UI system, components with higher sibling indexes are rendered on top of those with lower indexes.
+        /// This method compares the sibling indexes of the transforms associated with the components.
+        /// </remarks>
+        public static bool IsInFrontOf<TSource, TTarget>(this TSource component, TTarget target)
+            where TSource : Component
+            where TTarget : Component
+            => component.transform.GetSiblingIndex() > target.transform.GetSiblingIndex();
     }
 }

@@ -1,8 +1,6 @@
 ﻿using JetBrains.Annotations;
 using UnityEngine;
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Global
 namespace CustomUtils.Runtime.Extensions
 {
     [UsedImplicitly]
@@ -18,9 +16,7 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static void Hide(this CanvasGroup canvasGroup)
         {
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
+            SetVisible(canvasGroup, false);
         }
 
         /// <summary>
@@ -33,9 +29,23 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static void Show(this CanvasGroup canvasGroup)
         {
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
+            SetVisible(canvasGroup, true);
+        }
+
+        /// <summary>
+        /// Sets the visibility state of a canvas group.
+        /// </summary>
+        /// <param name="canvasGroup">The canvas group to modify.</param>
+        /// <param name="isVisible">True to show the canvas group, false to hide it.</param>
+        /// <remarks>
+        /// When true, sets alpha to 1 and enables interaction. When false, sets alpha to 0 and disables interaction.
+        /// </remarks>
+        [UsedImplicitly]
+        public static void SetVisible(this CanvasGroup canvasGroup, bool isVisible)
+        {
+            canvasGroup.alpha = isVisible ? 1f : 0f;
+            canvasGroup.interactable = isVisible;
+            canvasGroup.blocksRaycasts = isVisible;
         }
     }
 }
