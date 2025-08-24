@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using CustomUtils.Runtime.CustomTypes.Singletons;
-using CustomUtils.Runtime.Localization;
 using JetBrains.Annotations;
 using UnityEngine;
 

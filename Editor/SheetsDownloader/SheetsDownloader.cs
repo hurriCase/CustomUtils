@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CustomUtils.Runtime.Downloader;
-using CustomUtils.Runtime.Localization;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using Unity.Plastic.Newtonsoft.Json;
