@@ -36,8 +36,17 @@ namespace CustomUtils.Runtime.UI.Theme.Base
                 return false;
             }
 
-            color = colorList.Find(color => color.Name == name);
-            return true;
+            foreach (var colorItem in colorList)
+            {
+                if (colorItem.Name != name)
+                    continue;
+
+                color = colorItem;
+                return true;
+            }
+
+            color = default;
+            return false;
         }
 
         private List<TColor> GetColorList<TColor>() where TColor : IThemeColor =>
