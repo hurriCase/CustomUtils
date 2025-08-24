@@ -32,8 +32,6 @@ namespace CustomUtils.Editor.SpriteFix
             _processingComplete = false;
         }
 
-        protected override void CleanupWindow() { }
-
         protected override void DrawWindowContent()
         {
             DrawSection("Mode", DrawModeSelection);
