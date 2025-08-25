@@ -36,6 +36,6 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="list">The list to get a random element from.</param>
         /// <returns>A randomly selected element from the list.</returns>
         [UsedImplicitly]
-        internal static T Random<T>([NotNull] this IList<T> list) => list[UnityEngine.Random.Range(0, list.Count)];
+        public static T Random<T>([NotNull] this IList<T> list) => list[UnityEngine.Random.Range(0, list.Count)];
     }
 }
