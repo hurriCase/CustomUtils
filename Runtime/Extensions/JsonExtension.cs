@@ -3,8 +3,6 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using ZLinq;
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Global
 namespace CustomUtils.Runtime.Extensions
 {
     [UsedImplicitly]
@@ -16,9 +14,9 @@ namespace CustomUtils.Runtime.Extensions
         /// </summary>
         /// <param name="enumValue">The enum value to get the JSON property name for.</param>
         [UsedImplicitly]
-        public static string GetJsonPropertyName(this Enum enumValue)
+        public static string GetJsonPropertyName(this Type enumValue)
         {
-            var attribute = enumValue.GetType()
+            var attribute = enumValue
                 .GetField(enumValue.ToString())
                 ?.GetCustomAttributes(typeof(JsonPropertyAttribute), false)
                 .AsValueEnumerable()
