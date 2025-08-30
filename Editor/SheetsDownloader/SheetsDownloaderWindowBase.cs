@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
+using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.Downloader;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -25,6 +27,9 @@ namespace CustomUtils.Editor.SheetsDownloader
         private const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
 
         private SheetsDownloader<TDatabase, TSheet> _sheetsDownloader;
+
+        private bool _showSheetsList;
+        private readonly List<bool> _showSheets = new();
 
         /// <summary>
         /// Gets the database instance that contains sheet configuration and downloaded data.
@@ -62,9 +67,61 @@ namespace CustomUtils.Editor.SheetsDownloader
 
             EditorGUILayout.Space();
 
-            PropertyField(nameof(Database.Sheets));
+            EditorVisualControls.DrawBoxWithFoldout("Sheets", ref _showSheetsList, DrawSheets);
 
             DrawWarnings();
+        }
+
+        private void DrawSheets()
+        {
+            var sheetsProperty = serializedObject.FindField(nameof(Database.Sheets));
+
+            EditorGUI.indentLevel++;
+
+            for (var i = 0; i < Database.Sheets.Count; i++)
+            {
+                var index = i;
+                EditorVisualControls.Foldout(Database.Sheets[i].Name, _showSheets, i,
+                    () => DrawSheet(index, sheetsProperty));
+
+                EditorGUILayout.Space();
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
+        private void DrawSheet(int index, SerializedProperty sheetsProperty)
+        {
+            EditorGUI.indentLevel++;
+
+            var sheet = Database.Sheets[index];
+            var sheetProperty = sheetsProperty.GetArrayElementAtIndex(index);
+
+            foreach (SerializedProperty childProperty in sheetProperty)
+                EditorStateControls.PropertyField(childProperty);
+
+            if (EditorVisualControls.Button("▼ Download Sheet"))
+                ProcessDownloadSingleSheetAsync(sheet).Forget();
+
+            EditorGUI.indentLevel--;
+        }
+
+        private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
+        {
+            if (string.IsNullOrEmpty(Database.TableId))
+            {
+                EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
+                return;
+            }
+
+            var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
+
+            EditorUtility.SetDirty(Database);
+
+            if (result.HasDownloads)
+                OnSheetsDownloaded();
+
+            Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {result.Message}");
         }
 
         /// <summary>

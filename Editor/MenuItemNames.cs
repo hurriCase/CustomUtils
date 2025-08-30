@@ -9,8 +9,8 @@
         internal const string DirtyMakerMenuName = UtilsMenuName + "Dirty Maker";
 
         internal const string LocalizationMenuName = SettingsMenuName + "Localization";
-        internal const string CustomMenuSettingsMenuName = SettingsMenuName + "Custom Menu Settings";
-        internal const string LoggerSettingsMenuName = SettingsMenuName + "Logger Settings";
+        internal const string CustomMenuSettingsMenuName = SettingsMenuName + "Custom Menu";
+        internal const string LoggerSettingsMenuName = SettingsMenuName + "Logger";
 
         private const string RootMenuName = "Tools/";
         private const string UtilsMenuName = RootMenuName + "Utils/";

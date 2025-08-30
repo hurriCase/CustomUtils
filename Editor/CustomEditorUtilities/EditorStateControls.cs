@@ -230,10 +230,19 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         /// <param name="includeChildren">Whether to include children of the property</param>
         /// <returns>Tuple containing whether the property was modified and the property reference</returns>
         [UsedImplicitly]
-        public (bool, SerializedProperty) PropertyField(string propertyName, bool includeChildren = false)
+        public (bool wasModified, SerializedProperty serializedProperty) PropertyField(
+            string propertyName,
+            bool includeChildren = false)
         {
+            if (_serializedObject is null)
+            {
+                EditorVisualControls.WarningBox("Serialized Object isn't set.");
+                return (false, null);
+            }
+
             var property = _serializedObject.FindField(propertyName);
-            return (PropertyField(property, property.displayName, includeChildren), property);
+            var wasModified = PropertyField(property, property.displayName, includeChildren);
+            return (wasModified, property);
         }
 
         /// <summary>
@@ -246,6 +255,12 @@ namespace CustomUtils.Editor.CustomEditorUtilities
         [UsedImplicitly]
         public bool PropertyFieldIf(bool isDisabled, string propertyName, bool includeChildren = false)
         {
+            if (_serializedObject is null)
+            {
+                EditorVisualControls.WarningBox("Serialized Object isn't set.");
+                return false;
+            }
+
             using var disabledScope = new EditorGUI.DisabledScope(isDisabled);
 
             var property = _serializedObject.FindField(propertyName);

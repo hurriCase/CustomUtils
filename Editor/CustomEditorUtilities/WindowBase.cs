@@ -121,7 +121,7 @@ namespace CustomUtils.Editor.CustomEditorUtilities
 
         protected void PropertyField(string fieldName, bool includeChildren = true)
         {
-            if (serializedObject == null)
+            if (serializedObject is null)
             {
                 EditorVisualControls.WarningBox("Serialized Object isn't set.");
                 return;

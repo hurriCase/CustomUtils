@@ -73,7 +73,7 @@ namespace CustomUtils.Editor.SheetsDownloader
 
             foreach (var sheet in sheetsToDownload)
             {
-                await DownloadSingleSheetAsync(sheet);
+                await DownloadSingleSheetInternalAsync(sheet);
                 changedCount++;
             }
 
@@ -106,6 +106,55 @@ namespace CustomUtils.Editor.SheetsDownloader
             ProcessResolveResponse(request);
         }
 
+        /// <summary>
+        /// Downloads a specific sheet regardless of whether it has changed.
+        /// Forces download of the specified sheet and updates its content length.
+        /// </summary>
+        /// <param name="sheet">The sheet to download.</param>
+        /// <returns>A <see cref="UniTask{DownloadResult}"/> representing the asynchronous download operation.
+        /// The result contains information about the download and a status message.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="sheet"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the database's TableId is null or empty.</exception>
+        /// <exception cref="Exception">Thrown when network errors occur or when access to the Google Sheets document is denied.</exception>
+        [UsedImplicitly]
+        public async UniTask<DownloadResult> DownloadSingleSheetAsync(TSheet sheet)
+        {
+            if (sheet == null)
+                throw new ArgumentNullException(nameof(sheet));
+
+            if (string.IsNullOrEmpty(_database.TableId))
+                throw new ArgumentException("Table Id is empty.");
+
+            PrepareDownloadFolderIfNeeded();
+
+            try
+            {
+                var url = string.Format(UrlPattern, _database.TableId, sheet.Id);
+
+                using var request = UnityWebRequest.Get(url);
+                await request.SendWebRequest().ToUniTask();
+
+                var error = GetRequestError(request);
+                if (string.IsNullOrEmpty(error) is false)
+                {
+                    var errorMessage = error.Contains("404") ? "Table Id is wrong!" : error;
+                    throw new Exception(errorMessage);
+                }
+
+                var data = request.downloadHandler.data;
+                await SaveSheetDataAsync(sheet, data);
+
+                sheet.ContentLength = data.Length;
+
+                var message = $"Sheet '{sheet.Name}' downloaded successfully!";
+                return new DownloadResult(1, message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to download sheet '{sheet.Name}': {ex.Message}", ex);
+            }
+        }
+
         private void PrepareDownloadFolderIfNeeded()
         {
             var downloadPath = _database.GetDownloadPath();
@@ -128,7 +177,7 @@ namespace CustomUtils.Editor.SheetsDownloader
                 : 0;
         }
 
-        private async UniTask DownloadSingleSheetAsync(TSheet sheet)
+        private async UniTask DownloadSingleSheetInternalAsync(TSheet sheet)
         {
             var url = string.Format(UrlPattern, _database.TableId, sheet.Id);
 
