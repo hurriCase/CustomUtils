@@ -8,13 +8,13 @@ using UnityEngine.SceneManagement;
 namespace CustomUtils.Runtime.Scenes
 {
     [UsedImplicitly]
-    internal sealed class SceneTransitionController : ISceneTransitionController
+    public sealed class SceneTransitionController : ISceneTransitionController
     {
         private readonly ISceneLoader _sceneLoader;
 
         private SceneInstance _transitionsScene;
 
-        internal SceneTransitionController(ISceneLoader sceneLoader)
+        public SceneTransitionController(ISceneLoader sceneLoader)
         {
             _sceneLoader = sceneLoader;
         }
