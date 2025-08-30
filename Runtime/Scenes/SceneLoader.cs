@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using CustomUtils.Runtime.AddressableSystem;
+using CustomUtils.Runtime.Scenes.Base;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -13,9 +14,9 @@ namespace CustomUtils.Runtime.Scenes
     [UsedImplicitly]
     public sealed class SceneLoader : ISceneLoader
     {
-        private static SceneInstance _sceneInstance;
+        private SceneInstance _sceneInstance;
 
-        public async UniTask LoadSceneAsync(
+        public async UniTask<SceneInstance> LoadSceneAsync(
             string sceneAddress,
             CancellationToken token,
             LoadSceneMode loadMode = LoadSceneMode.Single)
@@ -32,9 +33,7 @@ namespace CustomUtils.Runtime.Scenes
 
                 AddressablesLogger.Log($"[SceneLoader::LoadSceneAsync] Scene loaded successfully: {sceneAddress}");
 
-                TryUnloadScene(_sceneInstance);
-
-                _sceneInstance = currentScene;
+                return currentScene;
             }
             catch (Exception ex)
             {
