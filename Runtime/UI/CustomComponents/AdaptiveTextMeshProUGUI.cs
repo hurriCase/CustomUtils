@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CustomUtils.Runtime.Extensions;
 using JetBrains.Annotations;
 using R3;
@@ -14,7 +13,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         [field: SerializeField] public DimensionType StaticDimensionType { get; private set; }
         [field: SerializeField] public float BaseFontSize { get; private set; }
         [field: SerializeField] public float StaticReferenceSize { get; private set; }
-        [field: SerializeField] public bool ExpandToFitText { get; private set; }
 
         private readonly Subject<string> _textChangedSubject = new();
         private readonly HashSet<ITextSizeNotifiable> _sizeNotifiable = new();
@@ -59,8 +57,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents
 
         public override void SetVerticesDirty()
         {
-            ExpandContainerIfNeeded();
-
             base.SetVerticesDirty();
 
             HandleSizeChange();
@@ -116,41 +112,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                 return;
 
             fontSize = BaseFontSize * scaleFactor;
-        }
-
-        private void ExpandContainerIfNeeded()
-        {
-            if (ExpandToFitText is false || StaticDimensionType == DimensionType.None)
-            {
-                _tracker.Clear();
-                return;
-            }
-
-            ForceMeshUpdate();
-
-            switch (StaticDimensionType)
-            {
-                case DimensionType.Width:
-                    if (Mathf.Approximately(_lastPreferredHeight, preferredHeight) || preferredHeight.IsReasonable() is false)
-                        return;
-
-                    _tracker.Add(this, rectTransform, DrivenTransformProperties.SizeDeltaY);
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, preferredHeight);
-                    _lastPreferredHeight = preferredHeight;
-                    break;
-
-                case DimensionType.Height:
-                    if (Mathf.Approximately(_lastPreferredWidth, preferredWidth) || preferredWidth.IsReasonable() is false)
-                        return;
-
-                    _tracker.Add(this, rectTransform, DrivenTransformProperties.SizeDeltaX);
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, preferredWidth);
-                    _lastPreferredWidth = preferredWidth;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         private void HandleSizeChange()
