@@ -1,5 +1,5 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Runtime.UI.CustomComponents.Selectables;
+using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components;
 using UnityEditor;
 using UnityEditor.UI;
 
@@ -26,7 +26,6 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
             EditorVisualControls.LabelField("Custom Settings");
 
             _editorStateControls.PropertyField(nameof(ThemeToggle.Text), true);
-            _editorStateControls.PropertyField(nameof(ThemeToggle.SelectableColorMapping));
             _editorStateControls.PropertyField(nameof(ThemeToggle.AdditionalGraphics), true);
 
             serializedObject.ApplyModifiedProperties();

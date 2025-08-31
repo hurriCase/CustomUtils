@@ -1,5 +1,4 @@
-﻿using CustomUtils.Runtime.UI.CustomComponents.Selectables.Base;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,39 +9,23 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     public class ThemeButton : Button
     {
         [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
-        [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
-        [field: SerializeField] public ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            ApplyTheme();
-        }
-
-        private void ApplyTheme()
-        {
-            if (!SelectableColorMapping || transition != Transition.ColorTint)
-                return;
-
-            colors = SelectableColorMapping.GetThemeBlockColors(colors);
-        }
+        [field: SerializeField] public ThemeGraphicMapping[] GraphicMappings { get; private set; }
 
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
             base.DoStateTransition(state, instant);
 
-            if (AdditionalGraphics is null || AdditionalGraphics.Length == 0)
-                return;
-
-            ApplyAdditionalGraphics(state);
+            ApplyGraphics(state);
         }
 
-        private void ApplyAdditionalGraphics(SelectionState state)
+        private void ApplyGraphics(SelectionState state)
         {
+            if (GraphicMappings is null || GraphicMappings.Length == 0)
+                return;
+
             var mappedState = MapSelectionStateToSelectableState(state);
 
-            foreach (var graphicMapping in AdditionalGraphics)
+            foreach (var graphicMapping in GraphicMappings)
                 graphicMapping.ApplyColor(mappedState);
         }
 

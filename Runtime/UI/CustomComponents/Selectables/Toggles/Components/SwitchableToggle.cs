@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components
 {
     [UsedImplicitly]
     public class SwitchableToggle : Toggle

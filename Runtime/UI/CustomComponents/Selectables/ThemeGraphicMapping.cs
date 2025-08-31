@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Base
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
     [Serializable]
     [UsedImplicitly]

@@ -26,8 +26,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
             EditorVisualControls.LabelField("Custom Settings");
 
             _editorStateControls.PropertyField(nameof(ThemeButton.Text), true);
-            _editorStateControls.PropertyField(nameof(ThemeButton.SelectableColorMapping));
-            _editorStateControls.PropertyField(nameof(ThemeButton.AdditionalGraphics), true);
+            _editorStateControls.PropertyField(nameof(ThemeButton.GraphicMappings), true);
 
             serializedObject.ApplyModifiedProperties();
         }

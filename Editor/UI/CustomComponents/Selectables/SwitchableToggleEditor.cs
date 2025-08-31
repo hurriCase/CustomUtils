@@ -1,5 +1,5 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Runtime.UI.CustomComponents.Selectables;
+using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components;
 using UnityEditor;
 using UnityEditor.UI;
 

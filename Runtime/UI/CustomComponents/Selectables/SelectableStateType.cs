@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Base
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
     [UsedImplicitly]
     public enum SelectableStateType
@@ -10,6 +10,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Base
         Highlighted = 2,
         Pressed = 3,
         Selected = 4,
-        Disabled = 5,
+        Disabled = 5
     }
 }
