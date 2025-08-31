@@ -18,9 +18,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
         [UsedImplicitly]
         public void ApplyState(ToggleStateType state, Selectable.Transition transitionType)
         {
-            if (!_targetGraphic)
-                return;
-
             switch (transitionType)
             {
                 case Selectable.Transition.ColorTint:
@@ -35,7 +32,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
 
         private void ApplyColorTransition(ToggleStateType state)
         {
-            if (!_colorMapping)
+            if (!_targetGraphic || !_colorMapping)
                 return;
 
             _targetGraphic.color = _colorMapping.GetColorForState(state);
