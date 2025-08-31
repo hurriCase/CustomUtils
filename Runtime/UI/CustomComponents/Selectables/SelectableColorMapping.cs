@@ -5,6 +5,9 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
 {
     [UsedImplicitly]
-    [CreateAssetMenu(fileName = nameof(SelectableColorMapping), menuName = nameof(SelectableColorMapping))]
+    [CreateAssetMenu(
+        fileName = nameof(SelectableColorMapping),
+        menuName = ResourcePaths.MappingsPath + nameof(SelectableColorMapping)
+    )]
     public sealed class SelectableColorMapping : ThemeStateMappingGeneric<SelectableStateType> { }
 }
