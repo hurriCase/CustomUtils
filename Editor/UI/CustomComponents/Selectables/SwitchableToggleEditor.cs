@@ -25,7 +25,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 
             EditorVisualControls.LabelField("Custom Settings");
 
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.TextMeshProUGUI), true);
+            _editorStateControls.PropertyField(nameof(SwitchableToggle.Text), true);
             _editorStateControls.PropertyField(nameof(SwitchableToggle.CheckedObjects), true);
             _editorStateControls.PropertyField(nameof(SwitchableToggle.UncheckedObjects), true);
 

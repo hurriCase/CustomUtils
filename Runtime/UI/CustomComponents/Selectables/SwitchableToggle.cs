@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     [UsedImplicitly]
     public class SwitchableToggle : Toggle
     {
-        [field: SerializeField] public TextMeshProUGUI TextMeshProUGUI { get; private set; }
+        [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
         [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
         [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
 

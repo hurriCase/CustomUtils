@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     [UsedImplicitly]
     public class ThemeToggle : Toggle
     {
-        [field: SerializeField] public TextMeshProUGUI TextMeshProUGUI { get; private set; }
+        [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
         [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
         [field: SerializeField] public ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
 
