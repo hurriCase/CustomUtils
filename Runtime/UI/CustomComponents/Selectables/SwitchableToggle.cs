@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using R3;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     [UsedImplicitly]
     public class SwitchableToggle : Toggle
     {
+        [field: SerializeField] public TextMeshProUGUI TextMeshProUGUI { get; private set; }
         [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
         [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
 

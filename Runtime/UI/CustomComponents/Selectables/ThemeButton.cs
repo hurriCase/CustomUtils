@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using CustomUtils.Runtime.UI.CustomComponents.Selectables.Base;
+using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +9,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     [UsedImplicitly]
     public class ThemeButton : Button
     {
+        [field: SerializeField] public TextMeshProUGUI TextMeshProUGUI { get; private set; }
         [field: SerializeField] public SelectableColorMapping SelectableColorMapping { get; private set; }
         [field: SerializeField] public ThemeGraphicMapping[] AdditionalGraphics { get; private set; }
 

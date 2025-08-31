@@ -25,6 +25,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 
             EditorVisualControls.LabelField("Custom Settings");
 
+            _editorStateControls.PropertyField(nameof(SwitchableToggle.TextMeshProUGUI), true);
             _editorStateControls.PropertyField(nameof(ThemeButton.SelectableColorMapping));
             _editorStateControls.PropertyField(nameof(ThemeButton.AdditionalGraphics), true);
 
