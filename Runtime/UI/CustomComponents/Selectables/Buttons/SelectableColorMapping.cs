@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
 {
     [UsedImplicitly]
     [CreateAssetMenu(

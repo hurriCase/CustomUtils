@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
 {
     [UsedImplicitly]
     public class ThemeButton : Button

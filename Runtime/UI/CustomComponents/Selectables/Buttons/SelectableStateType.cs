@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
+namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
 {
     [UsedImplicitly]
     public enum SelectableStateType
