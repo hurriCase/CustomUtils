@@ -9,6 +9,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
     [UsedImplicitly]
     public struct ToggleGraphicMapping
     {
+        [SerializeField] private Selectable.Transition _transitionType;
+
         [SerializeField] private Graphic _targetGraphic;
         [SerializeField] private ToggleColorMapping _colorMapping;
 
@@ -16,9 +18,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
         [SerializeField] private ToggleSpriteMapping _spriteMapping;
 
         [UsedImplicitly]
-        public void ApplyState(ToggleStateType state, Selectable.Transition transitionType)
+        public void ApplyState(ToggleStateType state)
         {
-            switch (transitionType)
+            switch (_transitionType)
             {
                 case Selectable.Transition.ColorTint:
                     ApplyColorTransition(state);

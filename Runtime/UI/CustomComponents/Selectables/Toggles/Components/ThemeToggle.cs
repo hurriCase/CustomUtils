@@ -41,7 +41,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components
             var mappedState = isOn ? ToggleStateType.On : MapSelectionStateToSelectableState(state);
 
             foreach (var graphicMapping in AdditionalGraphics)
-                graphicMapping.ApplyState(mappedState, transition);
+                graphicMapping.ApplyState(mappedState);
         }
 
         private ToggleStateType MapSelectionStateToSelectableState(SelectionState state) =>
