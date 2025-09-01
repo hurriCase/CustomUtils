@@ -9,6 +9,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables
     public class ThemeButton : Button
     {
         [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
+        [field: SerializeField] public Image Image { get; private set; }
         [field: SerializeField] public ThemeGraphicMapping[] GraphicMappings { get; private set; }
 
         protected override void DoStateTransition(SelectionState state, bool instant)

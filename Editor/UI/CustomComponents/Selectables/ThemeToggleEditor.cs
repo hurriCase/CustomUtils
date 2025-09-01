@@ -26,6 +26,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
             EditorVisualControls.LabelField("Custom Settings");
 
             _editorStateControls.PropertyField(nameof(ThemeToggle.Text), true);
+            _editorStateControls.PropertyField(nameof(ThemeToggle.Image), true);
             _editorStateControls.PropertyField(nameof(ThemeToggle.AdditionalGraphics), true);
 
             serializedObject.ApplyModifiedProperties();

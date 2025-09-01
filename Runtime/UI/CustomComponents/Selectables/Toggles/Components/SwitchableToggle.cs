@@ -11,6 +11,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components
     public class SwitchableToggle : Toggle
     {
         [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
+        [field: SerializeField] public Image Image { get; private set; }
         [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
         [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
 
