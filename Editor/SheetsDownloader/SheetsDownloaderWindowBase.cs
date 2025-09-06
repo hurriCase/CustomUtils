@@ -14,7 +14,7 @@ namespace CustomUtils.Editor.SheetsDownloader
     /// <inheritdoc />
     /// <summary>
     /// Abstract base class for Unity Editor windows that provide Google Sheets downloading functionality.
-    /// Provides common UI elements and download operations for sheets database management.
+    /// Provides common UI elements and download operations for sheets database management with manual add/remove capabilities.
     /// </summary>
     /// <typeparam name="TDatabase">The type of sheets database that inherits
     /// from <see cref="T:CustomUtils.Runtime.Downloader.SheetsDatabase`1" />.</typeparam>
@@ -30,6 +30,10 @@ namespace CustomUtils.Editor.SheetsDownloader
 
         private bool _showSheetsList;
         private readonly List<bool> _showSheets = new();
+
+        // Manual sheet addition fields
+        private string _newSheetName = string.Empty;
+        private string _newSheetId = string.Empty;
 
         /// <summary>
         /// Gets the database instance that contains sheet configuration and downloaded data.
@@ -67,14 +71,95 @@ namespace CustomUtils.Editor.SheetsDownloader
 
             EditorGUILayout.Space();
 
-            EditorVisualControls.DrawBoxWithFoldout("Sheets", ref _showSheetsList, DrawSheets);
+            EditorVisualControls.DrawBoxWithFoldout("Sheets", ref _showSheetsList, DrawSheetsSection);
 
             DrawWarnings();
         }
 
+        private void DrawSheetsSection()
+        {
+            DrawManualSheetAddition();
+
+            EditorGUILayout.Space();
+
+            DrawSheets();
+        }
+
+        private void DrawManualSheetAddition()
+        {
+            EditorGUILayout.LabelField("Add Sheet Manually", EditorStyles.boldLabel);
+
+            EditorGUI.indentLevel++;
+
+            _newSheetName = EditorGUILayout.TextField("Sheet Name", _newSheetName);
+            _newSheetId = EditorGUILayout.TextField("Sheet ID (GID)", _newSheetId);
+
+            using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
+
+            var canAdd = string.IsNullOrEmpty(_newSheetName) is false &&
+                         string.IsNullOrEmpty(_newSheetId) is false &&
+                         long.TryParse(_newSheetId, out _);
+
+            using (new EditorGUI.DisabledScope(canAdd is false))
+            {
+                if (EditorVisualControls.Button("+ Add Sheet"))
+                    AddManualSheet();
+            }
+
+            if (EditorVisualControls.Button("🔄 Resolve from Google"))
+                ProcessResolveGoogleSheetsAsync().Forget();
+
+            EditorGUI.indentLevel--;
+        }
+
+        private void AddManualSheet()
+        {
+            if (long.TryParse(_newSheetId, out var sheetId) is false)
+            {
+                EditorUtility.DisplayDialog("Error", "Invalid Sheet ID. Please enter a valid number.", "OK");
+                return;
+            }
+
+            var existingSheet = Database.Sheets.AsValueEnumerable()
+                .FirstOrDefault(sheet => sheet.Id == sheetId);
+
+            if (existingSheet != null)
+            {
+                EditorUtility.DisplayDialog("Error",
+                    $"Sheet with ID {sheetId} already exists: '{existingSheet.Name}'", "OK");
+                return;
+            }
+
+            var newSheet = new TSheet
+            {
+                Name = _newSheetName.Trim(),
+                Id = sheetId,
+                ContentLength = 0,
+                TextAsset = null
+            };
+
+            Database.Sheets.Add(newSheet);
+            EditorUtility.SetDirty(Database);
+
+            _newSheetName = string.Empty;
+            _newSheetId = string.Empty;
+
+            Debug.Log("[SheetsDownloaderWindowBase::AddManualSheet] " +
+                      $"Added sheet '{newSheet.Name}' with ID {newSheet.Id}");
+        }
+
         private void DrawSheets()
         {
+            if (Database.Sheets.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No sheets available. Add manually or resolve from Google Sheets.",
+                    MessageType.Info);
+                return;
+            }
+
             var sheetsProperty = serializedObject.FindField(nameof(Database.Sheets));
+
+            EditorGUILayout.LabelField($"Sheets ({Database.Sheets.Count})", EditorStyles.boldLabel);
 
             EditorGUI.indentLevel++;
 
@@ -100,10 +185,38 @@ namespace CustomUtils.Editor.SheetsDownloader
             foreach (SerializedProperty childProperty in sheetProperty)
                 EditorStateControls.PropertyField(childProperty);
 
-            if (EditorVisualControls.Button("▼ Download Sheet"))
+            using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
+
+            if (EditorVisualControls.Button("▼ Download"))
                 ProcessDownloadSingleSheetAsync(sheet).Forget();
 
+            if (EditorVisualControls.Button("✖ Remove"))
+                RemoveSheet(index);
+
             EditorGUI.indentLevel--;
+        }
+
+        private void RemoveSheet(int index)
+        {
+            if (index < 0 || index >= Database.Sheets.Count)
+                return;
+
+            var sheet = Database.Sheets[index];
+            var shouldRemove = EditorUtility.DisplayDialog("Remove Sheet",
+                $"Are you sure you want to remove sheet '{sheet.Name}'?\n\nThis will not delete the downloaded CSV file.",
+                "Remove", "Cancel");
+
+            if (shouldRemove is false)
+                return;
+
+            Database.Sheets.RemoveAt(index);
+
+            if (index < _showSheets.Count)
+                _showSheets.RemoveAt(index);
+
+            EditorUtility.SetDirty(Database);
+
+            Debug.Log($"[SheetsDownloaderWindowBase::RemoveSheet] Removed sheet '{sheet.Name}'");
         }
 
         private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
@@ -114,14 +227,52 @@ namespace CustomUtils.Editor.SheetsDownloader
                 return;
             }
 
-            var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
+            try
+            {
+                var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
 
-            EditorUtility.SetDirty(Database);
+                EditorUtility.SetDirty(Database);
 
-            if (result.HasDownloads)
-                OnSheetsDownloaded();
+                if (result.HasDownloads)
+                    OnSheetsDownloaded();
 
-            Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {result.Message}");
+                Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {result.Message}");
+            }
+            catch (Exception ex)
+            {
+                EditorUtility.DisplayDialog("Error", $"Download failed: {ex.Message}", "OK");
+                Debug.LogError($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {ex}");
+            }
+        }
+
+        private async UniTaskVoid ProcessResolveGoogleSheetsAsync()
+        {
+            if (string.IsNullOrEmpty(Database.TableId))
+            {
+                EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
+                return;
+            }
+
+            try
+            {
+                Debug.Log("[SheetsDownloaderWindowBase::ProcessResolveGoogleSheetsAsync] " +
+                          "Resolving sheets from Google...");
+
+                await _sheetsDownloader.ResolveGoogleSheetsAsync();
+
+                EditorUtility.SetDirty(Database);
+
+                Debug.Log($"[SheetsDownloaderWindowBase::ProcessResolveGoogleSheetsAsync] " +
+                          $"Resolved {Database.Sheets.Count} sheets from Google Sheets");
+
+                EditorUtility.DisplayDialog("Success",
+                    $"Successfully resolved {Database.Sheets.Count} sheets from Google Sheets", "OK");
+            }
+            catch (Exception ex)
+            {
+                EditorUtility.DisplayDialog("Error", $"Resolve failed: {ex.Message}", "OK");
+                Debug.LogError($"[SheetsDownloaderWindowBase::ProcessResolveGoogleSheetsAsync] {ex}");
+            }
         }
 
         /// <summary>
@@ -135,7 +286,7 @@ namespace CustomUtils.Editor.SheetsDownloader
         {
             using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
 
-            if (EditorVisualControls.Button("▼ Download Sheets"))
+            if (EditorVisualControls.Button("▼ Download All Sheets"))
                 ProcessDownloadSheetsAsync().Forget();
 
             if (EditorVisualControls.Button("❖ Open Google Sheets") is false)
@@ -178,6 +329,7 @@ namespace CustomUtils.Editor.SheetsDownloader
             catch (Exception ex)
             {
                 EditorUtility.DisplayDialog("Error", $"Download failed: {ex.Message}", "OK");
+                Debug.LogError($"[SheetsDownloaderWindowBase::ProcessDownloadSheetsAsync] {ex}");
             }
         }
 
@@ -186,7 +338,7 @@ namespace CustomUtils.Editor.SheetsDownloader
             if (string.IsNullOrEmpty(Database.TableId))
                 EditorVisualControls.WarningBox("Table Id is empty.");
             else if (Database.Sheets.Count == 0)
-                EditorVisualControls.WarningBox("Sheets are empty. Click 'Download Sheets' to resolve.");
+                EditorVisualControls.WarningBox("Sheets are empty. Add manually or click 'Resolve from Google'.");
             else if (Database.Sheets.AsValueEnumerable().Any(sheet => !sheet.TextAsset))
                 EditorVisualControls.WarningBox("Some sheets are not downloaded.");
         }
