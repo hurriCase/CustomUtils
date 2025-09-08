@@ -62,6 +62,12 @@ namespace CustomUtils.Editor.SheetsDownloader
 
             foreach (var sheet in _database.Sheets)
             {
+                if (!sheet.TextAsset)
+                {
+                    sheetsToDownload.Add(sheet);
+                    continue;
+                }
+
                 var contentLength = await GetSheetContentLengthAsync(sheet.Id);
 
                 if (contentLength > 0 && sheet.HasChanged(contentLength))
