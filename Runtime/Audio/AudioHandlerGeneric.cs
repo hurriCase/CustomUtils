@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using CustomUtils.Runtime.Audio.Containers;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using Cysharp.Threading.Tasks;
-using PrimeTween;
 using R3;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Runtime.Audio
 {
@@ -23,11 +22,11 @@ namespace CustomUtils.Runtime.Audio
         [SerializeField] protected int defaultSoundPoolCount = 3;
 
         public virtual PersistentReactiveProperty<float> MusicVolume { get; } = new();
-
         public virtual PersistentReactiveProperty<float> SoundVolume { get; } = new();
 
         private readonly Dictionary<int, float> _lastPlayedTimes = new();
-        private readonly SortedDictionary<float, AliveAudioData<TSoundType>> _sortedAliveAudioData = new();
+        private readonly List<AliveAudioData<TSoundType>> _aliveAudios = new();
+        private readonly List<AliveAudioData<TSoundType>> _audiosToRemove = new();
 
         private PoolHandler<AudioSource> _soundPool;
         private DisposableBag _disposableBag;
@@ -60,17 +59,11 @@ namespace CustomUtils.Runtime.Audio
         public virtual AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
         {
             var soundData = audioDatabaseGeneric.GetSoundContainer(soundType);
-
-            if (soundData?.AudioData == null || !soundData.AudioData?.AudioClip)
+            if (ShouldPlaySound(soundType, soundData) is false)
                 return null;
 
-            var soundId = UnsafeEnumConverter<TSoundType>.ToInt32(soundType);
-            if (soundData.Cooldown != 0 &&
-                _lastPlayedTimes.TryGetValue(soundId, out var lastTime) &&
-                Time.unscaledTime < lastTime + soundData.Cooldown)
-                return null;
-
-            _lastPlayedTimes[soundId] = Time.unscaledTime;
+            var soundTypeValue = UnsafeEnumConverter<TSoundType>.ToInt32(soundType);
+            _lastPlayedTimes[soundTypeValue] = Time.unscaledTime;
 
             var soundSource = _soundPool.Get();
             soundSource.clip = soundData.AudioData.AudioClip;
@@ -79,42 +72,12 @@ namespace CustomUtils.Runtime.Audio
 
             soundSource.Play();
 
-            _sortedAliveAudioData.Add(
-                soundData.AudioData.AudioClip.length,
-                new AliveAudioData<TSoundType> { SoundType = soundType, AudioSource = soundSource });
+            var aliveData = new AliveAudioData<TSoundType>(soundType, soundSource);
+            _aliveAudios.Add(aliveData);
 
-            Tween.Delay(this, soundData.AudioData.AudioClip.length,
-                handler =>
-                {
-                    var aliveData =
-                        handler._sortedAliveAudioData.AsValueEnumerable().First();
-
-                    handler._soundPool.Release(aliveData.Value.AudioSource);
-                    handler._sortedAliveAudioData.Remove(aliveData.Key);
-                });
+            PlaySoundInternal(aliveData).Forget();
 
             return soundSource;
-        }
-
-        public virtual void StopSound(TSoundType soundType)
-        {
-            var soundId = UnsafeEnumConverter<TSoundType>.ToInt32(soundType);
-
-            var toRemove = new List<float>();
-            foreach (var (time, audioData) in _sortedAliveAudioData)
-            {
-                var audioSoundId = UnsafeEnumConverter<TSoundType>.ToInt32(audioData.SoundType);
-
-                if (audioSoundId != soundId)
-                    continue;
-
-                audioData.AudioSource.Stop();
-                _soundPool.Release(audioData.AudioSource);
-                toRemove.Add(time);
-            }
-
-            foreach (var key in toRemove)
-                _sortedAliveAudioData.Remove(key);
         }
 
         public virtual void PlayOneShotSound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
@@ -148,13 +111,34 @@ namespace CustomUtils.Runtime.Audio
             return musicSource;
         }
 
+        public virtual void StopSound(TSoundType soundType)
+        {
+            var soundTypeValueToRemove = UnsafeEnumConverter<TSoundType>.ToInt32(soundType);
+
+            _audiosToRemove.Clear();
+            foreach (var audioData in _aliveAudios)
+            {
+                var soundTypeValue = UnsafeEnumConverter<TSoundType>.ToInt32(audioData.SoundType);
+
+                if (soundTypeValue != soundTypeValueToRemove)
+                    continue;
+
+                audioData.AudioSource.Stop();
+                _soundPool.Release(audioData.AudioSource);
+                _audiosToRemove.Add(audioData);
+            }
+
+            foreach (var audioData in _audiosToRemove)
+                _aliveAudios.Remove(audioData);
+        }
+
         /// <summary>
         /// Called when sound volume changes to update all active sound sources
         /// </summary>
         /// <param name="soundVolume">New sound volume level</param>
         protected virtual void OnSoundVolumeChanged(float soundVolume)
         {
-            foreach (var aliveAudioData in _sortedAliveAudioData.Values)
+            foreach (var aliveAudioData in _aliveAudios)
                 aliveAudioData.AudioSource.volume *= soundVolume;
         }
 
@@ -165,6 +149,25 @@ namespace CustomUtils.Runtime.Audio
         protected virtual void OnMusicVolumeChanged(float musicVolume)
         {
             musicSource.volume *= musicVolume;
+        }
+
+        private bool ShouldPlaySound(TSoundType soundType, SoundContainer<TSoundType> soundData)
+        {
+            if (soundData?.AudioData == null || !soundData.AudioData?.AudioClip)
+                return false;
+
+            var soundValue = UnsafeEnumConverter<TSoundType>.ToInt32(soundType);
+            return soundData.Cooldown == 0 ||
+                   _lastPlayedTimes.TryGetValue(soundValue, out var lastTime) is false ||
+                   (Time.unscaledTime < lastTime + soundData.Cooldown) is false;
+        }
+
+        private async UniTask PlaySoundInternal(AliveAudioData<TSoundType> aliveData)
+        {
+            await UniTask.WaitForSeconds(aliveData.AudioSource.clip.length);
+
+            _soundPool.Release(aliveData.AudioSource);
+            _aliveAudios.Remove(aliveData);
         }
 
         /// <summary>
