@@ -17,6 +17,7 @@ namespace CustomUtils.Runtime.Audio
     {
         [SerializeField] protected AudioDatabaseGeneric<TMusicType, TSoundType> audioDatabaseGeneric;
         [SerializeField] protected AudioSource soundSourcePrefab;
+        [SerializeField] protected AudioSource clipSource;
         [SerializeField] protected AudioSource musicSource;
         [SerializeField] protected AudioSource oneShotSource;
         [SerializeField] protected int defaultSoundPoolCount = 3;
@@ -78,6 +79,22 @@ namespace CustomUtils.Runtime.Audio
             PlaySoundInternal(aliveData).Forget();
 
             return soundSource;
+        }
+
+        public virtual AudioSource PlayClip(AudioClip soundType, float volumeModifier = 1, float pitchModifier = 1)
+        {
+            clipSource.clip = soundType;
+            clipSource.pitch = pitchModifier;
+            clipSource.volume = SoundVolume.Value * volumeModifier;
+
+            clipSource.Play();
+
+            return clipSource;
+        }
+
+        public virtual void StopClip()
+        {
+            clipSource.Stop();
         }
 
         public virtual void PlayOneShotSound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)

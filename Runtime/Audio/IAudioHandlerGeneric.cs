@@ -53,6 +53,25 @@ namespace CustomUtils.Runtime.Audio
         AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1);
 
         /// <summary>
+        /// Plays an AudioClip directly using a dedicated clip source.
+        /// This method bypasses the sound database and plays the provided clip immediately.
+        /// Only one clip can be played at a time - calling this method will replace any currently playing clip.
+        /// </summary>
+        /// <param name="soundType">The AudioClip to play directly</param>
+        /// <param name="volumeModifier">Volume multiplier applied to the base sound volume</param>
+        /// <param name="pitchModifier">Pitch multiplier for the playback speed</param>
+        /// <returns>AudioSource playing the clip, or null if the clip is null</returns>
+        [UsedImplicitly]
+        AudioSource PlayClip(AudioClip soundType, float volumeModifier = 1, float pitchModifier = 1);
+
+        /// <summary>
+        /// Stops the currently playing clip that was started with PlayClip.
+        /// Has no effect if no clip is currently playing.
+        /// </summary>
+        [UsedImplicitly]
+        void StopClip();
+
+        /// <summary>
         /// Stops all instances of the specified sound type
         /// </summary>
         /// <param name="soundType">Type of sound to stop</param>
