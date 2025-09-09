@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Helpers
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers
 {
     internal static class MaterialHelper
     {

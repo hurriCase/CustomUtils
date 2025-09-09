@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Attributes;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 
 namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
 {

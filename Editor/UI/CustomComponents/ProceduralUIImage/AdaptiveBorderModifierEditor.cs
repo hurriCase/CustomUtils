@@ -1,6 +1,6 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.Extensions;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 using UnityEditor;
 using UnityEngine;
 

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.Extensions;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Attributes;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Helpers;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEditorInternal;

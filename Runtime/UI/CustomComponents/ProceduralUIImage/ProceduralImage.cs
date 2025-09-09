@@ -1,12 +1,12 @@
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Helpers;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 {
     [UsedImplicitly]
     [ExecuteInEditMode]

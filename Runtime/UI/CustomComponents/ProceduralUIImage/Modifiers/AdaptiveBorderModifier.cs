@@ -1,7 +1,7 @@
-﻿using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Attributes;
+﻿using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Adaptive Border")]
     public sealed class AdaptiveBorderModifier : ProceduralImageModifier

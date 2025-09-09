@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Attributes
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes
 {
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Class)]

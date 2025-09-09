@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [UsedImplicitly]
     [DisallowMultipleComponent]

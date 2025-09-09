@@ -1,7 +1,7 @@
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Attributes;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts.Modifiers
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Round")]
     public sealed class RoundModifier : ProceduralImageModifier

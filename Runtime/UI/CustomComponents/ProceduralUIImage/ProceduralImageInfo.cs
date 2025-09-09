@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts
+namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 {
     internal struct ProceduralImageInfo
     {

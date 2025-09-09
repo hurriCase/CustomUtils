@@ -1,4 +1,4 @@
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Scripts;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
