@@ -109,7 +109,7 @@
 
                 float minside = min(OUT.wh.x, OUT.wh.y);
 
-                OUT.lineWeight = IN.uv3.x * minside / 2;
+                OUT.lineWeight = IN.uv3.x * minside;
 
                 OUT.radius = float4(decode2(IN.uv2.x), decode2(IN.uv2.y)) * minside;
 
