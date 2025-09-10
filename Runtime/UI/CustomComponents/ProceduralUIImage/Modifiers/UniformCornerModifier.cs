@@ -7,8 +7,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
     [ModifierID("Uniform")]
     public sealed class UniformCornerModifier : CalculatableModifierBase
     {
-        [field: SerializeField] public float CornerRadiusRatio { get; private set; }
         [field: SerializeField] public float DesiredRadius { get; private set; }
+        [field: SerializeField] public float CornerRadiusRatio { get; private set; }
 
         public override Vector4 CalculateRadius(Rect imageRect)
         {
