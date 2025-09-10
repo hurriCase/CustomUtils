@@ -1,12 +1,12 @@
 ﻿using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Components;
+using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles;
 using UnityEditor;
 using UnityEditor.UI;
 
 namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 {
-    [CustomEditor(typeof(SwitchableToggle), true)]
-    internal sealed class SwitchableToggleEditor : ToggleEditor
+    [CustomEditor(typeof(StateToggle), true)]
+    internal sealed class StateToggleEditor : ToggleEditor
     {
         private EditorStateControls _editorStateControls;
 
@@ -25,10 +25,11 @@ namespace CustomUtils.Editor.UI.CustomComponents.Selectables
 
             EditorVisualControls.LabelField("Custom Settings");
 
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.Text), true);
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.Image), true);
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.CheckedObjects), true);
-            _editorStateControls.PropertyField(nameof(SwitchableToggle.UncheckedObjects), true);
+            _editorStateControls.PropertyField(nameof(StateToggle.Text), true);
+            _editorStateControls.PropertyField(nameof(StateToggle.Image), true);
+            _editorStateControls.PropertyField(nameof(StateToggle.AdditionalGraphics), true);
+            _editorStateControls.PropertyField(nameof(StateToggle.CheckedObjects), true);
+            _editorStateControls.PropertyField(nameof(StateToggle.UncheckedObjects), true);
 
             serializedObject.ApplyModifiedProperties();
         }
