@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.Extensions
     public static class MathExtensions
     {
         private const float LowerThreshold = 0.1f;
-        private const float UpperThreshold = 1000f;
+        private const float UpperThreshold = 100000f;
 
         /// <summary>
         /// Determines if the given float value is within a reasonable range.
