@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
         [field: SerializeField] public ProceduralImage Image { get; private set; }
         [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
         [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
-        [field: SerializeField] public ToggleGraphicMapping[] AdditionalGraphics { get; private set; }
+        [field: SerializeField] public List<ToggleGraphicMapping> AdditionalGraphics { get; set; }
 
 #if UNITY_EDITOR
         protected override void Reset()
@@ -66,7 +66,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
 
         private void ApplyGraphics(SelectionState state)
         {
-            if (AdditionalGraphics is null || AdditionalGraphics.Length == 0)
+            if (AdditionalGraphics is null || AdditionalGraphics.Count == 0)
                 return;
 
             var mappedState = isOn ? ToggleStateType.On : MapSelectionStateToToggleState(state);

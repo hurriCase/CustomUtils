@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
     {
         [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
         [field: SerializeField] public Image Image { get; private set; }
-        [field: SerializeField] public ThemeGraphicMapping[] GraphicMappings { get; private set; }
+        [field: SerializeField] public List<ThemeGraphicMapping> GraphicMappings { get; set; }
 
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
@@ -21,7 +22,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
 
         private void ApplyGraphics(SelectionState state)
         {
-            if (GraphicMappings is null || GraphicMappings.Length == 0)
+            if (GraphicMappings is null || GraphicMappings.Count == 0)
                 return;
 
             var mappedState = MapSelectionStateToSelectableState(state);
