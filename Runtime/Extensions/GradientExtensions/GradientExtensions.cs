@@ -54,16 +54,18 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
 
             if (_gradientMaterials.TryGetValue(materialKey, out var gradientMaterial) is false || !gradientMaterial)
             {
-                var imageGradientShader = Shader.Find("Custom/ImageGradientShader");
-                if (!imageGradientShader)
+                var proceduralShader = Shader.Find("UI/Procedural UI Image");
+                if (!proceduralShader)
                 {
-                    Debug.LogError("[GradientExtensions::ApplyGradient] Image GradientHelpers Shader not found.");
+                    Debug.LogError("[GradientExtensions::ApplyGradient] Procedural UI Image Shader not found.");
                     return;
                 }
 
-                gradientMaterial = new Material(imageGradientShader);
+                gradientMaterial = new Material(proceduralShader);
                 _gradientMaterials[materialKey] = gradientMaterial;
 
+                // Enable gradient variant for zero-overhead performance
+                gradientMaterial.EnableKeyword("USE_GRADIENT");
                 gradientMaterial.SetColor(_gradientStartColorProperty, startColor);
                 gradientMaterial.SetColor(_gradientEndColorProperty, endColor);
                 gradientMaterial.SetFloat(_gradientDirectionProperty, (float)direction);
@@ -96,16 +98,18 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
 
             if (_gradientMaterials.TryGetValue(materialKey, out var gradientMaterial) is false || !gradientMaterial)
             {
-                var textGradientShader = Shader.Find("Custom/TextGradientShader");
-                if (!textGradientShader)
+                var proceduralShader = Shader.Find("UI/Procedural UI Image");
+                if (!proceduralShader)
                 {
-                    Debug.LogError("[GradientExtensions::ApplyGradient] Text GradientHelpers Shader not found.");
+                    Debug.LogError("[GradientExtensions::ApplyGradient] Procedural UI Image Shader not found.");
                     return;
                 }
 
-                gradientMaterial = new Material(textGradientShader);
+                gradientMaterial = new Material(proceduralShader);
                 _gradientMaterials[materialKey] = gradientMaterial;
 
+                // Enable gradient variant for zero-overhead performance
+                gradientMaterial.EnableKeyword("USE_GRADIENT");
                 gradientMaterial.SetColor(_gradientStartColorProperty, startColor);
                 gradientMaterial.SetColor(_gradientEndColorProperty, endColor);
                 gradientMaterial.SetFloat(_gradientDirectionProperty, (float)direction);
@@ -123,6 +127,9 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
         internal static Gradient GetAppliedGradient(this Image image)
         {
             if (!image || !image.material)
+                return null;
+
+            if (image.material.IsKeywordEnabled("USE_GRADIENT") is false)
                 return null;
 
             if (image.material.HasProperty(_gradientStartColorProperty) is false ||
@@ -143,6 +150,9 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
         internal static Gradient GetAppliedGradient(this TextMeshProUGUI text)
         {
             if (!text || !text.fontMaterial)
+                return null;
+
+            if (text.fontMaterial.IsKeywordEnabled("USE_GRADIENT") is false)
                 return null;
 
             if (text.fontMaterial.HasProperty(_gradientStartColorProperty) is false ||
