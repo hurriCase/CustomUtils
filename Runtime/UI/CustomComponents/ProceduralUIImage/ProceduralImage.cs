@@ -1,6 +1,7 @@
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
@@ -19,30 +20,30 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
         [UsedImplicitly]
         [field: SerializeField] public SerializableReactiveProperty<float> FalloffDistance { get; set; } = new();
 
-        private ProceduralImageModifier _modifier;
+        private ModifierBase _modifierBase;
 
-        private ProceduralImageModifier Modifier
+        private ModifierBase ModifierBase
         {
             get
             {
-                if (!_modifier)
-                    _modifier = TryGetComponent<ProceduralImageModifier>(out var existingModifier)
+                if (!_modifierBase)
+                    _modifierBase = TryGetComponent<ModifierBase>(out var existingModifier)
                         ? existingModifier
-                        : AddNewModifier(typeof(AdaptiveBorderModifier));
+                        : AddNewModifier(typeof(UniformCornerModifier));
 
-                return _modifier;
+                return _modifierBase;
             }
         }
 
         [UsedImplicitly]
         public bool SetModifierType(System.Type modifierType)
         {
-            if (TryGetComponent<ProceduralImageModifier>(out var currentModifier)
+            if (TryGetComponent<ModifierBase>(out var currentModifier)
                 && currentModifier.GetType() == modifierType)
                 return true;
 
             DestroyImmediate(currentModifier);
-            _modifier = null;
+            _modifierBase = null;
 
             AddNewModifier(modifierType);
 
@@ -51,11 +52,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             return true;
         }
 
-        private ProceduralImageModifier AddNewModifier(System.Type modifierType)
+        private ModifierBase AddNewModifier(System.Type modifierType)
         {
             gameObject.AddComponent(modifierType);
-            _modifier = GetComponent<ProceduralImageModifier>();
-            return _modifier;
+            _modifierBase = GetComponent<ModifierBase>();
+            return _modifierBase;
         }
 
         protected override void OnEnable()
@@ -135,7 +136,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             var imageRect = GetPixelAdjustedRect();
             var pixelSize = 1f / Mathf.Max(0, FalloffDistance.Value);
 
-            var radius = FixRadius(Modifier.CalculateRadius(imageRect));
+            var radius = FixRadius(ModifierBase.CalculateRadius(imageRect));
 
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
 
@@ -191,7 +192,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             base.OnValidate();
 
             FalloffDistance.Value = Mathf.Max(0, FalloffDistance.Value);
-
             BorderRatio.Value = Mathf.Max(0, BorderRatio.Value);
         }
 #endif

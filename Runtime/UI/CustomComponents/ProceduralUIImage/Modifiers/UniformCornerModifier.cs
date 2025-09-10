@@ -1,10 +1,11 @@
 ﻿using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
-    [ModifierID("Adaptive Border")]
-    public sealed class AdaptiveBorderModifier : ProceduralImageModifier
+    [ModifierID("Uniform")]
+    public sealed class UniformCornerModifier : CalculatableModifierBase
     {
         [field: SerializeField] public float CornerRadiusRatio { get; private set; }
         [field: SerializeField] public float DesiredRadius { get; private set; }
@@ -18,6 +19,15 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
             actualRadius = Mathf.Min(actualRadius, maxAllowedRadius);
 
             return new Vector4(actualRadius, actualRadius, actualRadius, actualRadius);
+        }
+
+        internal override void ApplyRadiiFromDesired()
+        {
+            var rect = Graphic.rectTransform.rect;
+
+            var minSize = Mathf.Min(rect.width, rect.height);
+            var radius = DesiredRadius / minSize;
+            CornerRadiusRatio = radius;
         }
     }
 }

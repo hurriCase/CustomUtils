@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 
 namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
 {
@@ -10,9 +10,9 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
     {
         internal static Type GetTypeWithId(string id)
         {
-            foreach (var type in Assembly.GetAssembly(typeof(ProceduralImageModifier)).GetTypes())
+            foreach (var type in Assembly.GetAssembly(typeof(ModifierBase)).GetTypes())
             {
-                if (type.IsSubclassOf(typeof(ProceduralImageModifier)) is false)
+                if (type.IsSubclassOf(typeof(ModifierBase)) is false)
                     continue;
 
                 if (((ModifierIDAttribute[])type
@@ -26,9 +26,9 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
         internal static List<ModifierIDAttribute> GetAttributeList()
         {
             var result = new List<ModifierIDAttribute>();
-            foreach (var type in Assembly.GetAssembly(typeof(ProceduralImageModifier)).GetTypes())
+            foreach (var type in Assembly.GetAssembly(typeof(ModifierBase)).GetTypes())
             {
-                if (type.IsSubclassOf(typeof(ProceduralImageModifier)))
+                if (type.IsSubclassOf(typeof(ModifierBase)) && type.IsAbstract is false)
                     result.Add(((ModifierIDAttribute[])type
                         .GetCustomAttributes(typeof(ModifierIDAttribute), false))[0]);
             }

@@ -4,7 +4,7 @@ using CustomUtils.Editor.Extensions;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
+using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEditorInternal;
@@ -44,9 +44,9 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
             _proceduralImage = (ProceduralImage)target;
             _targetComponent = (Component)target;
 
-            if (_proceduralImage.GetComponent<ProceduralImageModifier>())
+            if (_proceduralImage.GetComponent<ModifierBase>())
                 _selectedId = _attributes.IndexOf(((ModifierIDAttribute[])_proceduralImage
-                    .GetComponent<ProceduralImageModifier>().GetType()
+                    .GetComponent<ModifierBase>().GetType()
                     .GetCustomAttributes(typeof(ModifierIDAttribute), false))[0]);
 
             _selectedId = Mathf.Max(_selectedId, 0);
@@ -158,7 +158,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
                 var modifierType = ModifierUtility.GetTypeWithId(_attributes[_selectedId].Name);
                 proceduralImage.SetModifierType(modifierType);
 
-                var imageModifier = proceduralImage.GetComponent<ProceduralImageModifier>();
+                var imageModifier = proceduralImage.GetComponent<ModifierBase>();
                 MoveComponentBehind(proceduralImage, imageModifier);
             }
 
@@ -171,11 +171,11 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
                 return false;
 
             var firstImage = (ProceduralImage)targets[0];
-            var firstImageModifier = firstImage.GetComponent<ProceduralImageModifier>().GetType();
+            var firstImageModifier = firstImage.GetComponent<ModifierBase>().GetType();
             foreach (var item in targets)
             {
                 var proceduralImage = (ProceduralImage)item;
-                if (proceduralImage.GetComponent<ProceduralImageModifier>().GetType() == firstImageModifier)
+                if (proceduralImage.GetComponent<ModifierBase>().GetType() == firstImageModifier)
                     continue;
 
                 return true;
