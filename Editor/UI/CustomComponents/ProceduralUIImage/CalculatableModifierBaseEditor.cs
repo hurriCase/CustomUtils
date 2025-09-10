@@ -20,9 +20,15 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
 
             DrawDefaultInspector();
 
-            EditorVisualControls.Button("Calculate Radius", _adaptiveBorder.ApplyRadiiFromDesired);
+            EditorVisualControls.Button("Calculate Radius", ApplyRadiiFromDesired);
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void ApplyRadiiFromDesired()
+        {
+            _adaptiveBorder.ApplyRadiiFromDesired();
+            EditorUtility.SetDirty(target);
         }
     }
 }
