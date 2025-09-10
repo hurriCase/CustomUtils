@@ -83,6 +83,8 @@ namespace CustomUtils.Editor.SheetsDownloader
         [UsedImplicitly]
         public async UniTask<DownloadResult> DownloadSheetsAsync()
         {
+            Debug.Log($"[SheetsDownloader::DownloadSheetsAsync] Start downloading sheets ...");
+
             PrepareDownloadFolderIfNeeded();
 
             var changedCount = 0;
