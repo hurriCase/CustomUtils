@@ -108,7 +108,6 @@ namespace CustomUtils.Runtime.Extensions.GradientExtensions
                 gradientMaterial = new Material(proceduralShader);
                 _gradientMaterials[materialKey] = gradientMaterial;
 
-                // Enable gradient variant for zero-overhead performance
                 gradientMaterial.EnableKeyword("USE_GRADIENT");
                 gradientMaterial.SetColor(_gradientStartColorProperty, startColor);
                 gradientMaterial.SetColor(_gradientEndColorProperty, endColor);
