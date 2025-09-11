@@ -1,5 +1,5 @@
 ﻿using CustomUtils.Runtime.CustomBehaviours;
-using R3;
+using CustomUtils.Runtime.Extensions;
 using TMPro;
 using UnityEngine;
 
@@ -15,10 +15,12 @@ namespace CustomUtils.Runtime.Localization
         {
             Localize();
 
-            LocalizationController.Language.Subscribe(this, (_, textMeshPro) => textMeshPro.Localize())
-                .RegisterTo(destroyCancellationToken);
+            LocalizationController.Language.SubscribeAndRegister(this, self => self.Localize());
         }
 
-        private void Localize() => Text.text = LocalizationController.Localize(LocalizationKey);
+        private void Localize()
+        {
+            Text.text = LocalizationController.Localize(LocalizationKey);
+        }
     }
 }
