@@ -13,6 +13,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 
         public override Vector4 CalculateRadius(Rect imageRect)
         {
+            if (!_canvasScaleReference)
+                return Vector4.zero;
+
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
 
             var scaleFactor = _canvasScaleReference.scaleFactor;
