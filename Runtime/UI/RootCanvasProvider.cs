@@ -2,15 +2,15 @@
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers
+namespace CustomUtils.Runtime.UI
 {
     [Resource(
         ResourcePaths.RootCanvasProviderFullPath,
         ResourcePaths.RootCanvasProviderAssetName,
         ResourcePaths.RootCanvasProviderResourcesPath
     )]
-    internal sealed class RootCanvasProvider : SingletonScriptableObject<RootCanvasProvider>
+    public sealed class RootCanvasProvider : SingletonScriptableObject<RootCanvasProvider>
     {
-        [field: SerializeField] internal Canvas RootCanvas { get; private set; }
+        [field: SerializeField] public Canvas RootCanvas { get; private set; }
     }
 }

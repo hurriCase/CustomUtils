@@ -26,7 +26,7 @@
 
         internal const string RootCanvasProviderFullPath = ResourcesPath + "/" + RootCanvasProviderResourcesPath;
         internal const string RootCanvasProviderAssetName = "RootCanvasProvider";
-        internal const string RootCanvasProviderResourcesPath = "ProceduralImage";
+        internal const string RootCanvasProviderResourcesPath = "RootCanvasProvider";
 
         internal const string ResourceReferencesFullPath = "Assets/CustomUtils/Resources";
         internal const string ResourceReferencesAssetName = "ResourceReferences";
