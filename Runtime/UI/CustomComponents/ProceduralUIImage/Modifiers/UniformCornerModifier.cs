@@ -5,29 +5,18 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Uniform")]
-    public sealed class UniformCornerModifier : CalculatableModifierBase
+    public sealed class UniformCornerModifier : CanvasScaleModifierBase
     {
-        [field: SerializeField] public float DesiredRadius { get; private set; }
-        [field: SerializeField] public float CornerRadiusRatio { get; private set; }
+        [field: SerializeField] public float Radius { get; private set; }
 
-        public override Vector4 CalculateRadius(Rect imageRect)
+        protected override Vector4 OnCalculateRadius(Rect imageRect)
         {
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
-            var actualRadius = minSide * CornerRadiusRatio;
-
             var maxAllowedRadius = minSide * 0.5f;
-            actualRadius = Mathf.Min(actualRadius, maxAllowedRadius);
+            var scaledRadius = Radius * RootCanvas.scaleFactor;
+            var actualRadius = Mathf.Min(scaledRadius, maxAllowedRadius);
 
             return new Vector4(actualRadius, actualRadius, actualRadius, actualRadius);
-        }
-
-        internal override void ApplyRadiiFromDesired()
-        {
-            var rect = Graphic.rectTransform.rect;
-
-            var minSize = Mathf.Min(rect.width, rect.height);
-            var radius = DesiredRadius / minSize;
-            CornerRadiusRatio = radius;
         }
     }
 }

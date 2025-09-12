@@ -121,7 +121,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
         {
             base.OnPopulateMesh(toFill);
 
-            EncodeAllInfoIntoVertices(toFill, CalculateInfo());
+            EncodeAllInfoIntoVertices(toFill);
         }
 
         protected override void OnTransformParentChanged()
@@ -129,6 +129,32 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             base.OnTransformParentChanged();
 
             FixTexCoordsInCanvas();
+        }
+
+        private void EncodeAllInfoIntoVertices(VertexHelper vertexHelper)
+        {
+            var info = CalculateInfo();
+            var uv1 = new Vector2(info.Width, info.Height);
+            var uv2 = new Vector2(
+                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.x, info.Radius.y),
+                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.z, info.Radius.w)
+            );
+
+            var uv3 = new Vector2(info.BorderWidth == 0 ? 1 : Mathf.Clamp01(info.BorderWidth), info.PixelSize);
+
+            var vert = new UIVertex();
+            for (var i = 0; i < vertexHelper.currentVertCount; i++)
+            {
+                vertexHelper.PopulateUIVertex(ref vert, i);
+
+                vert.position += ((Vector3)vert.uv0 - new Vector3(0.5f, 0.5f)) * info.FallOffDistance;
+
+                vert.uv1 = uv1;
+                vert.uv2 = uv2;
+                vert.uv3 = uv3;
+
+                vertexHelper.SetUIVertex(vert, i);
+            }
         }
 
         private ProceduralImageInfo CalculateInfo()
@@ -145,32 +171,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
                 FalloffDistance.Value, pixelSize, radius / minSide, BorderRatio.Value);
 
             return info;
-        }
-
-        private void EncodeAllInfoIntoVertices(VertexHelper vertexHelper, ProceduralImageInfo info)
-        {
-            var vert = new UIVertex();
-
-            var uv1 = new Vector2(info.Width, info.Height);
-            var uv2 = new Vector2(
-                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.x, info.Radius.y),
-                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.z, info.Radius.w)
-            );
-
-            var uv3 = new Vector2(info.BorderWidth == 0 ? 1 : Mathf.Clamp01(info.BorderWidth), info.PixelSize);
-
-            for (var i = 0; i < vertexHelper.currentVertCount; i++)
-            {
-                vertexHelper.PopulateUIVertex(ref vert, i);
-
-                vert.position += ((Vector3)vert.uv0 - new Vector3(0.5f, 0.5f)) * info.FallOffDistance;
-
-                vert.uv1 = uv1;
-                vert.uv2 = uv2;
-                vert.uv3 = uv3;
-
-                vertexHelper.SetUIVertex(vert, i);
-            }
         }
 
         public override Material material

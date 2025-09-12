@@ -5,36 +5,22 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.CustomCorners
 {
     [ModifierID("Custom")]
-    public sealed class CustomCornerModifier : CalculatableModifierBase
+    public sealed class CustomCornerModifier : CanvasScaleModifierBase
     {
-        [field: SerializeField] public CornerRadiiData DesiredCornerRadii { get; private set; }
-        [field: SerializeField] public CornerRadiiData CornerRadiusRatios { get; private set; }
+        [field: SerializeField] public CornerRadiiData CornerRadii { get; private set; }
 
-        public override Vector4 CalculateRadius(Rect imageRect)
+        protected override Vector4 OnCalculateRadius(Rect imageRect)
         {
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
             var maxAllowedRadius = minSide * 0.5f;
+            var scaleFactor = RootCanvas.scaleFactor;
 
             return new Vector4(
-                Mathf.Min(minSide * CornerRadiusRatios.LeftTop, maxAllowedRadius),
-                Mathf.Min(minSide * CornerRadiusRatios.RightTop, maxAllowedRadius),
-                Mathf.Min(minSide * CornerRadiusRatios.RightBottom, maxAllowedRadius),
-                Mathf.Min(minSide * CornerRadiusRatios.LeftBottom, maxAllowedRadius)
+                Mathf.Min(CornerRadii.LeftTop * scaleFactor, maxAllowedRadius),
+                Mathf.Min(CornerRadii.RightTop * scaleFactor, maxAllowedRadius),
+                Mathf.Min(CornerRadii.RightBottom * scaleFactor, maxAllowedRadius),
+                Mathf.Min(CornerRadii.LeftBottom * scaleFactor, maxAllowedRadius)
             );
-        }
-
-        internal override void ApplyRadiiFromDesired()
-        {
-            var rectTransform = Graphic.rectTransform;
-
-            var rect = rectTransform.rect;
-            var minSize = Mathf.Min(rect.width, rect.height);
-            var data = CornerRadiusRatios;
-            data.LeftTop = DesiredCornerRadii.LeftTop / minSize;
-            data.RightTop = DesiredCornerRadii.RightTop / minSize;
-            data.RightBottom = DesiredCornerRadii.RightBottom / minSize;
-            data.LeftBottom = DesiredCornerRadii.LeftBottom / minSize;
-            CornerRadiusRatios = data;
         }
     }
 }
