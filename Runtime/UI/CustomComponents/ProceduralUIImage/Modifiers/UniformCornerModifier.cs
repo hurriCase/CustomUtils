@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Uniform")]
-    public sealed class UniformCornerModifier : CanvasScaleModifierBase
+    public sealed class UniformCornerModifier : ModifierBase
     {
         [field: SerializeField] public float Radius { get; private set; }
 
@@ -13,9 +13,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
         {
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
             var maxAllowedRadius = minSide * 0.5f;
-            var scaleFactor = rootCanvasProvider ? rootCanvasProvider.ScaleFactor : 1f;
-            var scaledRadius = Radius * scaleFactor;
-            var actualRadius = Mathf.Min(scaledRadius, maxAllowedRadius);
+            var actualRadius = Mathf.Min(Radius, maxAllowedRadius);
 
             return new Vector4(actualRadius, actualRadius, actualRadius, actualRadius);
         }

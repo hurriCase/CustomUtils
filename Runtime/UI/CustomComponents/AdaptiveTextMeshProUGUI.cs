@@ -131,7 +131,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             switch (StaticDimensionType)
             {
                 case DimensionType.Width:
-                    if (Mathf.Approximately(_lastPreferredHeight, preferredHeight) || preferredHeight.IsReasonable() is false)
+                    if (Mathf.Approximately(_lastPreferredHeight, preferredHeight)
+                        || preferredHeight.IsReasonable() is false)
                         return;
 
                     _tracker.Add(this, rectTransform, DrivenTransformProperties.SizeDeltaY);
@@ -140,7 +141,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                     break;
 
                 case DimensionType.Height:
-                    if (Mathf.Approximately(_lastPreferredWidth, preferredWidth) || preferredWidth.IsReasonable() is false)
+                    if (Mathf.Approximately(_lastPreferredWidth, preferredWidth)
+                        || preferredWidth.IsReasonable() is false)
                         return;
 
                     _tracker.Add(this, rectTransform, DrivenTransformProperties.SizeDeltaX);
