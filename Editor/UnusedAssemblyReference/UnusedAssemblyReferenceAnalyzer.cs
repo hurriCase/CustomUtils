@@ -252,7 +252,7 @@ namespace CustomUtils.Editor.UnusedAssemblyReference
                         $"Analyzing references in {assemblyName} ({asmdefData.References.Length} references)";
                     var directory = Path.GetDirectoryName(asmdefPath);
 
-                    var unused = FindUnusedReferences(directory, asmdefData.References, assemblyName);
+                    var unused = FindUnusedReferences(directory, asmdefData.References);
                     _potentiallyUnusedReferences[assemblyName] = unused;
                 }
                 else
@@ -310,7 +310,7 @@ namespace CustomUtils.Editor.UnusedAssemblyReference
                     if (asmdefData.References is { Length: > 0 })
                     {
                         var directory = Path.GetDirectoryName(asmdefPath);
-                        var unused = FindUnusedReferences(directory, asmdefData.References, assemblyName);
+                        var unused = FindUnusedReferences(directory, asmdefData.References);
                         _potentiallyUnusedReferences[assemblyName] = unused;
                     }
                     else
@@ -337,7 +337,7 @@ namespace CustomUtils.Editor.UnusedAssemblyReference
             Repaint();
         }
 
-        private List<string> FindUnusedReferences(string directory, string[] references, string assemblyName)
+        private List<string> FindUnusedReferences(string directory, string[] references)
         {
             var potentiallyUnused = new List<string>(references);
 
