@@ -4,144 +4,89 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
-    public static class SystemLanguageExtensions
+    internal static class SystemLanguageExtensions
     {
-        private const string IsoEnglish = "en";
-        private const string IsoJapanese = "ja";
-        private const string IsoKorean = "ko";
-        private const string IsoChinese = "zh-CN";
-        private const string IsoChineseSimplified = "zh-hans";
-        private const string IsoChineseTraditional = "zh-hant";
-        private const string IsoSpanish = "es";
-        private const string IsoFrench = "fr";
-        private const string IsoGerman = "de";
-        private const string IsoItalian = "it";
-        private const string IsoPortuguese = "pt";
-        private const string IsoRussian = "ru";
-        private const string IsoArabic = "ar";
-        private const string IsoHindi = "hi";
-        private const string IsoThai = "th";
-        private const string IsoVietnamese = "vi";
-        private const string IsoTurkish = "tr";
-        private const string IsoPolish = "pl";
-        private const string IsoDutch = "nl";
-        private const string IsoSwedish = "sv";
-        private const string IsoNorwegian = "nb";
-        private const string IsoDanish = "da";
-        private const string IsoFinnish = "fi";
-        private const string IsoCzech = "cs";
-        private const string IsoHungarian = "hu";
-        private const string IsoGreek = "el";
-        private const string IsoHebrew = "he";
-        private const string IsoBulgarian = "bg";
-        private const string IsoRomanian = "ro";
-        private const string IsoSlovak = "sk";
-        private const string IsoSlovenian = "sl";
-        private const string IsoUkrainian = "uk";
-        private const string IsoLithuanian = "lt";
-        private const string IsoLatvian = "lv";
-        private const string IsoEstonian = "et";
-
-        private static readonly Dictionary<SystemLanguage, string> _systemLanguageToISOMap = new()
+        private static readonly Dictionary<SystemLanguage, (string iso1, string iso2)> _languageCodes = new()
         {
-            [SystemLanguage.English] = IsoEnglish,
-            [SystemLanguage.Japanese] = IsoJapanese,
-            [SystemLanguage.Korean] = IsoKorean,
-            [SystemLanguage.Chinese] = IsoChinese,
-            [SystemLanguage.ChineseSimplified] = IsoChineseSimplified,
-            [SystemLanguage.ChineseTraditional] = IsoChineseTraditional,
-            [SystemLanguage.Spanish] = IsoSpanish,
-            [SystemLanguage.French] = IsoFrench,
-            [SystemLanguage.German] = IsoGerman,
-            [SystemLanguage.Italian] = IsoItalian,
-            [SystemLanguage.Portuguese] = IsoPortuguese,
-            [SystemLanguage.Russian] = IsoRussian,
-            [SystemLanguage.Arabic] = IsoArabic,
-            [SystemLanguage.Hindi] = IsoHindi,
-            [SystemLanguage.Thai] = IsoThai,
-            [SystemLanguage.Vietnamese] = IsoVietnamese,
-            [SystemLanguage.Turkish] = IsoTurkish,
-            [SystemLanguage.Polish] = IsoPolish,
-            [SystemLanguage.Dutch] = IsoDutch,
-            [SystemLanguage.Swedish] = IsoSwedish,
-            [SystemLanguage.Norwegian] = IsoNorwegian,
-            [SystemLanguage.Danish] = IsoDanish,
-            [SystemLanguage.Finnish] = IsoFinnish,
-            [SystemLanguage.Czech] = IsoCzech,
-            [SystemLanguage.Hungarian] = IsoHungarian,
-            [SystemLanguage.Greek] = IsoGreek,
-            [SystemLanguage.Hebrew] = IsoHebrew,
-            [SystemLanguage.Bulgarian] = IsoBulgarian,
-            [SystemLanguage.Romanian] = IsoRomanian,
-            [SystemLanguage.Slovak] = IsoSlovak,
-            [SystemLanguage.Slovenian] = IsoSlovenian,
-            [SystemLanguage.Ukrainian] = IsoUkrainian,
-            [SystemLanguage.Lithuanian] = IsoLithuanian,
-            [SystemLanguage.Latvian] = IsoLatvian,
-            [SystemLanguage.Estonian] = IsoEstonian
+            [SystemLanguage.English] = ("en", "eng"),
+            [SystemLanguage.Japanese] = ("ja", "jpn"),
+            [SystemLanguage.Korean] = ("ko", "kor"),
+            [SystemLanguage.Chinese] = ("zh", "zho"),
+            [SystemLanguage.ChineseSimplified] = ("zh", "zhs"),
+            [SystemLanguage.ChineseTraditional] = ("zh", "zht"),
+            [SystemLanguage.Spanish] = ("es", "spa"),
+            [SystemLanguage.French] = ("fr", "fra"),
+            [SystemLanguage.German] = ("de", "deu"),
+            [SystemLanguage.Italian] = ("it", "ita"),
+            [SystemLanguage.Portuguese] = ("pt", "por"),
+            [SystemLanguage.Russian] = ("ru", "rus"),
+            [SystemLanguage.Arabic] = ("ar", "ara"),
+            [SystemLanguage.Hindi] = ("hi", "hin"),
+            [SystemLanguage.Thai] = ("th", "tha"),
+            [SystemLanguage.Vietnamese] = ("vi", "vie"),
+            [SystemLanguage.Turkish] = ("tr", "tur"),
+            [SystemLanguage.Polish] = ("pl", "pol"),
+            [SystemLanguage.Dutch] = ("nl", "nld"),
+            [SystemLanguage.Swedish] = ("sv", "swe"),
+            [SystemLanguage.Norwegian] = ("nb", "nor"),
+            [SystemLanguage.Danish] = ("da", "dan"),
+            [SystemLanguage.Finnish] = ("fi", "fin"),
+            [SystemLanguage.Czech] = ("cs", "ces"),
+            [SystemLanguage.Hungarian] = ("hu", "hun"),
+            [SystemLanguage.Greek] = ("el", "ell"),
+            [SystemLanguage.Hebrew] = ("he", "heb"),
+            [SystemLanguage.Bulgarian] = ("bg", "bul"),
+            [SystemLanguage.Romanian] = ("ro", "ron"),
+            [SystemLanguage.Slovak] = ("sk", "slk"),
+            [SystemLanguage.Slovenian] = ("sl", "slv"),
+            [SystemLanguage.Ukrainian] = ("uk", "ukr"),
+            [SystemLanguage.Lithuanian] = ("lt", "lit"),
+            [SystemLanguage.Latvian] = ("lv", "lav"),
+            [SystemLanguage.Estonian] = ("et", "est")
         };
 
-        private static readonly Dictionary<string, SystemLanguage> _isoToSystemLanguageMap = new()
-        {
-            [IsoEnglish] = SystemLanguage.English,
-            [IsoJapanese] = SystemLanguage.Japanese,
-            [IsoKorean] = SystemLanguage.Korean,
-            [IsoChinese] = SystemLanguage.Chinese,
-            [IsoChineseSimplified] = SystemLanguage.ChineseSimplified,
-            [IsoChineseTraditional] = SystemLanguage.ChineseTraditional,
-            [IsoSpanish] = SystemLanguage.Spanish,
-            [IsoFrench] = SystemLanguage.French,
-            [IsoGerman] = SystemLanguage.German,
-            [IsoItalian] = SystemLanguage.Italian,
-            [IsoPortuguese] = SystemLanguage.Portuguese,
-            [IsoRussian] = SystemLanguage.Russian,
-            [IsoArabic] = SystemLanguage.Arabic,
-            [IsoHindi] = SystemLanguage.Hindi,
-            [IsoThai] = SystemLanguage.Thai,
-            [IsoVietnamese] = SystemLanguage.Vietnamese,
-            [IsoTurkish] = SystemLanguage.Turkish,
-            [IsoPolish] = SystemLanguage.Polish,
-            [IsoDutch] = SystemLanguage.Dutch,
-            [IsoSwedish] = SystemLanguage.Swedish,
-            [IsoNorwegian] = SystemLanguage.Norwegian,
-            [IsoDanish] = SystemLanguage.Danish,
-            [IsoFinnish] = SystemLanguage.Finnish,
-            [IsoCzech] = SystemLanguage.Czech,
-            [IsoHungarian] = SystemLanguage.Hungarian,
-            [IsoGreek] = SystemLanguage.Greek,
-            [IsoHebrew] = SystemLanguage.Hebrew,
-            [IsoBulgarian] = SystemLanguage.Bulgarian,
-            [IsoRomanian] = SystemLanguage.Romanian,
-            [IsoSlovak] = SystemLanguage.Slovak,
-            [IsoSlovenian] = SystemLanguage.Slovenian,
-            [IsoUkrainian] = SystemLanguage.Ukrainian,
-            [IsoLithuanian] = SystemLanguage.Lithuanian,
-            [IsoLatvian] = SystemLanguage.Latvian,
-            [IsoEstonian] = SystemLanguage.Estonian
-        };
+        private static Dictionary<string, SystemLanguage> _reverseMap;
 
         /// <summary>
-        /// Converts a Unity SystemLanguage enum value to its corresponding ISO 639-1 language code.
+        /// Converts a Unity SystemLanguage enum value to its corresponding ISO 639-1 language code (2-letter format).
         /// </summary>
         /// <param name="language">The SystemLanguage to convert.</param>
-        /// <returns>
-        /// The ISO 639-1 language code (e.g., "en" for English, "ja" for Japanese).
-        /// Returns "en" (English) as the default if the language is not found in the mapping.
-        /// </returns>
+        /// <returns>The ISO 639-1 language code (e.g., "en", "ja"), or "en" if not found.</returns>
         [UsedImplicitly]
-        public static string SystemLanguageToISO(this SystemLanguage language)
-            => _systemLanguageToISOMap.GetValueOrDefault(language, IsoEnglish);
+        internal static string SystemLanguageToISO1(this SystemLanguage language)
+            => _languageCodes.TryGetValue(language, out var codes) ? codes.iso1 : "en";
 
         /// <summary>
-        /// Converts an ISO 639-1 language code to its corresponding Unity SystemLanguage enum value.
+        /// Converts a Unity SystemLanguage enum value to its corresponding ISO 639-2 language code (3-letter format).
         /// </summary>
-        /// <param name="isoCode">The ISO 639-1 language code to convert (e.g., "en", "ja", "zh-CN").</param>
-        /// <returns>
-        /// The corresponding SystemLanguage enum value.
-        /// Returns SystemLanguage.English as the default if the ISO code is not found in the mapping.
-        /// </returns>
+        /// <param name="language">The SystemLanguage to convert.</param>
+        /// <returns>The ISO 639-2 language code (e.g., "eng", "spa"), or "eng" if not found.</returns>
         [UsedImplicitly]
-        public static SystemLanguage ISOToSystemLanguage(this string isoCode)
-            => _isoToSystemLanguageMap.GetValueOrDefault(isoCode, SystemLanguage.English);
+        internal static string SystemLanguageToISO2(this SystemLanguage language)
+            => _languageCodes.TryGetValue(language, out var codes) ? codes.iso2 : "eng";
+
+        /// <summary>
+        /// Converts an ISO language code (either 2-letter or 3-letter) to its corresponding Unity SystemLanguage.
+        /// </summary>
+        /// <param name="isoCode">The ISO language code to convert.</param>
+        /// <returns>The corresponding SystemLanguage, or SystemLanguage.English if not found.</returns>
+        [UsedImplicitly]
+        internal static SystemLanguage ISOToSystemLanguage(this string isoCode)
+            => GetReverseMap().GetValueOrDefault(isoCode, SystemLanguage.English);
+
+        private static Dictionary<string, SystemLanguage> GetReverseMap()
+        {
+            if (_reverseMap != null)
+                return _reverseMap;
+
+            _reverseMap = new Dictionary<string, SystemLanguage>();
+            foreach (var (language, (iso1, iso2)) in _languageCodes)
+            {
+                _reverseMap[iso1] = language;
+                _reverseMap[iso2] = language;
+            }
+
+            return _reverseMap;
+        }
     }
 }
