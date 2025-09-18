@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
-    internal static class SystemLanguageExtensions
+    public static class SystemLanguageExtensions
     {
         private static readonly Dictionary<SystemLanguage, (string iso1, string iso2)> _languageCodes = new()
         {
@@ -53,7 +53,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="language">The SystemLanguage to convert.</param>
         /// <returns>The ISO 639-1 language code (e.g., "en", "ja"), or "en" if not found.</returns>
         [UsedImplicitly]
-        internal static string SystemLanguageToISO1(this SystemLanguage language)
+        public static string SystemLanguageToISO1(this SystemLanguage language)
             => _languageCodes.TryGetValue(language, out var codes) ? codes.iso1 : "en";
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="language">The SystemLanguage to convert.</param>
         /// <returns>The ISO 639-2 language code (e.g., "eng", "spa"), or "eng" if not found.</returns>
         [UsedImplicitly]
-        internal static string SystemLanguageToISO2(this SystemLanguage language)
+        public static string SystemLanguageToISO2(this SystemLanguage language)
             => _languageCodes.TryGetValue(language, out var codes) ? codes.iso2 : "eng";
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="isoCode">The ISO language code to convert.</param>
         /// <returns>The corresponding SystemLanguage, or SystemLanguage.English if not found.</returns>
         [UsedImplicitly]
-        internal static SystemLanguage ISOToSystemLanguage(this string isoCode)
+        public static SystemLanguage ISOToSystemLanguage(this string isoCode)
             => GetReverseMap().GetValueOrDefault(isoCode, SystemLanguage.English);
 
         private static Dictionary<string, SystemLanguage> GetReverseMap()
