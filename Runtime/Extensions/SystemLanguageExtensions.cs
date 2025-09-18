@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
-    internal static class SystemLanguageExtensions
+    public static class SystemLanguageExtensions
     {
         private const string IsoEnglish = "en";
         private const string IsoJapanese = "ja";
@@ -129,7 +129,7 @@ namespace CustomUtils.Runtime.Extensions
         /// Returns "en" (English) as the default if the language is not found in the mapping.
         /// </returns>
         [UsedImplicitly]
-        internal static string SystemLanguageToISO(this SystemLanguage language)
+        public static string SystemLanguageToISO(this SystemLanguage language)
             => _systemLanguageToISOMap.GetValueOrDefault(language, IsoEnglish);
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace CustomUtils.Runtime.Extensions
         /// Returns SystemLanguage.English as the default if the ISO code is not found in the mapping.
         /// </returns>
         [UsedImplicitly]
-        internal static SystemLanguage ISOToSystemLanguage(this string isoCode)
+        public static SystemLanguage ISOToSystemLanguage(this string isoCode)
             => _isoToSystemLanguageMap.GetValueOrDefault(isoCode, SystemLanguage.English);
     }
 }
