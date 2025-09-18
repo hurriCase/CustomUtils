@@ -20,6 +20,12 @@ namespace CustomUtils.Runtime.Localization
 
         private void Localize()
         {
+            if (LocalizationKey.IsValid() is false)
+            {
+                Debug.LogWarning($"[LocalizedTextMeshPro::Localize] Localization key is invalid: {LocalizationKey}");
+                return;
+            }
+
             Text.text = LocalizationController.Localize(LocalizationKey);
         }
     }
