@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
 using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings;
 using JetBrains.Annotations;
@@ -32,8 +33,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
             base.Awake();
 
             this.OnValueChangedAsObservable()
-                .Subscribe(this, static (isOn, toggle) => toggle.HandleStateChange(isOn))
-                .RegisterTo(destroyCancellationToken);
+                .SubscribeAndRegister(this, static (isOn, toggle) => toggle.HandleStateChange(isOn));
 
             ApplyGraphics(currentSelectionState);
         }
