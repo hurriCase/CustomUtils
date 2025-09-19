@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
-using CustomUtils.Runtime.Extensions.GradientExtensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
+using CustomUtils.Runtime.UI.Theme.VertexGradient;
 using UnityEditor;
 
 namespace CustomUtils.Editor.UI.Theme
 {
-    [CustomEditor(typeof(BaseThemeComponent<>), true)]
-    internal sealed class BaseThemeComponentEditor : EditorBase
+    [CustomEditor(typeof(ThemeComponent), true)]
+    internal sealed class ThemeComponentEditor : EditorBase
     {
         private ThemeColorDatabase ThemeColorDatabase => ThemeColorDatabase.Instance;
         private ThemeHandler ThemeHandler => ThemeHandler.Instance;
 
-        private IBaseThemeComponent _themeComponent;
+        private ThemeComponent _themeComponent;
 
         private bool _wasDarkTheme;
 
         protected override void InitializeEditor()
         {
-            _themeComponent = target as IBaseThemeComponent;
+            _themeComponent = target as ThemeComponent;
         }
 
         public override void OnInspectorGUI()
@@ -42,12 +42,13 @@ namespace CustomUtils.Editor.UI.Theme
 
         private void DrawColorTypeProperty()
         {
-            var colorType = EditorStateControls.EnumField("Color Type", _themeComponent.ColorType);
+            var colorType =
+                EditorStateControls.EnumField("Color Type", _themeComponent.CurrentColorType.Value);
 
-            if (_themeComponent.ColorType == colorType)
+            if (_themeComponent.CurrentColorType.Value == colorType)
                 return;
 
-            _themeComponent.ColorType = colorType;
+            _themeComponent.CurrentColorType.Value = colorType;
             _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
@@ -73,7 +74,7 @@ namespace CustomUtils.Editor.UI.Theme
 
         private void DrawColorSelector()
         {
-            var (colorNames, currentColorName) = GetColorSelectorData(_themeComponent.ColorType);
+            var (colorNames, currentColorName) = GetColorSelectorData(_themeComponent.CurrentColorType.Value);
 
             if (colorNames is null || colorNames.Count == 0)
             {
@@ -93,7 +94,7 @@ namespace CustomUtils.Editor.UI.Theme
             if (selectedColorName != currentColorName)
                 UpdateColorFromName(selectedColorName);
 
-            switch (_themeComponent.ColorType)
+            switch (_themeComponent.CurrentColorType.Value)
             {
                 case ColorType.Gradient:
                     var previewGradient = ThemeHandler.CurrentThemeType.Value == ThemeType.Light
@@ -123,7 +124,7 @@ namespace CustomUtils.Editor.UI.Theme
 
         private void DrawGradientDirectionDropdown()
         {
-            var currentDirection = (int)_themeComponent.GradientDirection;
+            var currentDirection = (int)_themeComponent.CurrentGradientDirection.Value;
             var selectedDirection = EditorStateControls.Dropdown(
                 nameof(IThemeColor.Name),
                 currentDirection,
@@ -132,7 +133,7 @@ namespace CustomUtils.Editor.UI.Theme
             if (selectedDirection == currentDirection)
                 return;
 
-            _themeComponent.GradientDirection = (GradientDirection)selectedDirection;
+            _themeComponent.CurrentGradientDirection.Value = (GradientDirection)selectedDirection;
 
             _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
@@ -153,12 +154,13 @@ namespace CustomUtils.Editor.UI.Theme
                     ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
                     _themeComponent.ThemeSolidColorName
                 ),
-                _ => throw new ArgumentOutOfRangeException()
+                ColorType.None => (null, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(colorType), colorType, null)
             };
 
         private void UpdateColorFromName(string colorName)
         {
-            switch (_themeComponent.ColorType)
+            switch (_themeComponent.CurrentColorType.Value)
             {
                 case ColorType.Solid:
                     _themeComponent.ThemeSolidColorName = colorName;

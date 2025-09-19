@@ -1,22 +1,28 @@
 ﻿using System;
-using CustomUtils.Runtime.Extensions.GradientExtensions;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
+using CustomUtils.Runtime.UI.Theme.VertexGradient;
 using R3;
 using UnityEngine;
-using Component = UnityEngine.Component;
+using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.Theme.Base
 {
     [ExecuteInEditMode]
-    public abstract class BaseThemeComponent<T> : MonoBehaviour, IBaseThemeComponent where T : Component
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Graphic))]
+    public sealed class ThemeComponent : MonoBehaviour
     {
-        [field: SerializeField] public ColorType ColorType { get; set; } = ColorType.Solid;
-        [field: SerializeField] public GradientDirection GradientDirection { get; set; }
+        [field: SerializeField] public SerializableReactiveProperty<ColorType> CurrentColorType { get; set; } = new();
+
+        [field: SerializeField]
+        public SerializableReactiveProperty<GradientDirection> CurrentGradientDirection { get; set; } = new();
+
         [field: SerializeField] public string ThemeSharedColorName { get; set; }
         [field: SerializeField] public string ThemeSolidColorName { get; set; }
         [field: SerializeField] public string ThemeGradientColorName { get; set; }
 
-        [SerializeField] protected T targetComponent;
+        [SerializeField] private Graphic _targetGraphic;
 
         public ThemeSharedColor ThemeSharedColor => ThemeColorDatabase
             .TryGetColorByName<ThemeSharedColor>(ThemeSharedColorName, out var color)
@@ -39,85 +45,75 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         private ThemeSharedColor _previousSharedThemeColor;
         private ThemeSolidColor _previousSolidThemeColor;
         private ThemeGradientColor _previousGradientThemeColor;
-        private ColorType _previousColorType;
-        private ThemeType _previousThemeType;
 
-        protected virtual void Reset()
+        private void Reset()
         {
             OnEnable();
         }
 
-        protected virtual void OnEnable()
+        private void OnEnable()
         {
-            targetComponent = targetComponent ? targetComponent : GetComponent<T>();
+            _targetGraphic = _targetGraphic ? _targetGraphic : GetComponent<Graphic>();
 
             ApplyColor();
         }
 
         private void Awake()
         {
-            ThemeHandler.Instance.CurrentThemeType
-                .Subscribe(this, (_, self) => self.ApplyColor())
-                .RegisterTo(destroyCancellationToken);
+            ThemeHandler.Instance.CurrentThemeType.SubscribeAndRegister(this, self => self.ApplyColor());
+            CurrentColorType.SubscribeAndRegister(this, self => self.ApplyColor());
+            CurrentGradientDirection.SubscribeAndRegister(this, self => self.ApplyColor());
         }
 
-        public virtual void ApplyColor()
+        public void ApplyColor()
         {
-            bool colorChanged;
+            if (!_targetGraphic)
+                return;
 
-            switch (ColorType)
+            OnApplyColor();
+        }
+
+        private void OnApplyColor()
+        {
+            switch (CurrentColorType.Value)
             {
                 case ColorType.Gradient:
-                    colorChanged = _previousGradientThemeColor != ThemeGradientColor;
-                    if (colorChanged)
-                        _previousGradientThemeColor = ThemeGradientColor;
+                    if (TryGetCurrentGradient(out var gradient))
+                        _targetGraphic.ApplyVertexGradient(gradient, CurrentGradientDirection.Value);
                     break;
+
                 case ColorType.Shared:
-                    colorChanged = _previousSharedThemeColor != ThemeSharedColor;
-                    if (colorChanged)
-                        _previousSharedThemeColor = ThemeSharedColor;
+                    if (ThemeSharedColor != null)
+                    {
+                        _targetGraphic.ClearVertexGradient();
+                        _targetGraphic.color = ThemeSharedColor.Color;
+                    }
+
                     break;
 
                 case ColorType.Solid:
-                    colorChanged = _previousSolidThemeColor != ThemeSolidColor;
-                    if (colorChanged)
-                        _previousSolidThemeColor = ThemeSolidColor;
+                    _targetGraphic.ClearVertexGradient();
+                    _targetGraphic.color = GetCurrentSolidColor();
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            if (!targetComponent || (colorChanged is false
-                                     && _previousThemeType == ThemeHandler.CurrentThemeType.Value
-                                     && _previousColorType == ColorType
-                                     && ShouldUpdateColor() is false))
-                return;
-
-            OnApplyColor();
-
-            _previousThemeType = ThemeHandler.CurrentThemeType.Value;
-            _previousColorType = ColorType;
         }
 
-        protected abstract bool ShouldUpdateColor();
-
-        protected abstract void OnApplyColor();
-
-        protected Gradient GetCurrentGradient()
+        private bool TryGetCurrentGradient(out Gradient gradient)
         {
-            if (ThemeGradientColor == null)
-                return null;
-
-            return ThemeHandler.CurrentThemeType.Value switch
+            gradient = ThemeHandler.CurrentThemeType.Value switch
             {
                 ThemeType.Light => ThemeGradientColor.LightThemeColor,
                 ThemeType.Dark => ThemeGradientColor.DarkThemeColor,
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+            return gradient != null;
         }
 
-        protected Color GetCurrentSolidColor()
+        private Color GetCurrentSolidColor()
         {
             if (ThemeSolidColor == null)
                 return Color.white;

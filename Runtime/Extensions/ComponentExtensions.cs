@@ -49,9 +49,14 @@ namespace CustomUtils.Runtime.Extensions
         /// In Unity's UI system, components with higher sibling indexes are rendered on top of those with lower indexes.
         /// This method compares the sibling indexes of the transforms associated with the components.
         /// </remarks>
+        [UsedImplicitly]
         public static bool IsInFrontOf<TSource, TTarget>(this TSource component, TTarget target)
             where TSource : Component
             where TTarget : Component
             => component.transform.GetSiblingIndex() > target.transform.GetSiblingIndex();
+
+        [UsedImplicitly]
+        public static T GetOrAddComponent<T>(this Component component) where T : Component =>
+            component.GetComponent<T>() ? component.GetComponent<T>() : component.gameObject.AddComponent<T>();
     }
 }

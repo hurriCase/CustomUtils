@@ -94,11 +94,11 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         /// <param name="state">The enum state to configure the theme component for</param>
         /// <param name="themeComponent">The theme component to configure</param>
         [UsedImplicitly]
-        public void SetComponentForState(TEnum state, IBaseThemeComponent themeComponent)
+        public void SetComponentForState(TEnum state, ThemeComponent themeComponent)
         {
             var mapping = StateMappings[state];
 
-            themeComponent.ColorType = mapping.ColorType;
+            themeComponent.CurrentColorType.Value = mapping.ColorType;
 
             switch (mapping.ColorType)
             {
