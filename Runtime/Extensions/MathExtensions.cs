@@ -12,6 +12,10 @@ namespace CustomUtils.Runtime.Extensions
         private const float LowerThreshold = 0.1f;
         private const float UpperThreshold = 100000f;
 
+        private const float Max16BitValue = 65535f;
+
+        private static readonly Vector2 _decodeDot = new(1.0f, 1f / Max16BitValue);
+
         /// <summary>
         /// Determines if the given float value is within a reasonable range.
         /// </summary>
@@ -59,5 +63,16 @@ namespace CustomUtils.Runtime.Extensions
                 rect.height / (values.z + values.y), // Second height constraint
                 1f                                   // Maximum scale
             );
+
+        [UsedImplicitly]
+        public static float PackAs16BitWith(this float a, float b)
+        {
+            var encodedValues = new Vector2(
+                Mathf.Floor(a * (Max16BitValue - 1)) / Max16BitValue,
+                Mathf.Floor(b * (Max16BitValue - 1)) / Max16BitValue
+            );
+
+            return Vector2.Dot(encodedValues, _decodeDot);
+        }
     }
 }

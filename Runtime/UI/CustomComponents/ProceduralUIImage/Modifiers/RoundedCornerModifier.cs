@@ -5,6 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Rounded")]
+    [DisallowMultipleComponent]
     public sealed class RoundedCornerModifier : ModifierBase
     {
         public override Vector4 CalculateRadius(Rect imageRect)

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.CustomCorners
 {
     [ModifierID("Custom")]
+    [DisallowMultipleComponent]
     public sealed class CustomCornerModifier : ModifierBase
     {
         [field: SerializeField] public CornerRadiiData CornerRadii { get; private set; }

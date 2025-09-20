@@ -5,6 +5,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers
 {
     [ModifierID("Uniform")]
+    [DisallowMultipleComponent]
     public sealed class UniformCornerModifier : ModifierBase
     {
         [field: SerializeField] public float Radius { get; private set; }

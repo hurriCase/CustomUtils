@@ -1,5 +1,4 @@
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using JetBrains.Annotations;
@@ -10,15 +9,17 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 {
     [UsedImplicitly]
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     [AddComponentMenu("UI/Procedural Image")]
     public class ProceduralImage : Image
     {
         [UsedImplicitly]
-        [field: SerializeField] public SerializableReactiveProperty<float> BorderRatio { get; set; } = new();
+        [field: SerializeField] public SerializableReactiveProperty<float> BorderWidth { get; set; } = new();
 
         [UsedImplicitly]
         [field: SerializeField] public SerializableReactiveProperty<float> FalloffDistance { get; set; } = new();
+
+        private ResourceReferences ResourceReferences => ResourceReferences.Instance;
 
         private ModifierBase _modifierBase;
 
@@ -63,7 +64,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
         {
             base.OnEnable();
 
-            BorderRatio.SubscribeAndRegister(this, static self => self.SetVerticesDirty());
+            BorderWidth.SubscribeAndRegister(this, static self => self.SetVerticesDirty());
             FalloffDistance.SubscribeAndRegister(this, static self => self.SetVerticesDirty());
 
             Init();
@@ -85,13 +86,13 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             material = null;
 
             if (!sprite)
-                sprite = EmptySpriteHelper.GetSprite();
+                sprite = ResourceReferences.EmptySprite;
         }
 
         private void OnVerticesDirty()
         {
             if (!sprite)
-                sprite = EmptySpriteHelper.GetSprite();
+                sprite = ResourceReferences.EmptySprite;
         }
 
         private void FixTexCoordsInCanvas()
@@ -136,8 +137,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             var info = CalculateInfo();
             var uv1 = new Vector2(info.Width, info.Height);
             var uv2 = new Vector2(
-                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.x, info.Radius.y),
-                FloatEncodingHelper.EncodeFloats_0_1_16_16(info.Radius.z, info.Radius.w)
+                info.NormilizedRadius.x.PackAs16BitWith(info.NormilizedRadius.y),
+                info.NormilizedRadius.z.PackAs16BitWith(info.NormilizedRadius.w)
             );
 
             var uv3 = new Vector2(info.BorderWidth == 0 ? 1 : Mathf.Clamp01(info.BorderWidth), info.PixelSize);
@@ -166,16 +167,22 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
 
-            var info = new ProceduralImageInfo(imageRect.width + FalloffDistance.Value,
+            var normalizedRadius = radius / minSide;
+
+            var info = new ProceduralImageInfo(
+                imageRect.width + FalloffDistance.Value,
                 imageRect.height + FalloffDistance.Value,
-                FalloffDistance.Value, pixelSize, radius / minSide, BorderRatio.Value);
+                FalloffDistance.Value,
+                pixelSize,
+                normalizedRadius,
+                BorderWidth.Value);
 
             return info;
         }
 
         public override Material material
         {
-            get => !m_Material ? MaterialHelper.GetMaterial() : base.material;
+            get => !m_Material ? ResourceReferences.ProceduralImageMaterial : base.material;
             set => base.material = value;
         }
 
@@ -192,7 +199,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             base.OnValidate();
 
             FalloffDistance.Value = Mathf.Max(0, FalloffDistance.Value);
-            BorderRatio.Value = Mathf.Max(0, BorderRatio.Value);
+            BorderWidth.Value = Mathf.Max(0, BorderWidth.Value);
         }
 #endif
     }

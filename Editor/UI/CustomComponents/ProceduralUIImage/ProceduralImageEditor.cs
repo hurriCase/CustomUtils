@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using CustomUtils.Editor.CustomEditorUtilities;
 using CustomUtils.Editor.Extensions;
+using CustomUtils.Runtime;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
-using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Helpers;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using UnityEditor;
 using UnityEditor.UI;
@@ -38,7 +38,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
 
             _attributes = ModifierUtility.GetAttributeList();
 
-            _borderWidth = serializedObject.FindField(nameof(ProceduralImage.BorderRatio));
+            _borderWidth = serializedObject.FindField(nameof(ProceduralImage.BorderWidth));
             _falloffDist = serializedObject.FindField(nameof(ProceduralImage.FalloffDistance));
 
             _proceduralImage = (ProceduralImage)target;
@@ -95,13 +95,14 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
                 return;
             }
 
+            var resourceReferences = ResourceReferences.Instance;
             var sprite = (Sprite)EditorGUILayout.ObjectField("Sprite",
-                EmptySpriteHelper.IsEmptySprite((Sprite)_sprite.objectReferenceValue)
+                resourceReferences.EmptySprite == (Sprite)_sprite.objectReferenceValue
                     ? null
                     : _sprite.objectReferenceValue, typeof(Sprite), false,
                 GUILayout.Height(16));
 
-            _sprite.objectReferenceValue = sprite ? sprite : EmptySpriteHelper.GetSprite();
+            _sprite.objectReferenceValue = sprite ? sprite : resourceReferences.EmptySprite;
         }
 
         private void CheckForShaderChannelsGUI()
@@ -185,7 +186,7 @@ namespace CustomUtils.Editor.UI.CustomComponents.ProceduralUIImage
         }
 
         public override string GetInfoString()
-            => $"Modifier: {_attributes[_selectedId].Name}, Line-Weight: {_proceduralImage.BorderRatio.Value}";
+            => $"Modifier: {_attributes[_selectedId].Name}, Line-Weight: {_proceduralImage.BorderWidth.Value}";
 
         private static void MoveComponentBehind(Component reference, Component componentToMove)
         {

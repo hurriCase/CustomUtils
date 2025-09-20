@@ -5,10 +5,6 @@
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
 
-        _GradientStartColor ("Gradient Start Color", Color) = (1,1,1,1)
-        _GradientEndColor ("Gradient End Color", Color) = (0,0,0,1)
-        _GradientDirection ("Gradient Direction", Range(0,1)) = 0
-
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         _StencilOp ("Stencil Operation", Float) = 0
@@ -59,7 +55,6 @@
 
             #pragma multi_compile __ UNITY_UI_CLIP_RECT
             #pragma multi_compile __ UNITY_UI_ALPHACLIP
-            #pragma multi_compile __ USE_GRADIENT
 
             struct appdata_t
             {
@@ -90,12 +85,6 @@
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
             float4 _MainTex_ST;
-
-            #ifdef USE_GRADIENT
-            fixed4 _GradientStartColor;
-            fixed4 _GradientEndColor;
-            float _GradientDirection;
-            #endif
 
             float2 decode2(float value)
             {
@@ -145,17 +134,6 @@
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
-
-                #ifdef USE_GRADIENT
-                float gradientFactor;
-                if (_GradientDirection < 0.5)
-                    gradientFactor = IN.texcoord.x; // Horizontal gradient
-                else
-                    gradientFactor = IN.texcoord.y; // Vertical gradient
-
-                half4 gradientColor = lerp(_GradientStartColor, _GradientEndColor, gradientFactor);
-                color *= gradientColor;
-                #endif
 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
