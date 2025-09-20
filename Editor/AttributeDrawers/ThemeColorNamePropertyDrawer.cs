@@ -13,15 +13,12 @@ namespace CustomUtils.Editor.AttributeDrawers
     [CustomPropertyDrawer(typeof(ThemeColorNameAttribute))]
     internal sealed class ThemeColorNamePropertyDrawer : PropertyDrawer
     {
-        private ThemeColorDatabase _themeColorDatabase;
-        private ThemeHandler _themeHandler;
+        private SolidColorDatabase SolidColorDatabase => SolidColorDatabase.Instance;
+        private GradientColorDatabase GradientColorDatabase => GradientColorDatabase.Instance;
         private EditorStateControls _editorStateControls;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            _themeColorDatabase = _themeColorDatabase ? _themeColorDatabase : ThemeColorDatabase.Instance;
-            _themeHandler = _themeHandler ? _themeHandler : ThemeHandler.Instance;
-
             var colorType = GetColorTypeFromParent(property);
             if (property.propertyType != SerializedPropertyType.String ||
                 ValidateColorDatabase(out _, colorType) is false)
@@ -100,9 +97,8 @@ namespace CustomUtils.Editor.AttributeDrawers
         private List<string> GetColorNamesForType(ColorType colorType) =>
             colorType switch
             {
-                ColorType.Gradient => _themeColorDatabase.GetColorNames<ThemeGradientColor>(),
-                ColorType.Shared => _themeColorDatabase.GetColorNames<ThemeSharedColor>(),
-                ColorType.Solid => _themeColorDatabase.GetColorNames<ThemeSolidColor>(),
+                ColorType.Gradient => SolidColorDatabase.GetColorNames(),
+                ColorType.Solid => GradientColorDatabase.GetColorNames(),
                 _ => new List<string>()
             };
 
@@ -110,38 +106,21 @@ namespace CustomUtils.Editor.AttributeDrawers
             colorType switch
             {
                 ColorType.Gradient => GetGradientPreviewColor(colorName),
-                ColorType.Shared => GetSharedColor(colorName),
                 ColorType.Solid => GetSolidColor(colorName),
                 _ => Color.white
             };
 
         private Color GetGradientPreviewColor(string colorName)
         {
-            if (_themeColorDatabase.TryGetColorByName<ThemeGradientColor>(colorName, out var gradientColor) is false)
+            if (GradientColorDatabase.TryGetColorByName(colorName, out var gradient) is false)
                 return Color.white;
-
-            var gradient = _themeHandler.CurrentThemeType.Value == ThemeType.Light
-                ? gradientColor.LightThemeColor
-                : gradientColor.DarkThemeColor;
 
             return gradient?.colorKeys?.Length > 0
                 ? gradient.colorKeys[gradient.colorKeys.Length / 2].color
                 : Color.white;
         }
 
-        private Color GetSharedColor(string colorName)
-            => _themeColorDatabase.TryGetColorByName<ThemeSharedColor>(colorName, out var sharedColor)
-                ? sharedColor.Color
-                : Color.white;
-
         private Color GetSolidColor(string colorName)
-        {
-            if (_themeColorDatabase.TryGetColorByName<ThemeSolidColor>(colorName, out var solidColor))
-                return _themeHandler.CurrentThemeType.Value == ThemeType.Light
-                    ? solidColor.LightThemeColor
-                    : solidColor.DarkThemeColor;
-
-            return Color.white;
-        }
+            => SolidColorDatabase.TryGetColorByName(colorName, out var color) ? color : Color.white;
     }
 }

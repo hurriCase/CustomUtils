@@ -6,8 +6,8 @@
         internal const string CustomMenuSettingsAssetName = "CustomMenuSettings";
 
         internal const string ThemeFullPath = ResourcesPath + "/" + ThemeResourcePath;
-        internal const string ThemeHandlerAssetName = "ThemeHandler";
-        internal const string ThemeColorDatabaseAssetName = "ThemeColorDatabase";
+        internal const string SolidColorDatabaseAssetName = "SolidColorDatabase";
+        internal const string GradientColorDatabaseAssetName = "GradientColorDatabase";
         internal const string ThemeResourcePath = "Theme";
 
         internal const string ImagePixelPerUnitFullPath = ResourcesPath + "/" + ImagePixelPerUnitResourcePath;

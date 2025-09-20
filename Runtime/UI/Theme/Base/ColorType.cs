@@ -3,8 +3,7 @@
     public enum ColorType
     {
         None = 0,
-        Shared = 1,
-        Solid = 2,
-        Gradient = 3
+        Solid = 1,
+        Gradient = 2
     }
 }

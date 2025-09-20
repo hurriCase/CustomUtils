@@ -11,8 +11,8 @@ namespace CustomUtils.Editor.UI.Theme
     [CustomEditor(typeof(ThemeComponent), true)]
     internal sealed class ThemeComponentEditor : EditorBase
     {
-        private ThemeColorDatabase ThemeColorDatabase => ThemeColorDatabase.Instance;
-        private ThemeHandler ThemeHandler => ThemeHandler.Instance;
+        private SolidColorDatabase SolidColorDatabase => SolidColorDatabase.Instance;
+        private GradientColorDatabase GradientColorDatabase => GradientColorDatabase.Instance;
 
         private ThemeComponent _themeComponent;
 
@@ -74,7 +74,8 @@ namespace CustomUtils.Editor.UI.Theme
 
         private void DrawColorSelector()
         {
-            var (colorNames, currentColorName) = GetColorSelectorData(_themeComponent.CurrentColorType.Value);
+            var colorNames = GetColorSelectorData(_themeComponent.CurrentColorType.Value);
+            var currentColorName = _themeComponent.ColorNames[_themeComponent.CurrentColorType.Value];
 
             if (colorNames is null || colorNames.Count == 0)
             {
@@ -89,7 +90,7 @@ namespace CustomUtils.Editor.UI.Theme
             }
 
             var selectedColorName =
-                EditorStateControls.Dropdown(nameof(IThemeColor.Name), currentColorName, colorNames);
+                EditorStateControls.Dropdown("Name", currentColorName, colorNames);
 
             if (selectedColorName != currentColorName)
                 UpdateColorFromName(selectedColorName);
@@ -97,24 +98,14 @@ namespace CustomUtils.Editor.UI.Theme
             switch (_themeComponent.CurrentColorType.Value)
             {
                 case ColorType.Gradient:
-                    var previewGradient = ThemeHandler.CurrentThemeType.Value == ThemeType.Light
-                        ? _themeComponent.ThemeGradientColor.LightThemeColor
-                        : _themeComponent.ThemeGradientColor.DarkThemeColor;
-
-                    EditorVisualControls.GradientField("Preview", previewGradient);
+                    GradientColorDatabase.TryGetColorByName(currentColorName, out var gradient);
+                    EditorVisualControls.GradientField("Preview", gradient);
                     DrawGradientDirectionDropdown();
                     break;
 
-                case ColorType.Shared:
-                    EditorVisualControls.ColorField("Preview", _themeComponent.ThemeSharedColor.Color);
-                    break;
-
                 case ColorType.Solid:
-                    var previewSolidColor = ThemeHandler.CurrentThemeType.Value == ThemeType.Light
-                        ? _themeComponent.ThemeSolidColor.LightThemeColor
-                        : _themeComponent.ThemeSolidColor.DarkThemeColor;
-
-                    EditorVisualControls.ColorField("Preview", previewSolidColor);
+                    SolidColorDatabase.TryGetColorByName(currentColorName, out var color);
+                    EditorVisualControls.ColorField("Preview", color);
                     break;
 
                 default:
@@ -126,7 +117,7 @@ namespace CustomUtils.Editor.UI.Theme
         {
             var currentDirection = (int)_themeComponent.CurrentGradientDirection.Value;
             var selectedDirection = EditorStateControls.Dropdown(
-                nameof(IThemeColor.Name),
+                "Name",
                 currentDirection,
                 Enum.GetNames(typeof(GradientDirection)));
 
@@ -139,45 +130,18 @@ namespace CustomUtils.Editor.UI.Theme
             EditorUtility.SetDirty(target);
         }
 
-        private (List<string>, string) GetColorSelectorData(ColorType colorType) =>
+        private List<string> GetColorSelectorData(ColorType colorType) =>
             colorType switch
             {
-                ColorType.Gradient => (
-                    ThemeColorDatabase.GetColorNames<ThemeGradientColor>(),
-                    _themeComponent.ThemeGradientColorName
-                ),
-                ColorType.Shared => (
-                    ThemeColorDatabase.GetColorNames<ThemeSharedColor>(),
-                    _themeComponent.ThemeSharedColorName
-                ),
-                ColorType.Solid => (
-                    ThemeColorDatabase.GetColorNames<ThemeSolidColor>(),
-                    _themeComponent.ThemeSolidColorName
-                ),
-                ColorType.None => (null, null),
+                ColorType.Gradient => GradientColorDatabase.GetColorNames(),
+                ColorType.Solid => SolidColorDatabase.GetColorNames(),
+                ColorType.None => null,
                 _ => throw new ArgumentOutOfRangeException(nameof(colorType), colorType, null)
             };
 
         private void UpdateColorFromName(string colorName)
         {
-            switch (_themeComponent.CurrentColorType.Value)
-            {
-                case ColorType.Solid:
-                    _themeComponent.ThemeSolidColorName = colorName;
-                    break;
-
-                case ColorType.Gradient:
-                    _themeComponent.ThemeGradientColorName = colorName;
-                    break;
-
-                case ColorType.Shared:
-                    _themeComponent.ThemeSharedColorName = colorName;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
+            _themeComponent.UpdateName(_themeComponent.CurrentColorType.Value, colorName);
             _themeComponent.ApplyColor();
             EditorUtility.SetDirty(target);
         }
