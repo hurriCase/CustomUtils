@@ -3,7 +3,7 @@ using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.Theme.Base
+namespace CustomUtils.Runtime.UI.Theme.Databases
 {
     [Resource(
         ResourcePaths.ThemeFullPath,

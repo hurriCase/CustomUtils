@@ -1,7 +1,7 @@
 ﻿using System;
+using CustomUtils.Runtime.UI.Theme.Base;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
 {
@@ -9,16 +9,16 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Buttons
     [UsedImplicitly]
     public struct ThemeGraphicMapping
     {
-        [SerializeField] private Graphic _targetGraphic;
+        [SerializeField] private ThemeComponent _themeComponent;
         [SerializeField] private SelectableColorMapping _colorMapping;
 
         [UsedImplicitly]
         public void ApplyColor(SelectableStateType state)
         {
-            if (!_colorMapping || !_targetGraphic)
+            if (!_colorMapping || !_themeComponent)
                 return;
 
-            _targetGraphic.color = _colorMapping.GetColorForState(state);
+            _colorMapping.SetComponentForState(state, _themeComponent);
         }
     }
 }

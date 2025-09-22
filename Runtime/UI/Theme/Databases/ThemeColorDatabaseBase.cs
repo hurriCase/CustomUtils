@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Runtime.CustomTypes.Singletons;
+using CustomUtils.Runtime.UI.Theme.Base;
 
-namespace CustomUtils.Runtime.UI.Theme.Base
+namespace CustomUtils.Runtime.UI.Theme.Databases
 {
     internal abstract class ThemeColorDatabaseBase<TDatabase, TTheme, TColor> : SingletonScriptableObject<TDatabase>
         where TDatabase : ThemeColorDatabaseBase<TDatabase, TTheme, TColor>

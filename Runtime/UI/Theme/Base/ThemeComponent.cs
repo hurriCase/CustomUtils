@@ -1,7 +1,7 @@
 ﻿using CustomUtils.Runtime.CustomBehaviours;
-using CustomUtils.Runtime.CustomTypes.Collections;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.Theme.VertexGradient;
+using CustomUtils.Runtime.Extensions.Observables;
+using CustomUtils.Runtime.UI.Theme.ColorModifiers;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
@@ -16,59 +16,47 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     {
         [field: SerializeField] public SerializableReactiveProperty<ColorType> CurrentColorType { get; set; } = new();
 
-        [field: SerializeField]
-        public SerializableReactiveProperty<GradientDirection> CurrentGradientDirection { get; set; } = new();
-
-        [field: SerializeField] public EnumArray<ColorType, string> ColorNames { get; set; } = new(EnumMode.SkipFirst);
-
-        private void Reset()
-        {
-            ApplyColor();
-        }
+        [SerializeField, HideInInspector] private ColorModifierBase _currentColorModifier;
 
         private void OnEnable()
         {
-            ApplyColor();
-        }
-
-        private void Awake()
-        {
-            ThemeHandler.CurrentThemeType.SubscribeAndRegister(this, self => self.ApplyColor());
-            CurrentColorType.SubscribeAndRegister(this, self => self.ApplyColor());
-            CurrentGradientDirection.SubscribeAndRegister(this, self => self.ApplyColor());
+            ThemeHandler.CurrentThemeType.SubscribeUntilDisable(this, self => self.ApplyColor());
+            CurrentColorType.SubscribeUntilDisable(this, self => self.UpdateModifier());
         }
 
         [UsedImplicitly]
-        public void UpdateName(ColorType colorType, string newName)
+        public void UpdateColor(ColorType colorType, string newName)
         {
-            var colorNames = ColorNames;
-            colorNames[colorType] = newName;
-            ColorNames = colorNames;
+            CurrentColorType.Value = colorType;
+            _currentColorModifier.UpdateColor(newName);
         }
 
         [UsedImplicitly]
         public void ApplyColor()
         {
-            if (!Graphic || CurrentColorType.Value == ColorType.None)
+            if (CurrentColorType.Value == ColorType.None)
                 return;
 
-            var colorName = ColorNames[CurrentColorType.Value];
+            _currentColorModifier.ApplyColor();
+        }
+
+        private void UpdateModifier()
+        {
+            _currentColorModifier.AsNullable()?.Destroy();
+            _currentColorModifier = null;
 
             switch (CurrentColorType.Value)
             {
-                case ColorType.Gradient:
-                    if (GradientColorDatabase.Instance.TryGetColorByName(colorName, out var gradient))
-                        Graphic.ApplyVertexGradient(gradient, CurrentGradientDirection.Value);
+                case ColorType.Solid:
+                    _currentColorModifier = this.GetOrAddComponent<SolidColorModifier>();
                     break;
 
-                case ColorType.Solid:
-                    if (SolidColorDatabase.Instance.TryGetColorByName(colorName, out var color) is false)
-                        return;
-
-                    Graphic.ClearVertexGradient();
-                    Graphic.color = color;
+                case ColorType.Gradient:
+                    _currentColorModifier = this.GetOrAddComponent<GradientColorModifier>();
                     break;
             }
+
+            ApplyColor();
         }
     }
 }

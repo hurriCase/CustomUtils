@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="theme-color-container" style="flex-grow: 1;">
+        <ui:DropdownField label="Color Name" name="color-name-dropdown" />
+        <uie:ColorField label="Preview" value="#00FFFFFF" name="solid-color-preview" enabled="false" />
+    </ui:VisualElement>
+</ui:UXML>
