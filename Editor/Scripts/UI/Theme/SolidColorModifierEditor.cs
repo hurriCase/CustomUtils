@@ -12,6 +12,6 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
         protected override string ColorPreviewName => "solid-color-preview";
 
         protected override Color GetColor(string colorName)
-            => SolidColorDatabase.Instance.TryGetColorByName(colorName, out var color) ? color : Color.white;
+            => SolidColorDatabase.Instance.TryGetColorByName(ref colorName, out var color) ? color : Color.white;
     }
 }

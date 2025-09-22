@@ -55,6 +55,13 @@ namespace CustomUtils.Runtime.Extensions
             where TTarget : Component
             => component.transform.GetSiblingIndex() > target.transform.GetSiblingIndex();
 
+        /// <summary>
+        /// Retrieves a component of type T from the GameObject attached to the specified component,
+        /// or adds one if it does not already exist.
+        /// </summary>
+        /// <typeparam name="T">The type of component to retrieve or add, must inherit from Component.</typeparam>
+        /// <param name="component">The component whose GameObject is searched for the specified type.</param>
+        /// <returns>The existing component of type T, or the newly added component if it did not exist.</returns>
         [UsedImplicitly]
         public static T GetOrAddComponent<T>(this Component component) where T : Component =>
             component.GetComponent<T>() ? component.GetComponent<T>() : component.gameObject.AddComponent<T>();

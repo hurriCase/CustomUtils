@@ -8,15 +8,14 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
 {
     public abstract class ThemeStateMappingGeneric<TEnum> : ScriptableObject where TEnum : unmanaged, Enum
     {
-        [field: SerializeField] public EnumArray<TEnum, ColorMapping> StateMappings { get; private set; }
+        [field: SerializeField] public EnumArray<TEnum, ColorData> StateMappings { get; private set; }
 
         [UsedImplicitly]
         public void SetComponentForState(TEnum state, ThemeComponent themeComponent)
         {
-            var mapping = StateMappings[state];
+            var colorData = StateMappings[state];
 
-            themeComponent.CurrentColorType.Value = mapping.ColorType;
-            themeComponent.UpdateColor(mapping.ColorType, mapping.ColorName);
+            themeComponent.UpdateColor(colorData);
             themeComponent.ApplyColor();
         }
     }

@@ -19,22 +19,26 @@ namespace CustomUtils.Runtime.UI.Theme.Databases
             return Colors.Select(color => color.Name).ToList();
         }
 
-        internal bool TryGetColorByName(string name, out TColor color)
+        internal bool TryGetColorByName(ref string colorName, out TColor color)
         {
             color = default;
             if (Colors == null || Colors.Count == 0)
                 return false;
 
+            var currentTheme = ThemeHandler.CurrentThemeType.Value;
             foreach (var colorItem in Colors)
             {
-                if (colorItem.Name != name)
+                if (colorItem.Name != colorName)
                     continue;
 
-                color = colorItem.Colors[ThemeHandler.CurrentThemeType.Value];
+                color = colorItem.Colors[currentTheme];
                 return true;
             }
 
-            return false;
+            var firstColor = Colors.First();
+            color = firstColor.Colors[currentTheme];
+            colorName = firstColor.Name;
+            return true;
         }
     }
 }

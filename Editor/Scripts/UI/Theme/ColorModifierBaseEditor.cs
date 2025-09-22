@@ -1,5 +1,4 @@
-﻿using CustomUtils.Editor.Scripts.Extensions;
-using CustomUtils.Runtime.UI.Theme.ColorModifiers;
+﻿using CustomUtils.Runtime.UI.Theme.ColorModifiers;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -40,7 +39,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
             _colorDropdown = container.Q<DropdownField>(ColorNameDropdownName);
 
             _colorDropdown.choices = _colorModifierBase.GetColorNames();
-            var colorNameProperty = serializedObject.FindField(nameof(ColorModifierBase.ColorName));
+            var colorNameProperty = serializedObject.FindProperty(ColorModifierBase.GetColorNameProperty);
             _colorDropdown.BindProperty(colorNameProperty);
 
             _colorPreview = container.Q<TVisualElement>(ColorPreviewName);
@@ -51,8 +50,8 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
         private void ChangeColor(SerializedProperty colorNameProperty)
         {
             var colorName = colorNameProperty.stringValue;
-
             _colorPreview.value = GetColor(colorName);
+
             _colorModifierBase.ApplyColor();
         }
 

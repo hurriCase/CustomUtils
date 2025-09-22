@@ -13,7 +13,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
         protected override Gradient GetColor(string colorName)
         {
-            GradientColorDatabase.Instance.TryGetColorByName(colorName, out var gradient);
+            GradientColorDatabase.Instance.TryGetColorByName(ref colorName, out var gradient);
             return gradient;
         }
     }

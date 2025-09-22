@@ -1,6 +1,7 @@
 ﻿using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers;
+using CustomUtils.Runtime.UI.Theme.ThemeMapping;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
@@ -13,27 +14,27 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     [RequireComponent(typeof(Graphic))]
     public sealed class ThemeComponent : MonoBehaviour
     {
-        [field: SerializeField] public SerializableReactiveProperty<ColorType> CurrentColorType { get; set; } = new();
+        [SerializeField] private SerializableReactiveProperty<ColorType> _currentColorType = new();
 
         [SerializeField, HideInInspector] private ColorModifierBase _currentColorModifier;
 
         private void OnEnable()
         {
             ThemeHandler.CurrentThemeType.SubscribeUntilDisable(this, self => self.ApplyColor());
-            CurrentColorType.SubscribeUntilDisable(this, self => self.UpdateModifier());
+            _currentColorType.SubscribeUntilDisable(this, self => self.UpdateModifier());
         }
 
         [UsedImplicitly]
-        public void UpdateColor(ColorType colorType, string newName)
+        public void UpdateColor(ColorData colorData)
         {
-            CurrentColorType.Value = colorType;
-            _currentColorModifier.UpdateColor(newName);
+            _currentColorType.Value = colorData.ColorType;
+            _currentColorModifier.UpdateColor(colorData.ColorName);
         }
 
         [UsedImplicitly]
         public void ApplyColor()
         {
-            if (CurrentColorType.Value == ColorType.None)
+            if (_currentColorType.Value == ColorType.None)
                 return;
 
             _currentColorModifier.ApplyColor();
@@ -42,18 +43,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         private void UpdateModifier()
         {
             _currentColorModifier.AsNullable()?.Destroy();
-            _currentColorModifier = null;
-
-            switch (CurrentColorType.Value)
-            {
-                case ColorType.Solid:
-                    _currentColorModifier = this.GetOrAddComponent<SolidColorModifier>();
-                    break;
-
-                case ColorType.Gradient:
-                    _currentColorModifier = this.GetOrAddComponent<GradientColorModifier>();
-                    break;
-            }
+            _currentColorModifier = ColorModifierFactory.CreateModifier(_currentColorType.Value, gameObject);
 
             ApplyColor();
         }
