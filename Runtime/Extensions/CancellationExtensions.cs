@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using CustomUtils.Runtime.Extensions.Observables;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -39,6 +40,18 @@ namespace CustomUtils.Runtime.Extensions
             tokenSource?.Cancel();
             tokenSource?.Dispose();
             tokenSource = new CancellationTokenSource();
+        }
+
+        /// <summary>
+        /// Returns a CancellationToken that will be cancelled when OnDisable is called on the component's GameObject.
+        /// </summary>
+        [UsedImplicitly]
+        public static CancellationToken GetDisableCancellationToken(this Component component)
+        {
+            if (!component || !component.gameObject)
+                return new CancellationToken(canceled: true);
+
+            return component.GetOrAddComponent<ObservableDisableTrigger>().GetCancellationToken();
         }
     }
 }

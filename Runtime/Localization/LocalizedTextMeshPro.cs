@@ -1,5 +1,6 @@
 ﻿using CustomUtils.Runtime.CustomBehaviours;
 using CustomUtils.Runtime.Extensions;
+using CustomUtils.Runtime.Extensions.Observables;
 using TMPro;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace CustomUtils.Runtime.Localization
         {
             Localize();
 
-            LocalizationController.Language.SubscribeAndRegister(this, self => self.Localize());
+            LocalizationController.Language.SubscribeUntilDestroy(this, self => self.Localize());
         }
 
         private void Localize()
