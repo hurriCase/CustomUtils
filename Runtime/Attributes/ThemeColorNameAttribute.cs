@@ -1,6 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace CustomUtils.Runtime.Attributes
 {
-    internal sealed class ThemeColorNameAttribute : PropertyAttribute { }
+    [UsedImplicitly]
+    [AttributeUsage(AttributeTargets.Field)]
+    public sealed class ThemeColorNameAttribute : PropertyAttribute { }
 }

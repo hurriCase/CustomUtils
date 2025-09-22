@@ -9,8 +9,8 @@ namespace CustomUtils.Runtime.Attributes
     /// Attribute that conditionally shows a field or property in the Unity Inspector based on the value of another field.
     /// Can be applied to any serialized field or property to create dynamic Inspector behavior.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [UsedImplicitly]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class ShowIfAttribute : PropertyAttribute
     {
         /// <summary>

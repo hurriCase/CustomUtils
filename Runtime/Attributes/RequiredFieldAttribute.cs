@@ -1,7 +1,7 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Attributes
 {
     /// <inheritdoc />
@@ -12,6 +12,7 @@ namespace CustomUtils.Runtime.Attributes
     /// During runtime initialization, fields with this attribute will be validated, and error messages
     /// will be logged if they are null or empty.
     /// </remarks>
+    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class RequiredFieldAttribute : PropertyAttribute { }
 }

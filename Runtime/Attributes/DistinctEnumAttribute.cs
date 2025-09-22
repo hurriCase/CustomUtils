@@ -1,13 +1,14 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Attributes
 {
     /// <inheritdoc />
     /// <summary>
     /// Attribute that makes an enum field contains only distinct values.
     /// </summary>
+    [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Field)]
-    internal sealed class DistinctEnumAttribute : PropertyAttribute { }
+    public sealed class DistinctEnumAttribute : PropertyAttribute { }
 }
