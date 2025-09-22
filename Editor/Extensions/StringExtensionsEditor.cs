@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using Cysharp.Text;
 using JetBrains.Annotations;
 using UnityEditor;
 
@@ -40,6 +41,7 @@ namespace CustomUtils.Editor.Extensions
         /// <remarks>
         /// The hash is returned as a lowercase hexadecimal string without dashes.
         /// </remarks>
+        [UsedImplicitly]
         public static bool TryGetFileContentHash(this string filePath, out string hash)
         {
             hash = string.Empty;
@@ -64,6 +66,7 @@ namespace CustomUtils.Editor.Extensions
         /// <remarks>
         /// The version combines the file's last modification date with the first 8 characters of its content hash.
         /// </remarks>
+        [UsedImplicitly]
         public static bool TryGetFileVersion(this string filePath, out string version)
         {
             version = string.Empty;
@@ -72,7 +75,7 @@ namespace CustomUtils.Editor.Extensions
 
             var fileInfo = new FileInfo(filePath);
 
-            version = $"{fileInfo.LastWriteTime:yyyyMMdd}-{hash[..8]}";
+            version = ZString.Concat("{0:yyyyMMdd}-{1}", fileInfo.LastWriteTime, hash[..8]);
             return true;
         }
     }
