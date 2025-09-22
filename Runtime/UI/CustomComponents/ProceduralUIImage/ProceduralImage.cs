@@ -1,4 +1,5 @@
 using CustomUtils.Runtime.Extensions;
+using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using JetBrains.Annotations;
@@ -64,8 +65,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
         {
             base.OnEnable();
 
-            BorderWidth.SubscribeAndRegister(this, static self => self.SetVerticesDirty());
-            FalloffDistance.SubscribeAndRegister(this, static self => self.SetVerticesDirty());
+            BorderWidth.SubscribeUntilDestroy(this, static self => self.SetVerticesDirty());
+            FalloffDistance.SubscribeUntilDestroy(this, static self => self.SetVerticesDirty());
 
             Init();
         }
