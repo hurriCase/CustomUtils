@@ -58,5 +58,23 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static T GetOrAddComponent<T>(this Component component) where T : Component =>
             component.GetComponent<T>() ? component.GetComponent<T>() : component.gameObject.AddComponent<T>();
+
+        /// <summary>
+        /// Destroys the specified component instance.
+        /// Uses immediate destruction if the application is not in play mode;
+        /// otherwise, schedules the destruction at the end of the frame.
+        /// </summary>
+        /// <param name="component">The component instance to destroy.</param>
+        [UsedImplicitly]
+        public static void Destroy(this Component component)
+        {
+            if (Application.isPlaying)
+            {
+                Object.Destroy(component);
+                return;
+            }
+
+            Object.DestroyImmediate(component);
+        }
     }
 }
