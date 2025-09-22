@@ -1,4 +1,4 @@
-﻿using CustomUtils.Runtime.CustomBehaviours;
+﻿using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using TMPro;
@@ -8,9 +8,11 @@ namespace CustomUtils.Runtime.Localization
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(TextMeshProUGUI))]
-    internal sealed class LocalizedTextMeshPro : TextBehaviour
+    internal sealed class LocalizedTextMeshPro : MonoBehaviour
     {
         [field: SerializeField] internal string LocalizationKey { get; set; }
+
+        [SerializeField, Self] private TextMeshProUGUI _text;
 
         private void Start()
         {
@@ -27,7 +29,7 @@ namespace CustomUtils.Runtime.Localization
                 return;
             }
 
-            Text.text = LocalizationController.Localize(LocalizationKey);
+            _text.text = LocalizationController.Localize(LocalizationKey);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using CustomUtils.Runtime.CustomBehaviours;
-using CustomUtils.Runtime.Extensions;
+﻿using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers;
 using JetBrains.Annotations;
@@ -12,7 +11,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Graphic))]
-    public sealed class ThemeComponent : GraphicBehaviour
+    public sealed class ThemeComponent : MonoBehaviour
     {
         [field: SerializeField] public SerializableReactiveProperty<ColorType> CurrentColorType { get; set; } = new();
 

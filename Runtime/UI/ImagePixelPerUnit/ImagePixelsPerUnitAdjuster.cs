@@ -1,4 +1,4 @@
-﻿using CustomUtils.Runtime.CustomBehaviours;
+﻿using CustomUtils.Runtime.Attributes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,17 +8,16 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Image))]
     [RequireComponent(typeof(RectTransform))]
-    internal sealed class ImagePixelsPerUnitAdjuster : ImageBehaviour
+    internal sealed class ImagePixelsPerUnitAdjuster : MonoBehaviour
     {
         [field: SerializeField, PixelPerUnitPopup] internal PixelPerUnitData PixelPerUnitData { get; set; }
 
-        private RectTransform RectTransform =>
-            _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
-        private RectTransform _rectTransform;
+        [SerializeField, Self] private Image _image;
+        [SerializeField, Self] private RectTransform _rectTransform;
 
         private void OnEnable()
         {
-            Image.type = Image.Type.Sliced;
+            _image.type = Image.Type.Sliced;
 
             UpdateImagePixelPerUnit();
         }
@@ -35,18 +34,18 @@ namespace CustomUtils.Runtime.UI.ImagePixelPerUnit
 
         private void UpdateImagePixelPerUnit()
         {
-            if (PixelPerUnitData.IsCorrectData is false || !Image.sprite)
+            if (PixelPerUnitData.IsCorrectData is false || !_image.sprite)
                 return;
 
             var (spriteCornerSize, rectSize) = PixelPerUnitData.DimensionType switch
             {
-                DimensionType.Width => (Image.sprite.border.x, RectTransform.rect.size.x),
-                DimensionType.Height => (Image.sprite.border.y, RectTransform.rect.size.y),
+                DimensionType.Width => (_image.sprite.border.x, _rectTransform.rect.size.x),
+                DimensionType.Height => (_image.sprite.border.y, _rectTransform.rect.size.y),
                 _ => (1f, 1f)
             };
 
             var desiredCornerSize = rectSize / PixelPerUnitData.CornerRatio;
-            Image.pixelsPerUnitMultiplier = spriteCornerSize / desiredCornerSize;
+            _image.pixelsPerUnitMultiplier = spriteCornerSize / desiredCornerSize;
         }
     }
 }

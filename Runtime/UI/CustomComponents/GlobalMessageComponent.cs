@@ -1,4 +1,4 @@
-﻿using CustomUtils.Runtime.CustomBehaviours;
+﻿using CustomUtils.Runtime.Attributes;
 using JetBrains.Annotations;
 using PrimeTween;
 using TMPro;
@@ -9,7 +9,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
 {
     [UsedImplicitly]
     [RequireComponent(typeof(CanvasGroup))]
-    public sealed class GlobalMessageComponent : CanvasGroupBehaviour
+    public sealed class GlobalMessageComponent : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI _messageText;
         [SerializeField] private Button _button;
@@ -17,6 +17,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         [SerializeField] private float _showingDuration = 2f;
         [SerializeField] private float _fadingDuration = 0.5f;
         [SerializeField] private bool _shouldAutoClose = true;
+
+        [SerializeField, Self] private CanvasGroup _canvasGroup;
 
         private Tween _tween;
 
@@ -29,30 +31,30 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                     HideMessage();
                 });
 
-            CanvasGroup.alpha = 0f;
-            CanvasGroup.interactable = false;
-            CanvasGroup.blocksRaycasts = false;
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
         }
 
         [UsedImplicitly]
         public void ShowMessage(string message)
         {
-            CanvasGroup.interactable = true;
-            CanvasGroup.blocksRaycasts = true;
+            _canvasGroup.interactable = true;
+            _canvasGroup.blocksRaycasts = true;
 
             _messageText.SetText(message);
 
             _tween.Stop();
 
             _tween = Tween.Alpha(
-                CanvasGroup,
+                _canvasGroup,
                 endValue: 1f,
                 _fadingDuration,
                 useUnscaledTime: true,
                 endDelay: _showingDuration
             ).OnComplete(this, globalMessage =>
             {
-                globalMessage.CanvasGroup.alpha = 1f;
+                globalMessage._canvasGroup.alpha = 1f;
 
                 if (globalMessage._shouldAutoClose)
                     globalMessage.HideMessage();
@@ -62,17 +64,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents
         [UsedImplicitly]
         public void HideMessage()
         {
-            CanvasGroup.interactable = false;
-            CanvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
 
             _tween.Stop();
 
             _tween = Tween.Alpha(
-                CanvasGroup,
+                _canvasGroup,
                 endValue: 0f,
                 _fadingDuration,
                 useUnscaledTime: true
-            ).OnComplete(this, globalMessage => globalMessage.CanvasGroup.alpha = 0f);
+            ).OnComplete(this, globalMessage => globalMessage._canvasGroup.alpha = 0f);
         }
 
         private void OnDisable()

@@ -1,4 +1,4 @@
-﻿using CustomUtils.Runtime.CustomBehaviours;
+﻿using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,16 +8,15 @@ namespace CustomUtils.Runtime.UI.CustomComponents
     [ExecuteAlways]
     [RequireComponent(typeof(RectTransform))]
     [RequireComponent(typeof(AspectRatioFitter))]
-    internal sealed class TextBasedAspectRatioFitter : AspectRatioBehaviour, ITextSizeNotifiable
+    internal sealed class TextBasedAspectRatioFitter : MonoBehaviour, ITextSizeNotifiable
     {
         [SerializeField] private AdaptiveTextMeshProUGUI[] _adaptiveTexts;
         [SerializeField] private DimensionType _staticDimensionType;
         [SerializeField] private float _staticReferenceSize;
         [SerializeField] private float _otherContentReferenceSize;
 
-        private RectTransform RectTransform =>
-            _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
-        private RectTransform _rectTransform;
+        [SerializeField, Self] private AspectRatioFitter _aspectRatioFitter;
+        [SerializeField, Self] private RectTransform _rectTransform;
 
         private bool _isRegistered;
 
@@ -73,7 +72,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
             if (TryGetNewRatio(totalTextSize, out var newRatio) is false)
                 return;
 
-            AspectRatioFitter.aspectRatio = newRatio;
+            _aspectRatioFitter.aspectRatio = newRatio;
         }
 
         private bool TryGetNewRatio(float totalTextSize, out float newRatio)
@@ -82,8 +81,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents
 
             var currentSize = _staticDimensionType switch
             {
-                DimensionType.Width => RectTransform.rect.width,
-                DimensionType.Height => RectTransform.rect.height,
+                DimensionType.Width => _rectTransform.rect.width,
+                DimensionType.Height => _rectTransform.rect.height,
                 _ => 0f
             };
 
