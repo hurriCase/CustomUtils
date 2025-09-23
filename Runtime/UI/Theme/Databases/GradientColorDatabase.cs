@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CustomUtils.Runtime.AssetLoader;
+﻿using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEngine;
 
@@ -11,8 +10,5 @@ namespace CustomUtils.Runtime.UI.Theme.Databases
         ResourcePaths.ThemeResourcePath
     )]
     internal sealed class GradientColorDatabase :
-        ThemeColorDatabaseBase<GradientColorDatabase, ThemeGradientColor, Gradient>
-    {
-        [field: SerializeField, NonReorderable] public override List<ThemeGradientColor> Colors { get; protected set; }
-    }
+        ThemeColorDatabaseBase<GradientColorDatabase, ThemeGradientColor, Gradient> { }
 }

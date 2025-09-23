@@ -2,6 +2,7 @@
 using System.Linq;
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.UI.Theme.Base;
+using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.Theme.Databases
 {
@@ -9,7 +10,7 @@ namespace CustomUtils.Runtime.UI.Theme.Databases
         where TDatabase : ThemeColorDatabaseBase<TDatabase, TTheme, TColor>
         where TTheme : class, IThemeColor<TColor>
     {
-        public abstract List<TTheme> Colors { get; protected set; }
+        [field: SerializeField] public List<TTheme> Colors { get; protected set; }
 
         internal List<string> GetColorNames()
         {
