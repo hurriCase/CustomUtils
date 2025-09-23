@@ -8,6 +8,6 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
     public struct ColorData
     {
         [field: SerializeField] public ColorType ColorType { get; private set; }
-        [field: SerializeField] public string ColorName { get; private set; }
+        [field: SerializeField, ThemeColorName] public string ColorName { get; private set; }
     }
 }
