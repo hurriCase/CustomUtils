@@ -10,14 +10,12 @@ namespace CustomUtils.Runtime.Localization
     [RequireComponent(typeof(TextMeshProUGUI))]
     internal sealed class LocalizedTextMeshPro : MonoBehaviour
     {
-        [field: SerializeField] internal string LocalizationKey { get; set; }
+        [field: SerializeField] internal string LocalizationKey { get; private set; }
 
-        [SerializeField, Self] private TextMeshProUGUI _text;
+        [field: SerializeField, Self] internal TextMeshProUGUI Text { get; private set; }
 
         private void Start()
         {
-            Localize();
-
             LocalizationController.Language.SubscribeUntilDestroy(this, self => self.Localize());
         }
 
@@ -29,7 +27,7 @@ namespace CustomUtils.Runtime.Localization
                 return;
             }
 
-            _text.text = LocalizationController.Localize(LocalizationKey);
+            Text.text = LocalizationController.Localize(LocalizationKey);
         }
     }
 }

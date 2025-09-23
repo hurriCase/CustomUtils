@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using TMPro;
 using UnityEditor;
@@ -18,15 +19,17 @@ namespace CustomUtils.Editor.Scripts.Localization
         private SystemLanguage _selectedLanguage;
 
         private SerializedProperty _localizationKeyProperty;
+        private SerializedProperty _textProperty;
 
         private const int MaxShownKeys = 8;
 
         protected override void InitializeEditor()
         {
-            if (target && target is LocalizedTextMeshPro localizedText)
-                _textComponent = localizedText.GetComponent<TextMeshProUGUI>();
+            if (serializedObject.TryGetComponent(out _textComponent) is false)
+                return;
 
             _localizationKeyProperty = serializedObject.FindField(nameof(LocalizedTextMeshPro.LocalizationKey));
+            _textProperty = serializedObject.FindField(nameof(LocalizedTextMeshPro.Text));
 
             _selectedLanguage = LocalizationDatabase.Instance.DefaultLanguage;
         }
@@ -39,9 +42,10 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             DrawLanguageSelection();
 
-            if (string.IsNullOrEmpty(_localizationKeyProperty.stringValue) is false &&
-                LocalizationController.HasKey(_localizationKeyProperty.stringValue))
+            if (LocalizationController.HasKey(_localizationKeyProperty.stringValue))
                 DrawLocalizedContent();
+
+            EditorStateControls.PropertyField(_textProperty);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -53,7 +57,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             DrawLocalizationKeySection(hasValidKey);
 
-            if (hasValidKey is false && string.IsNullOrEmpty(currentKey) is false)
+            if (hasValidKey is false && currentKey.IsValid())
                 DrawKeySearchSuggestions(currentKey);
         }
 
@@ -62,6 +66,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
 
             EditorStateControls.PropertyField(_localizationKeyProperty);
+
             DrawValidationIcon(hasValidKey);
         }
 
@@ -100,12 +105,12 @@ namespace CustomUtils.Editor.Scripts.Localization
         {
             foreach (var key in matchingKeys)
             {
-                if (GUILayout.Button($"{key} \u25b2", GUI.skin.label))
+                if (EditorVisualControls.Button($"{key} \u25b2", GUI.skin.label))
                     SelectKey(key);
             }
 
             if (matchingKeys.Count == MaxShownKeys && totalKeys > MaxShownKeys)
-                GUILayout.Label("...and more");
+                EditorVisualControls.LabelField("...and more");
         }
 
         private void SelectKey(string key)
@@ -131,6 +136,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             var languageStrings = availableLanguages.AsValueEnumerable()
                 .Select(lang => lang.ToString()).ToArray();
+
             var currentIndex = Array.IndexOf(languageStrings, _selectedLanguage.ToString());
 
             if (currentIndex == -1) currentIndex = 0;
