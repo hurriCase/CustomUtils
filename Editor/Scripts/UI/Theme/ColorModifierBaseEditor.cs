@@ -44,6 +44,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             _colorPreview = container.Q<TVisualElement>(ColorPreviewName);
 
+            ChangeColor(colorNameProperty);
             container.TrackPropertyValue(colorNameProperty, ChangeColor);
         }
 
