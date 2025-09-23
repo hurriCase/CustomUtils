@@ -5,6 +5,6 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Attributes
 {
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class SelfAttribute : PropertyAttribute { }
 }
