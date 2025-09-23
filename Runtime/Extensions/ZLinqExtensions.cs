@@ -3,6 +3,10 @@ using ZLinq;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for ZLinq.
+    /// </summary>
+    [UsedImplicitly]
     public static class ZLinqExtensions
     {
         /// <summary>

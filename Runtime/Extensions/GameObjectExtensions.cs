@@ -3,7 +3,11 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
-    internal static class GameObjectExtensions
+    /// <summary>
+    /// Provides extension methods for <see cref="GameObject"/>.
+    /// </summary>
+    [UsedImplicitly]
+    public static class GameObjectExtensions
     {
         /// <summary>
         /// Retrieves a component of type T from the GameObject attached to the specified component,

@@ -1,8 +1,13 @@
-﻿using UnityEngine;
+﻿using JetBrains.Annotations;
+using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
-    internal static class ObjectExtensions
+    /// <summary>
+    /// Provides extension methods for <see cref="Object"/>.
+    /// </summary>
+    [UsedImplicitly]
+    public static class ObjectExtensions
     {
         /// <summary>
         /// Returns the object itself if it exists, null otherwise.
@@ -16,6 +21,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <typeparam name="T">The type of the object.</typeparam>
         /// <param name="obj">The object being checked.</param>
         /// <returns>The object itself if it exists and not destroyed, null otherwise.</returns>
+        [UsedImplicitly]
         public static T AsNullable<T>(this T obj) where T : Object => obj ? obj : null;
     }
 }

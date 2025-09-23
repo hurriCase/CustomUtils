@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Extension methods for EnumMode to retrieve enum values with filtering options.
+    /// Provides extension methods for <see cref="EnumMode"/>.
     /// </summary>
     [UsedImplicitly]
     public static class EnumModeExtensions

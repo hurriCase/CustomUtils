@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Extension methods for creating AspectRatioFitter spacing elements.
+    /// Provides extension methods for <see cref="AspectRatioFitter"/>.
     /// </summary>
     [UsedImplicitly]
     public static class AspectRatioFitterExtensions

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Provides extension methods for Unity Component objects.
+    /// Provides extension methods for <see cref="Component"/>.
     /// </summary>
     [UsedImplicitly]
     public static class ComponentExtensions

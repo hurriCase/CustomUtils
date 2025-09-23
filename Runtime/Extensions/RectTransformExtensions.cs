@@ -7,7 +7,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Extension methods for RectTransform dimension change observables.
+    /// Provides extension methods for <see cref="RectTransform"/>.
     /// </summary>
     [UsedImplicitly]
     public static class RectTransformExtensions

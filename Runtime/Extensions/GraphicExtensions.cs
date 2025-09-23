@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Provides extension methods for UnityEngine.UI.Graphic.
+    /// Provides extension methods for <see cref="Graphic"/>.
     /// </summary>
     [UsedImplicitly]
     public static class GraphicExtensions

@@ -5,6 +5,9 @@ using ZLinq;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for working with JSON-related tasks.
+    /// </summary>
     [UsedImplicitly]
     public static class JsonExtension
     {

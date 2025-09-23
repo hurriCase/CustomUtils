@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="AnimationCurve"/>.
+    /// </summary>
+    [UsedImplicitly]
     public static class AnimationCurveExtensions
     {
         /// <summary>

@@ -7,8 +7,7 @@ namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
     /// Provides extension methods for operations involving <see cref="CancellationToken"/>
-    /// and <see cref="CancellationTokenSource"/>, with specialized functionality for
-    /// Unity's <see cref="MonoBehaviour"/> lifecycle.
+    /// and <see cref="CancellationTokenSource"/>.
     /// </summary>
     [UsedImplicitly]
     public static class CancellationExtensions

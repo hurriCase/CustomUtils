@@ -8,7 +8,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
-    /// Extension methods for PersistentReactiveProperty subscription with automatic disposal on MonoBehaviour destruction.
+    /// Provides extension methods for <see cref="PersistentReactiveProperty{T}"/>.
     /// </summary>
     [UsedImplicitly]
     public static class PersistentReactivePropertyExtensions

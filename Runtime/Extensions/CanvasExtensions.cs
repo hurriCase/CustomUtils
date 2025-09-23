@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="CanvasGroup"/>.
+    /// </summary>
     [UsedImplicitly]
     public static class CanvasExtensions
     {

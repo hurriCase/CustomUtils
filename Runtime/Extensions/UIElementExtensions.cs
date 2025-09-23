@@ -6,6 +6,10 @@ using UnityEngine.UIElements;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="VisualElement"/>.
+    /// </summary>
+    [UsedImplicitly]
     public static class UIElementExtensions
     {
         /// <summary>

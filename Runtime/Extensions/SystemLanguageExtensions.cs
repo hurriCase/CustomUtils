@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="SystemLanguage"/>.
+    /// </summary>
+    [UsedImplicitly]
     public static class SystemLanguageExtensions
     {
         private static readonly Dictionary<SystemLanguage, (string iso1, string iso2)> _languageCodes = new()

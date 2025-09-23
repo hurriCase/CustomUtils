@@ -4,6 +4,10 @@ using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="string"/> conversions.
+    /// </summary>
+    [UsedImplicitly]
     public static class StringConversionExtensions
     {
         private const char CollectionDelimiter = ';';
