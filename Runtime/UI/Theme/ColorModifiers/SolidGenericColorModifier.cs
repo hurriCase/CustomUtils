@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.Extensions;
+﻿using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
@@ -14,7 +15,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers
     [ColorModifier(ColorType.Solid)]
     internal sealed class SolidGenericColorModifier : GenericColorModifierBase<Color>
     {
-        [SerializeField] private Graphic _graphic;
+        [SerializeField, InspectorReadOnly] private Graphic _graphic;
 
         internal override IThemeDatabase<Color> ThemeDatabase => SolidColorDatabase.Instance;
 

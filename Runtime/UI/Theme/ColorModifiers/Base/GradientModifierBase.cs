@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
@@ -22,7 +23,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 
         protected TGradientEffect gradientEffectBase;
 
-        [SerializeField] private TComponent _component;
+        [SerializeField, InspectorReadOnly] private TComponent _component;
 
         protected override void OnEnable()
         {
