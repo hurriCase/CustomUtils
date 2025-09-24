@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.Theme.ImageVertexGradient
+namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.GraphicGradient
 {
     [ExecuteAlways]
-    internal sealed class VertexGradientEffect : BaseMeshEffect
+    public sealed class VertexGradientEffect : BaseMeshEffect
     {
         private const int VerticesPerQuad = 4;
         private const int BottomLeftIndex = 0;

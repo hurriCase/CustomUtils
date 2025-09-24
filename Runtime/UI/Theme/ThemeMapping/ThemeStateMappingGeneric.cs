@@ -13,10 +13,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeMapping
         [UsedImplicitly]
         public void SetComponentForState(TEnum state, ThemeComponent themeComponent)
         {
-            var colorData = StateMappings[state];
-
-            themeComponent.UpdateColor(colorData);
-            themeComponent.ApplyColor();
+            themeComponent.ColorData.Value = StateMappings[state];
         }
     }
 }

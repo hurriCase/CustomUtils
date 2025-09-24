@@ -1,22 +1,19 @@
-﻿using CustomUtils.Runtime.UI.Theme.Base;
-using CustomUtils.Runtime.UI.Theme.ImageVertexGradient;
+﻿using System;
+using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Extensions;
+using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient;
+using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.GraphicGradient;
+using CustomUtils.Runtime.UI.Theme.Base;
+using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier
 {
+    [Serializable]
     [ExecuteAlways]
     [DisallowMultipleComponent]
-    [ColorModifier(ColorType.Gradient)]
-    internal sealed class GradientColorModifier : GradientModifierBase
-    {
-        private void OnDestroy()
-        {
-            Graphic.ClearVertexGradient();
-        }
-
-        protected override void OnApplyColor(Gradient gradient)
-        {
-            Graphic.ApplyVertexGradient(gradient, CurrentGradientDirection.Value);
-        }
-    }
+    [RequireComponent(typeof(Graphic))]
+    [ColorModifier(ColorType.GraphicGradient)]
+    internal sealed class GradientColorModifier : GradientModifierBase<GraphicGradientEffect, Graphic> { }
 }

@@ -1,8 +1,7 @@
 ﻿using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
-using CustomUtils.Runtime.UI.Theme.ColorModifiers;
+using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using CustomUtils.Runtime.UI.Theme.ThemeMapping;
-using JetBrains.Annotations;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,41 +13,33 @@ namespace CustomUtils.Runtime.UI.Theme.Base
     [RequireComponent(typeof(Graphic))]
     public sealed class ThemeComponent : MonoBehaviour
     {
-        [SerializeField] private SerializableReactiveProperty<ColorType> _currentColorType = new();
+        [field: SerializeField] internal SerializableReactiveProperty<ColorData> ColorData { get; set; } = new();
 
-        [SerializeField, HideInInspector] private ColorModifierBase _currentColorModifier;
+        private ColorModifierBase _currentColorModifier;
+
+        private ColorType _currentColorType;
 
         private void OnEnable()
         {
-            ThemeHandler.CurrentThemeType.SubscribeUntilDisable(this, self => self.ApplyColor());
-
-            _currentColorType
-                .Skip(1)
-                .SubscribeUntilDisable(this, self => self.UpdateModifier());
+            ColorData.Skip(1).SubscribeUntilDisable(this, (colorData, self) => self.UpdateModifier(colorData));
         }
 
-        [UsedImplicitly]
-        public void UpdateColor(ColorData colorData)
+        private void UpdateModifier(ColorData colorData)
         {
-            _currentColorType.Value = colorData.ColorType;
-            _currentColorModifier.UpdateColor(colorData.ColorName);
+            if (_currentColorType != colorData.ColorType || !_currentColorModifier)
+            {
+                CreateModifier(colorData.ColorType);
+                _currentColorType = colorData.ColorType;
+            }
+
+            if (_currentColorModifier)
+                _currentColorModifier.UpdateColor(colorData.ColorName);
         }
 
-        [UsedImplicitly]
-        public void ApplyColor()
-        {
-            if (_currentColorType.Value == ColorType.None)
-                return;
-
-            _currentColorModifier.ApplyColor();
-        }
-
-        private void UpdateModifier()
+        private void CreateModifier(ColorType colorType)
         {
             _currentColorModifier.AsNullable()?.Destroy();
-            _currentColorModifier = ColorModifierFactory.CreateModifier(_currentColorType.Value, gameObject);
-
-            ApplyColor();
+            _currentColorModifier = ColorModifierFactory.CreateModifier(colorType, gameObject);
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿namespace CustomUtils.Runtime.UI.Theme.ImageVertexGradient
+﻿using JetBrains.Annotations;
+
+namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient
 {
+    [UsedImplicitly]
     public enum GradientDirection
     {
         None = 0,

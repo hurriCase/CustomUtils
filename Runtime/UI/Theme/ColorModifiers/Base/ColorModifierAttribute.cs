@@ -1,7 +1,7 @@
 ﻿using System;
 using CustomUtils.Runtime.UI.Theme.Base;
 
-namespace CustomUtils.Runtime.UI.Theme.ColorModifiers
+namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 {
     [AttributeUsage(AttributeTargets.Class)]
     internal sealed class ColorModifierAttribute : Attribute

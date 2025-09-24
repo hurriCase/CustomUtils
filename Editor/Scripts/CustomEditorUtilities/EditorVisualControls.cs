@@ -861,7 +861,7 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
                 EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
 
             var progressRect = EditorGUILayout.GetControlRect(false, 20);
-            var progressText = ZString.Concat("{0}%", Mathf.RoundToInt(progress * 100));
+            var progressText = ZString.Format("{0}%", Mathf.RoundToInt(progress * 100));
             EditorGUI.ProgressBar(progressRect, Mathf.Clamp01(progress), progressText);
 
             EditorGUILayout.EndVertical();

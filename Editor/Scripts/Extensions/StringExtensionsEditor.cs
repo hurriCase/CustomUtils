@@ -78,7 +78,7 @@ namespace CustomUtils.Editor.Scripts.Extensions
 
             var fileInfo = new FileInfo(filePath);
 
-            version = ZString.Concat("{0:yyyyMMdd}-{1}", fileInfo.LastWriteTime, hash[..8]);
+            version = ZString.Format("{0:yyyyMMdd}-{1}", fileInfo.LastWriteTime, hash[..8]);
             return true;
         }
     }

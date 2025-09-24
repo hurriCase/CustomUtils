@@ -34,7 +34,7 @@ namespace CustomUtils.Editor.Scripts.Extensions
                 ? globalId.ToString().GetHashCode()
                 : target.GetInstanceID();
 
-            return ZString.Concat("{0}.{1}", baseKey, objectId);
+            return ZString.Format("{0}.{1}", baseKey, objectId);
         }
     }
 }

@@ -4,15 +4,16 @@ using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.UI.Theme.Base;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.Theme.Databases
+namespace CustomUtils.Runtime.UI.Theme.Databases.Base
 {
-    internal abstract class ThemeColorDatabaseBase<TDatabase, TTheme, TColor> : SingletonScriptableObject<TDatabase>
+    internal abstract class ThemeColorDatabaseBase<TDatabase, TTheme, TColor> :
+        SingletonScriptableObject<TDatabase>, IThemeDatabase<TColor>
         where TDatabase : ThemeColorDatabaseBase<TDatabase, TTheme, TColor>
         where TTheme : class, IThemeColor<TColor>
     {
         [field: SerializeField] public List<TTheme> Colors { get; protected set; }
 
-        internal List<string> GetColorNames()
+        public List<string> GetColorNames()
         {
             if (Colors == null || Colors.Count == 0)
                 return null;
@@ -20,7 +21,7 @@ namespace CustomUtils.Runtime.UI.Theme.Databases
             return Colors.Select(color => color.Name).ToList();
         }
 
-        internal bool TryGetColorByName(ref string colorName, out TColor color)
+        public bool TryGetColorByName(string colorName, out TColor color)
         {
             color = default;
             if (Colors == null || Colors.Count == 0)
@@ -36,10 +37,15 @@ namespace CustomUtils.Runtime.UI.Theme.Databases
                 return true;
             }
 
-            var firstColor = Colors.First();
-            color = firstColor.Colors[currentTheme];
-            colorName = firstColor.Name;
-            return true;
+            return false;
+        }
+
+        public string GetFirstColorName()
+        {
+            if (Colors == null || Colors.Count == 0)
+                return null;
+
+            return Colors[0].Name;
         }
     }
 }

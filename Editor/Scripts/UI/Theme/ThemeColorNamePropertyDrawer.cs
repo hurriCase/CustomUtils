@@ -14,10 +14,14 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
     [CustomPropertyDrawer(typeof(ThemeColorNameAttribute))]
     internal sealed class ThemeColorNamePropertyDrawer : PropertyDrawer
     {
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) =>
-            property.stringValue.IsValid()
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var colorType = property.GetPropertyFromParent<ColorType>(nameof(ColorData.ColorType));
+
+            return colorType != ColorType.None && property.stringValue.IsValid()
                 ? EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing
                 : EditorGUIUtility.singleLineHeight;
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -28,7 +32,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             if (TryGetColorNamesForType(colorType, out var colorNames) is false)
             {
-                var message = ZString.Concat("No {0} colors found in database.", colorType);
+                var message = ZString.Format("No {0} colors found in database.", colorType);
                 EditorVisualControls.WarningBox(position, message);
                 return;
             }
@@ -74,12 +78,12 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
             switch (colorType)
             {
                 case ColorType.Solid:
-                    if (SolidColorDatabase.Instance.TryGetColorByName(ref colorName, out var previewColor))
+                    if (SolidColorDatabase.Instance.TryGetColorByName(colorName, out var previewColor))
                         EditorGUI.ColorField(previewRect, "Preview", previewColor);
                     break;
 
-                case ColorType.Gradient:
-                    if (GradientColorDatabase.Instance.TryGetColorByName(ref colorName, out var gradient))
+                case ColorType.GraphicGradient or ColorType.TextGradient:
+                    if (GradientColorDatabase.Instance.TryGetColorByName(colorName, out var gradient))
                         EditorGUI.GradientField(previewRect, "Preview", gradient);
                     break;
             }
@@ -89,8 +93,8 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
         {
             colorNames = colorType switch
             {
-                ColorType.Gradient => GradientColorDatabase.Instance.GetColorNames(),
                 ColorType.Solid => SolidColorDatabase.Instance.GetColorNames(),
+                ColorType.GraphicGradient or ColorType.TextGradient => GradientColorDatabase.Instance.GetColorNames(),
                 _ => null
             };
 

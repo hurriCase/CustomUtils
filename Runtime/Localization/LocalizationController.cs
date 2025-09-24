@@ -403,7 +403,7 @@ namespace CustomUtils.Runtime.Localization
 
                 if (_dictionary[language].ContainsKey(key))
                 {
-                    var message = ZString.Concat("[LocalizationController::AddTranslationsForKey] " +
+                    var message = ZString.Format("[LocalizationController::AddTranslationsForKey] " +
                                                  "Duplicated key '{0}' in '{0}' for language '{0}'.",
                         key, sheetName, language);
 

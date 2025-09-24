@@ -4,7 +4,7 @@
     {
         None = 0,
         Solid = 1,
-        Gradient = 2,
+        GraphicGradient = 2,
         TextGradient = 3
     }
 }
