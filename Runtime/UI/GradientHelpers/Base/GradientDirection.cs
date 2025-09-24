@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient
+namespace CustomUtils.Runtime.UI.GradientHelpers.Base
 {
     [UsedImplicitly]
     public enum GradientDirection

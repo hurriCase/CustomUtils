@@ -1,9 +1,9 @@
 ﻿using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.Base;
+using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.GraphicGradient
+namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
 {
     public sealed class GraphicGradientEffect : GradientEffectBase<Graphic>
     {

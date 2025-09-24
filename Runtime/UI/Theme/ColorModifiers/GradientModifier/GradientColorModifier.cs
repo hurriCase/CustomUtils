@@ -1,8 +1,7 @@
 ﻿using System;
 using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient;
-using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.GraphicGradient;
+using CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using UnityEngine;

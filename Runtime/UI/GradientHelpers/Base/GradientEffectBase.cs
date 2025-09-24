@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.Base
+namespace CustomUtils.Runtime.UI.GradientHelpers.Base
 {
     public abstract class GradientEffectBase<TComponent> where TComponent : Component
     {

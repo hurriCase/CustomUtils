@@ -1,8 +1,7 @@
 ﻿using System;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
-using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient;
-using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.Base;
+using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
 using CustomUtils.Runtime.UI.Theme.Databases.Base;
 using R3;

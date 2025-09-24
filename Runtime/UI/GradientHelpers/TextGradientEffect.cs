@@ -1,8 +1,8 @@
-﻿using CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient.Base;
+﻿using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using TMPro;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.GradientHelpers.ImageVertexGradient
+namespace CustomUtils.Runtime.UI.GradientHelpers
 {
     public sealed class TextGradientEffect : GradientEffectBase<TextMeshProUGUI>
     {
