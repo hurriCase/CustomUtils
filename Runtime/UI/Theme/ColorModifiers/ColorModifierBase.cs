@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CustomUtils.Runtime.Attributes;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.Theme.VertexGradient
+namespace CustomUtils.Runtime.UI.Theme.ImageVertexGradient
 {
     [ExecuteAlways]
     internal sealed class VertexGradientEffect : BaseMeshEffect

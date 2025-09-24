@@ -21,6 +21,7 @@ namespace CustomUtils.Runtime.UI.Theme.Base
         private void OnEnable()
         {
             ThemeHandler.CurrentThemeType.SubscribeUntilDisable(this, self => self.ApplyColor());
+
             _currentColorType
                 .Skip(1)
                 .SubscribeUntilDisable(this, self => self.UpdateModifier());

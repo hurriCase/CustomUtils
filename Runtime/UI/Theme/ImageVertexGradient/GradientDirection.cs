@@ -1,4 +1,4 @@
-﻿namespace CustomUtils.Runtime.UI.Theme.VertexGradient
+﻿namespace CustomUtils.Runtime.UI.Theme.ImageVertexGradient
 {
     public enum GradientDirection
     {

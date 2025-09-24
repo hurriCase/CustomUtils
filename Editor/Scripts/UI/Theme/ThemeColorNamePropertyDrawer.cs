@@ -5,6 +5,7 @@ using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
 using CustomUtils.Runtime.UI.Theme.ThemeMapping;
+using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,7 +28,8 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             if (TryGetColorNamesForType(colorType, out var colorNames) is false)
             {
-                EditorVisualControls.WarningBox(position, $"No {colorType} colors found in database.");
+                var message = ZString.Concat("No {0} colors found in database.", colorType);
+                EditorVisualControls.WarningBox(position, message);
                 return;
             }
 

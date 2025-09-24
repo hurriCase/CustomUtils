@@ -31,8 +31,12 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             UpdateDropdown(container);
 
+            OnCreateInspectorGUI(container);
+
             return container;
         }
+
+        protected virtual void OnCreateInspectorGUI(VisualElement container) { }
 
         private void UpdateDropdown(VisualElement container)
         {

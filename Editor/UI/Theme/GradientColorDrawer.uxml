@@ -1,6 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement name="theme-color-container" style="flex-grow: 1;">
         <ui:DropdownField label="Color Name" name="color-name-dropdown" />
+        <ui:EnumField label="Enum" value="Center" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" name="gradient-direction-dropdown" />
         <uie:GradientField label="Preview" value="Blend:{0,#FF0000FF};{1,#0000FFFF};{1,#00FF00FF}+{0,1};{1,1}" name="gradient-color-preview" enabled="false" />
     </ui:VisualElement>
 </ui:UXML>

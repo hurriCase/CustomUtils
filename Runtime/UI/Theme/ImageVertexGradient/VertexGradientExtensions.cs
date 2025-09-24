@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.UI.Theme.VertexGradient
+namespace CustomUtils.Runtime.UI.Theme.ImageVertexGradient
 {
     internal static class VertexGradientExtensions
     {
