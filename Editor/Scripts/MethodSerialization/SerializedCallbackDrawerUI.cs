@@ -121,8 +121,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
                         var intProp = parameter.FindPropertyRelative("IntValue");
                         IntegerField intField = new($"Parameter {i + 1} (Int)");
                         intField.value = intProp.intValue;
-                        intField.RegisterValueChangedCallback(
-                            evt =>
+                        intField.RegisterValueChangedCallback(evt =>
                             {
                                 intProp.intValue = evt.newValue;
                                 parametersProp.serializedObject.ApplyModifiedProperties();
@@ -135,8 +134,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
                         var floatProp = parameter.FindPropertyRelative("FloatValue");
                         FloatField floatField = new($"Parameter {i + 1} (Float)");
                         floatField.value = floatProp.floatValue;
-                        floatField.RegisterValueChangedCallback(
-                            evt =>
+                        floatField.RegisterValueChangedCallback(evt =>
                             {
                                 floatProp.floatValue = evt.newValue;
                                 parametersProp.serializedObject.ApplyModifiedProperties();
@@ -149,8 +147,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
                         var stringProp = parameter.FindPropertyRelative("StringValue");
                         TextField stringField = new($"Parameter {i + 1} (String)");
                         stringField.value = stringProp.stringValue;
-                        stringField.RegisterValueChangedCallback(
-                            evt =>
+                        stringField.RegisterValueChangedCallback(evt =>
                             {
                                 stringProp.stringValue = evt.newValue;
                                 parametersProp.serializedObject.ApplyModifiedProperties();
@@ -163,8 +160,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
                         var boolProp = parameter.FindPropertyRelative("BoolValue");
                         Toggle boolField = new($"Parameter {i + 1} (Bool)");
                         boolField.value = boolProp.boolValue;
-                        boolField.RegisterValueChangedCallback(
-                            evt =>
+                        boolField.RegisterValueChangedCallback(evt =>
                             {
                                 boolProp.boolValue = evt.newValue;
                                 parametersProp.serializedObject.ApplyModifiedProperties();
@@ -177,8 +173,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
                         var vector3Prop = parameter.FindPropertyRelative("Vector3Value");
                         Vector3Field vector3Field = new($"Parameter {i + 1} (Vector3)");
                         vector3Field.value = vector3Prop.vector3Value;
-                        vector3Field.RegisterValueChangedCallback(
-                            evt =>
+                        vector3Field.RegisterValueChangedCallback(evt =>
                             {
                                 vector3Prop.vector3Value = evt.newValue;
                                 parametersProp.serializedObject.ApplyModifiedProperties();

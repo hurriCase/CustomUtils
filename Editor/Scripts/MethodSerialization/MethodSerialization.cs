@@ -50,7 +50,7 @@ namespace CustomUtils.Editor.Scripts.MethodSerialization
         {
             _cachedDelegate = null;
 
-            if (_targetObject is null || string.IsNullOrEmpty(_methodName))
+            if (!_targetObject || string.IsNullOrEmpty(_methodName))
             {
                 Debug.LogWarning("Target object or method name is null, cannot rebuild delegate.");
                 return;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.CustomTypes.Collections
 {
@@ -11,6 +12,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// </summary>
     /// <typeparam name="TEnum">The enumeration type that represents the keys in the (key, value) pairs.</typeparam>
     /// <typeparam name="TValue">The type of the associated values in the (key, value) pairs.</typeparam>
+    [UsedImplicitly]
     public struct TupleEnumerator<TEnum, TValue> : IEnumerator<(TEnum Key, TValue Value)>
         where TEnum : unmanaged, Enum
     {
@@ -41,6 +43,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <exception cref="InvalidOperationException">
         /// Thrown when the enumerator is positioned before the first element or after the last element.
         /// </exception>
+        [UsedImplicitly]
         public readonly (TEnum Key, TValue Value) Current
         {
             get
@@ -58,6 +61,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// True if the enumerator was successfully advanced to the next element;
         /// false if the enumerator has passed the end of the collection.
         /// </returns>
+        [UsedImplicitly]
         public bool MoveNext()
         {
             _index++;
@@ -68,12 +72,14 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// Sets the enumerator to its initial position, which is before the first element in the collection.
         /// The initial position respects the configured enumeration mode.
         /// </summary>
+        [UsedImplicitly]
         public void Reset() => _index = _startIndex - 1;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// For this struct enumerator, no cleanup is needed.
         /// </summary>
+        [UsedImplicitly]
         public void Dispose()
         {
             // No cleanup needed for struct enumerator
@@ -85,13 +91,17 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <returns>
         /// A <see cref="TupleEnumerator{TEnum, TValue}"/> that can be used to iterate through the (key, value) tuples of the enumeration.
         /// </returns>
+        [UsedImplicitly]
         public readonly TupleEnumerator<TEnum, TValue> GetEnumerator() => this;
+
+        // ReSharper disable once HeapView.BoxingAllocation | Required for explicit interface implementation
 
         /// <summary>
         /// Explicit interface implementation for non-generic Current property.
         /// This will box the current value when accessed through IEnumerator.
         /// </summary>
         /// <value>The current key-value tuple as an object, which may cause boxing.</value>
+        [UsedImplicitly]
         readonly object IEnumerator.Current => Current;
     }
 }

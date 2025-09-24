@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CustomUtils.Runtime.Downloader;
+using Cysharp.Text;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
@@ -209,18 +210,12 @@ namespace CustomUtils.Runtime.Localization
         /// <summary>
         /// Retrieves all supported languages available in the localization dictionary.
         /// </summary>
-        /// <remarks>
-        /// This method returns a list of languages present in the localization system,
-        /// sorted alphabetically by their names. It provides the available languages
-        /// stored in the internal localization data.
-        /// </remarks>
         /// <returns>
         /// An array of <see cref="SystemLanguage"/> representing all supported languages.
         /// Returns an empty array if no languages are defined.
         /// </returns>
         [UsedImplicitly]
-        public static SystemLanguage[] GetAllLanguages() =>
-            _dictionary.Keys.OrderBy(language => language.ToString()).ToArray();
+        public static SystemLanguage[] GetAllLanguages() => _dictionary.Keys.ToArray();
 
         /// <summary>
         /// Retrieves the localized text for a given key in the specified language.
@@ -407,10 +402,16 @@ namespace CustomUtils.Runtime.Localization
                 var translation = columns[j + 1]; // +1 because first column is the key
 
                 if (_dictionary[language].ContainsKey(key))
-                    Debug.LogError("[LocalizationController::AddTranslationsForKey] " +
-                                   $"Duplicated key '{key}' in '{sheetName}' for language '{language}'.");
-                else
-                    _dictionary[language][key] = translation;
+                {
+                    var message = ZString.Concat("[LocalizationController::AddTranslationsForKey] " +
+                                                 "Duplicated key '{0}' in '{0}' for language '{0}'.",
+                        key, sheetName, language);
+
+                    Debug.LogError(message);
+                    continue;
+                }
+
+                _dictionary[language][key] = translation;
             }
         }
     }

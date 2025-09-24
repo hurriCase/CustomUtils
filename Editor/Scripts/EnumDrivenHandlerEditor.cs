@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CustomUtils.Editor.Scripts.Extensions;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using ZLinq;
 
 namespace CustomUtils.Editor.Scripts
 {
+    /// <inheritdoc />
     /// <summary>
     /// A generic base editor for enum-based database ScriptableObjects.
     /// </summary>
     /// <typeparam name="TDatabase">The database type</typeparam>
     /// <typeparam name="TData">The data item type</typeparam>
     /// <typeparam name="TEnum">The enum type used for identifying data items</typeparam>
+    [UsedImplicitly]
     public abstract class EnumDrivenHandlerEditor<TDatabase, TData, TEnum> : UnityEditor.Editor
         where TDatabase : ScriptableObject
         where TEnum : Enum

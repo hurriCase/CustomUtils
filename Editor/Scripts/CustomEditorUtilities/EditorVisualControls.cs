@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities.Scopes;
 using CustomUtils.Runtime.Extensions;
+using Cysharp.Text;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -855,11 +856,13 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-            if (string.IsNullOrEmpty(info) is false)
+
+            if (info.IsValid())
                 EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
 
             var progressRect = EditorGUILayout.GetControlRect(false, 20);
-            EditorGUI.ProgressBar(progressRect, Mathf.Clamp01(progress), $"{Mathf.RoundToInt(progress * 100)}%");
+            var progressText = ZString.Concat("{0}%", Mathf.RoundToInt(progress * 100));
+            EditorGUI.ProgressBar(progressRect, Mathf.Clamp01(progress), progressText);
 
             EditorGUILayout.EndVertical();
         }
