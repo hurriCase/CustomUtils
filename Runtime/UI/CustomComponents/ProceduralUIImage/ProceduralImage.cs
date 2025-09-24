@@ -138,8 +138,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             var info = CalculateInfo();
             var uv1 = new Vector2(info.Width, info.Height);
             var uv2 = new Vector2(
-                info.NormilizedRadius.x.PackAs16BitWith(info.NormilizedRadius.y),
-                info.NormilizedRadius.z.PackAs16BitWith(info.NormilizedRadius.w)
+                info.NormalizedRadius.x.PackAs16BitWith(info.NormalizedRadius.y),
+                info.NormalizedRadius.z.PackAs16BitWith(info.NormalizedRadius.w)
             );
 
             var uv3 = new Vector2(info.BorderWidth == 0 ? 1 : Mathf.Clamp01(info.BorderWidth), info.PixelSize);
