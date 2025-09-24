@@ -13,7 +13,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Graphic))]
     [ColorModifier(ColorType.Solid)]
-    internal sealed class SolidGenericColorModifier : GenericColorModifierBase<Color>
+    internal sealed class SolidColorModifier : GenericColorModifierBase<Color>
     {
         [SerializeField, InspectorReadOnly] private Graphic _graphic;
 
