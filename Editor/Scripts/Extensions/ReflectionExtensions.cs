@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using ZLinq;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Editor.Scripts.Extensions
 {
     /// <summary>
-    /// Provides extension methods for retrieving field names using reflection, primarily for editor tools.
+    /// Provides Editor time extension methods for reflection-based operations.
     /// </summary>
-    /// <remarks>
-    /// These utilities help locate fields in classes based on their types, which is particularly useful
-    /// for editor scripts that need to reference serialized properties by name without hardcoding strings.
-    /// </remarks>
+    [UsedImplicitly]
     public static class ReflectionExtensionsEditor
     {
         /// <summary>
@@ -58,5 +55,21 @@ namespace CustomUtils.Editor.Scripts.Extensions
                 .GetFields(bindingFlags)
                 .First(fieldInfo => fieldInfo.FieldType == typeof(List<TElement>))
                 .Name;
+
+        public static FieldInfo GetFieldInfo(this Type type, string fieldName)
+        {
+            while (type != null)
+            {
+                var fieldInfo = type.GetField(fieldName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (fieldInfo != null)
+                    return fieldInfo;
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
     }
 }

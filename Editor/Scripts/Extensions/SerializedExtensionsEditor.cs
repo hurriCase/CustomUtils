@@ -1,14 +1,16 @@
 ﻿using System;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.Theme.Base;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Editor.Scripts.Extensions
 {
-    public static class SerializedExtensions
+    /// <summary>
+    /// Provides Editor time extension methods for serialized-based operations.
+    /// </summary>
+    [UsedImplicitly]
+    public static class SerializedExtensionsEditor
     {
         /// <summary>
         /// Finds a serialized property using its backing field name format.
@@ -67,6 +69,13 @@ namespace CustomUtils.Editor.Scripts.Extensions
                    && component.TryGetComponent(componentType, out requestedComponent);
         }
 
+        /// <summary>
+        /// Tries to retrieve a component of the specified type from the target object of a serialized property.
+        /// </summary>
+        /// <typeparam name="TComponent">The type of the component to retrieve.</typeparam>
+        /// <param name="serializedProperty">The serialized property whose target object is searched for the component.</param>
+        /// <param name="requestedComponent">The output parameter that will hold the retrieved component if found, or null if not found.</param>
+        /// <returns>True if the component of the specified type is found; otherwise, false.</returns>
         [UsedImplicitly]
         public static bool TryGetComponent<TComponent>(
             this SerializedObject serializedProperty,

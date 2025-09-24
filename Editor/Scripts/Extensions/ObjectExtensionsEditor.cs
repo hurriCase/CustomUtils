@@ -1,14 +1,15 @@
-﻿using JetBrains.Annotations;
+﻿using Cysharp.Text;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
 namespace CustomUtils.Editor.Scripts.Extensions
 {
     /// <summary>
-    /// Provides extension methods for Unity Object instances.
+    /// Provides Editor time extension methods for <see cref="Object"/>.
     /// </summary>
     [UsedImplicitly]
-    public static class ObjectExtensions
+    public static class ObjectExtensionsEditor
     {
         /// <summary>
         /// Generates a unique key for a Unity Object by combining a base key with the object's global identifier.
@@ -26,9 +27,14 @@ namespace CustomUtils.Editor.Scripts.Extensions
         /// within the current session but may not persist across Unity sessions.
         /// </remarks>
         [UsedImplicitly, MustUseReturnValue]
-        public static string GetObjectUniqueKey([NotNull] this Object target, string baseKey) =>
-            GlobalObjectId.TryParse(GlobalObjectId.GetGlobalObjectIdSlow(target).ToString(), out var globalId)
-                ? $"{baseKey}.{globalId.ToString().GetHashCode()}"
-                : $"{baseKey}.{target.GetInstanceID()}";
+        public static string GetObjectUniqueKey([NotNull] this Object target, string baseKey)
+        {
+            var objectId = GlobalObjectId.TryParse(GlobalObjectId.GetGlobalObjectIdSlow(target).ToString(),
+                out var globalId)
+                ? globalId.ToString().GetHashCode()
+                : target.GetInstanceID();
+
+            return ZString.Concat("{0}.{1}", baseKey, objectId);
+        }
     }
 }

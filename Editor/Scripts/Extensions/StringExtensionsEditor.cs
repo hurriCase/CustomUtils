@@ -5,9 +5,12 @@ using Cysharp.Text;
 using JetBrains.Annotations;
 using UnityEditor;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Editor.Scripts.Extensions
 {
+    /// <summary>
+    /// Provides Editor time extension methods for <see cref="string"/>.
+    /// </summary>
+    [UsedImplicitly]
     public static class StringExtensionsEditor
     {
         /// <summary>
