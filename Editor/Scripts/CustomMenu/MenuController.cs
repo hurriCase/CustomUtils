@@ -38,8 +38,8 @@ namespace CustomUtils.Editor.Scripts.CustomMenu
 
         private static string GenerateMenuItemsScriptContentFromSettings(CustomMenuSettings settings)
         {
-            var content = @"using CustomUtils.Editor.CustomMenu.MenuItems.Helpers;
-using CustomUtils.Editor.CustomMenu.MenuItems.MenuItems.MethodExecution;
+            var content = @"using CustomUtils.Editor.Scripts.CustomMenu.MenuItems.Helpers;
+using CustomUtils.Editor.Scripts.CustomMenu.MenuItems.MenuItems.MethodExecution;
 using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
