@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Runtime.CustomTypes.Singletons;
-using CustomUtils.Runtime.UI.Theme.Base;
+using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.Theme.Databases.Base
@@ -38,14 +38,6 @@ namespace CustomUtils.Runtime.UI.Theme.Databases.Base
             }
 
             return false;
-        }
-
-        public string GetFirstColorName()
-        {
-            if (Colors == null || Colors.Count == 0)
-                return null;
-
-            return Colors[0].Name;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using CustomUtils.Runtime.Attributes;
+﻿using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
@@ -10,7 +9,6 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 {
-    [Serializable]
     internal abstract class GradientModifierBase<TGradientEffect, TComponent> : GenericColorModifierBase<Gradient>
         where TGradientEffect : GradientEffectBase<TComponent>, new()
         where TComponent : Component
@@ -19,31 +17,31 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
         internal SerializableReactiveProperty<GradientDirection> CurrentGradientDirection { get; private set; } =
             new(GradientDirection.LeftToRight);
 
-        internal override IThemeDatabase<Gradient> ThemeDatabase => GradientColorDatabase.Instance;
-
-        protected TGradientEffect gradientEffectBase;
-
         [SerializeField, InspectorReadOnly] private TComponent _component;
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
+        protected override IThemeDatabase<Gradient> ThemeDatabase => GradientColorDatabase.Instance;
 
-            gradientEffectBase = gradientEffectBase ?? new TGradientEffect();
+        private TGradientEffect _gradientEffectBase;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _gradientEffectBase = _gradientEffectBase ?? new TGradientEffect();
 
             _component = _component.AsNullable() ?? GetComponent<TComponent>();
 
-            CurrentGradientDirection.SubscribeUntilDisable(this, static self => self.UpdateColor(self.currentColorName));
+            CurrentGradientDirection.SubscribeUntilDestroy(this, static self => self.UpdateColor(self.currentColorName));
         }
 
         protected override void OnApplyColor(Gradient gradient)
         {
-            gradientEffectBase.ApplyGradient(_component, gradient, CurrentGradientDirection.Value);
+            _gradientEffectBase.ApplyGradient(_component, gradient, CurrentGradientDirection.Value);
         }
 
-        private void OnDestroy()
+        public override void Dispose()
         {
-            gradientEffectBase.ClearGradient(_component);
+            _gradientEffectBase.ClearGradient(_component);
         }
     }
 }

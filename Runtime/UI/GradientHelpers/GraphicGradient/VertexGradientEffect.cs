@@ -1,9 +1,17 @@
 ﻿using CustomUtils.Runtime.UI.GradientHelpers.Base;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
 {
+    /// <summary>
+    /// A BaseMeshEffect implementation that applies gradient colors to UI element vertices.
+    /// </summary>
+    /// <remarks>
+    /// This component modifies mesh vertices to create gradient effects on UI graphics.
+    /// It works by manipulating the color of individual vertices in quad formations.
+    /// </remarks>
     [ExecuteAlways]
     public sealed class VertexGradientEffect : BaseMeshEffect
     {
@@ -19,13 +27,33 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
         private Color _endColor;
         private GradientDirection _direction;
 
-        internal void SetGradient(Color startColor, Color endColor, GradientDirection direction)
+        /// <summary>
+        /// Sets the gradient parameters for this effect.
+        /// </summary>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The ending color of the gradient.</param>
+        /// <param name="direction">The direction in which the gradient should be applied.</param>
+        /// <remarks>
+        /// This method configures the gradient but does not immediately apply it.
+        /// The effect will be applied during the next mesh update cycle.
+        /// </remarks>
+        [UsedImplicitly]
+        public void SetGradient(Color startColor, Color endColor, GradientDirection direction)
         {
             _startColor = startColor;
             _endColor = endColor;
             _direction = direction;
         }
 
+        /// <summary>
+        /// Modifies the mesh vertices to apply the gradient effect.
+        /// </summary>
+        /// <param name="vertexHelper">The VertexHelper containing the mesh vertices to modify.</param>
+        /// <remarks>
+        /// This method is called automatically by Unity's UI system when the mesh needs to be updated.
+        /// It processes vertices in groups of four (quads) and applies gradient colors based on the configured direction.
+        /// </remarks>
+        [UsedImplicitly]
         public override void ModifyMesh(VertexHelper vertexHelper)
         {
             if (_direction == GradientDirection.None)

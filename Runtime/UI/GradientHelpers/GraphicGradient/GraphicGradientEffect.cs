@@ -1,10 +1,15 @@
 ﻿using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Provides gradient effects for Unity UI Graphic components using vertex manipulation.
+    /// </summary>
     public sealed class GraphicGradientEffect : GradientEffectBase<Graphic>
     {
         protected override void ApplyGradient(
@@ -19,6 +24,15 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
             graphic.SetVerticesDirty();
         }
 
+        /// <summary>
+        /// Removes any gradient effect from the specified Graphic component.
+        /// </summary>
+        /// <param name="graphic">The Graphic component to clear the gradient from.</param>
+        /// <remarks>
+        /// This method destroys the VertexGradientEffect component if present
+        /// and marks the graphic's vertices as dirty for re-rendering.
+        /// </remarks>
+        [UsedImplicitly]
         public override void ClearGradient(Graphic graphic)
         {
             if (graphic.TryGetComponent<VertexGradientEffect>(out var gradientEffect) is false)

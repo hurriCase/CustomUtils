@@ -1,6 +1,6 @@
 ﻿using CustomUtils.Runtime.CustomTypes.Collections;
 
-namespace CustomUtils.Runtime.UI.Theme.Base
+namespace CustomUtils.Runtime.UI.Theme.ThemeColors
 {
     internal interface IThemeColor<TColor>
     {

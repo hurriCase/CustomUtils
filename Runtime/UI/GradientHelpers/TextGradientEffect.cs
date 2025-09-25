@@ -1,9 +1,13 @@
 ﻿using CustomUtils.Runtime.UI.GradientHelpers.Base;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.GradientHelpers
 {
+    /// <summary>
+    /// Provides gradient effects for TextMeshProUGUI components using built-in vertex gradient functionality.
+    /// </summary>
     public sealed class TextGradientEffect : GradientEffectBase<TextMeshProUGUI>
     {
         protected override void ApplyGradient(
@@ -24,6 +28,14 @@ namespace CustomUtils.Runtime.UI.GradientHelpers
             text.enableVertexGradient = direction != GradientDirection.None;
         }
 
+        /// <summary>
+        /// Removes any gradient effect from the specified TextMeshProUGUI component.
+        /// </summary>
+        /// <param name="text">The TextMeshProUGUI component to clear the gradient from.</param>
+        /// <remarks>
+        /// This method disables vertex gradient rendering, restoring the text to its original uniform color.
+        /// </remarks>
+        [UsedImplicitly]
         public override void ClearGradient(TextMeshProUGUI text)
         {
             text.enableVertexGradient = false;

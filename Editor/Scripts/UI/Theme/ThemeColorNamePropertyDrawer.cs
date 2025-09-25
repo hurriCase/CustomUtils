@@ -2,9 +2,8 @@
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.Theme.Base;
+using CustomUtils.Runtime.UI.Theme;
 using CustomUtils.Runtime.UI.Theme.Databases;
-using CustomUtils.Runtime.UI.Theme.ThemeMapping;
 using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
@@ -14,8 +13,13 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
     [CustomPropertyDrawer(typeof(ThemeColorNameAttribute))]
     internal sealed class ThemeColorNamePropertyDrawer : PropertyDrawer
     {
+        private EditorStateControls _editorStateControls;
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
+            _editorStateControls ??=
+                new EditorStateControls(property.serializedObject.targetObject, property.serializedObject);
+
             var colorType = property.GetPropertyFromParent<ColorType>(nameof(ColorData.ColorType));
 
             return colorType != ColorType.None && property.stringValue.IsValid()
@@ -37,34 +41,12 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
                 return;
             }
 
-            DrawDropdown(colorNames, property, position, label);
+            var colorName = _editorStateControls.Dropdown(property, colorNames, position);
 
-            if (property.stringValue.IsValid())
-                DrawColorPreview(property, colorType, position);
+            DrawColorPreview(colorName, colorType, position);
         }
 
-        private void DrawDropdown(List<string> colorNames, SerializedProperty property, Rect position, GUIContent label)
-        {
-            var currentIndex = colorNames.IndexOf(property.stringValue);
-
-            if (currentIndex == -1)
-            {
-                currentIndex = 0;
-                property.stringValue = colorNames.Count > 0 ? colorNames[0] : string.Empty;
-            }
-
-            var popupRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-
-            var newIndex = EditorGUI.Popup(popupRect, label.text, currentIndex, colorNames.ToArray());
-
-            if (newIndex == currentIndex || newIndex < 0 || newIndex >= colorNames.Count)
-                return;
-
-            property.stringValue = colorNames[newIndex];
-            property.serializedObject.ApplyModifiedProperties();
-        }
-
-        private void DrawColorPreview(SerializedProperty property, ColorType colorType, Rect position)
+        private void DrawColorPreview(string colorName, ColorType colorType, Rect position)
         {
             var previewRect = new Rect(
                 position.x,
@@ -73,18 +55,16 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
                 EditorGUIUtility.singleLineHeight
             );
 
-            var colorName = property.stringValue;
-
             switch (colorType)
             {
                 case ColorType.Solid:
                     if (SolidColorDatabase.Instance.TryGetColorByName(colorName, out var previewColor))
-                        EditorGUI.ColorField(previewRect, "Preview", previewColor);
+                        EditorVisualControls.ColorField(previewRect, "Preview", previewColor);
                     break;
 
                 case ColorType.GraphicGradient or ColorType.TextGradient:
                     if (GradientColorDatabase.Instance.TryGetColorByName(colorName, out var gradient))
-                        EditorGUI.GradientField(previewRect, "Preview", gradient);
+                        EditorVisualControls.GradientField(previewRect, "Preview", gradient);
                     break;
             }
         }

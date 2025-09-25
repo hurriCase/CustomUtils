@@ -1,6 +1,5 @@
 ﻿using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
 using CustomUtils.Runtime.UI.Theme.Databases.Base;
@@ -17,21 +16,21 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers
     {
         [SerializeField, InspectorReadOnly] private Graphic _graphic;
 
-        internal override IThemeDatabase<Color> ThemeDatabase => SolidColorDatabase.Instance;
+        protected override IThemeDatabase<Color> ThemeDatabase => SolidColorDatabase.Instance;
 
-        protected override void OnEnable()
+        protected override void Awake()
         {
-            base.OnEnable();
+            base.Awake();
 
             _graphic = _graphic.AsNullable() ?? GetComponent<Graphic>();
         }
 
-        protected override void OnApplyColor(Color gradient)
+        protected override void OnApplyColor(Color color)
         {
-            _graphic.color = gradient;
+            _graphic.color = color;
         }
 
-        private void OnDestroy()
+        public override void Dispose()
         {
             _graphic.color = Color.white;
         }

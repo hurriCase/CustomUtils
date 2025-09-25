@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Runtime.UI.Theme.Base;
+using CustomUtils.Runtime.UI.Theme;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;

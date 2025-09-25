@@ -273,16 +273,45 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedValue">The currently selected string value.</param>
         /// <param name="options">List of option strings to display.</param>
+        /// <param name="rect">The rect where the dropdown should be drawn.</param>
         /// <returns>The selected string value.</returns>
         [UsedImplicitly, MustUseReturnValue]
-        public string Dropdown(string label, string selectedValue, List<string> options)
+        public string Dropdown(string label, string selectedValue, List<string> options, Rect rect = default)
         {
             var selectedIndex = options.IndexOf(selectedValue);
             if (selectedIndex == -1)
                 selectedIndex = 0;
 
-            var newIndex = Dropdown(label, selectedIndex, options);
+            var newIndex = Dropdown(label, selectedIndex, options, rect);
             return newIndex < options.Count ? options[newIndex] : options[0];
+        }
+
+        /// <summary>
+        /// Creates a dropdown with undo support using string value selection.
+        /// Automatically handles both SerializedProperty and regular value scenarios.
+        /// </summary>
+        /// <param name="property">The serialized property to modify.</param>
+        /// <param name="options">List of option strings to display.</param>
+        /// <param name="rect">The rect where the dropdown should be drawn.</param>
+        /// <returns>The selected string value.</returns>
+        [UsedImplicitly]
+        public string Dropdown(SerializedProperty property, List<string> options, Rect rect = default)
+        {
+            var selectedIndex = options.IndexOf(property.stringValue);
+            if (selectedIndex == -1)
+                selectedIndex = 0;
+
+            var newIndex = DrawDropdown(property.displayName, selectedIndex, options.ToArray(), rect);
+
+            if (newIndex < 0)
+                return string.Empty;
+
+            if (newIndex >= options.Count)
+                return options[newIndex];
+
+            property.stringValue = options[newIndex];
+            property.serializedObject.ApplyModifiedProperties();
+            return options[newIndex];
         }
 
         /// <summary>
@@ -291,15 +320,16 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedValue">The currently selected string value.</param>
         /// <param name="options">Array of option strings to display.</param>
+        /// <param name="rect">The rect where the dropdown should be drawn.</param>
         /// <returns>The selected string value.</returns>
         [UsedImplicitly, MustUseReturnValue]
-        public string Dropdown(string label, string selectedValue, string[] options)
+        public string Dropdown(string label, string selectedValue, string[] options, Rect rect = default)
         {
             var selectedIndex = Array.IndexOf(options, selectedValue);
             if (selectedIndex == -1)
                 selectedIndex = 0;
 
-            var newIndex = Dropdown(label, selectedIndex, options);
+            var newIndex = Dropdown(label, selectedIndex, options, rect);
             return newIndex < options.Length ? options[newIndex] : options[0];
         }
 
@@ -309,10 +339,11 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedIndex">The currently selected index.</param>
         /// <param name="options">List of option strings to display.</param>
+        /// <param name="rect">The rect where the dropdown should be drawn.</param>
         /// <returns>The index of the selected option.</returns>
         [UsedImplicitly, MustUseReturnValue]
-        public int Dropdown(string label, int selectedIndex, List<string> options)
-            => Dropdown(label, selectedIndex, options.ToArray());
+        public int Dropdown(string label, int selectedIndex, List<string> options, Rect rect = default)
+            => Dropdown(label, selectedIndex, options.ToArray(), rect);
 
         /// <summary>
         /// Creates a dropdown with undo support using Unity's standard popup styling.
@@ -320,23 +351,37 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         /// <param name="label">The label to display next to the dropdown.</param>
         /// <param name="selectedIndex">The currently selected index.</param>
         /// <param name="options">Array of option strings to display.</param>
+        /// <param name="rect">The rect where the dropdown should be drawn.</param>
         /// <returns>The index of the selected option.</returns>
         [UsedImplicitly, MustUseReturnValue]
-        public int Dropdown(string label, int selectedIndex, string[] options)
+        public int Dropdown(string label, int selectedIndex, string[] options, Rect rect = default)
         {
             var originalIndent = EditorGUI.indentLevel;
 
-            var result = HandleValueChange(label, selectedIndex, () =>
-                EditorGUILayout.Popup(
+            var result = HandleValueChange(label, selectedIndex,
+                () => DrawDropdown(label, selectedIndex, options, rect));
+
+            EditorGUI.indentLevel = originalIndent;
+            return result;
+        }
+
+        private int DrawDropdown(string label, int selectedIndex, string[] options, Rect rect = default)
+        {
+            if (rect == default)
+                return EditorGUILayout.Popup(
                     label,
                     selectedIndex,
                     options,
                     EditorStyles.popup,
                     GUILayout.Height(EditorGUIUtility.singleLineHeight)
-                ));
+                );
 
-            EditorGUI.indentLevel = originalIndent;
-            return result;
+            return EditorGUI.Popup(
+                rect,
+                label,
+                selectedIndex,
+                options,
+                EditorStyles.popup);
         }
 
         /// <summary>

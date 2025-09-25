@@ -1,4 +1,4 @@
-﻿using CustomUtils.Runtime.UI.Theme.ThemeMapping;
+﻿using CustomUtils.Runtime.UI.Theme;
 using JetBrains.Annotations;
 using UnityEngine;
 

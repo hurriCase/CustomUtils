@@ -936,6 +936,17 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
                 : null);
 
         /// <summary>
+        /// Creates a color field with Unity's standard styling.
+        /// </summary>
+        /// <param name="rect">The rect where the field should be drawn.</param>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The current color value.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
+        [UsedImplicitly]
+        public static void ColorField(Rect rect, string label, Color value, bool useConsistentHeight = true) =>
+            EditorGUI.ColorField(rect, label, value);
+
+        /// <summary>
         /// Creates a gradient field with Unity's standard styling.
         /// </summary>
         /// <param name="label">The label to display next to the field.</param>
@@ -946,5 +957,16 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
             EditorGUILayout.GradientField(label, value, useConsistentHeight
                 ? GUILayout.Height(EditorGUIUtility.singleLineHeight)
                 : null);
+
+        /// <summary>
+        /// Creates a gradient field with Unity's standard styling.
+        /// </summary>
+        /// <param name="rect">The rect where the field should be drawn.</param>
+        /// <param name="label">The label to display next to the field.</param>
+        /// <param name="value">The current gradient value.</param>
+        /// <param name="useConsistentHeight">Whether to use Unity's single line height. Default is true.</param>
+        [UsedImplicitly]
+        public static void GradientField(Rect rect, string label, Gradient value, bool useConsistentHeight = true) =>
+            EditorGUI.GradientField(rect, label, value);
     }
 }

@@ -5,7 +5,18 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.Base
 {
     public abstract class GradientEffectBase<TComponent> where TComponent : Component
     {
-        internal void ApplyGradient(
+        /// <summary>
+        /// Applies a gradient effect to the specified component using the provided gradient and direction.
+        /// </summary>
+        /// <param name="component">The component to apply the gradient to.</param>
+        /// <param name="gradient">The gradient containing color keys to use for the effect.</param>
+        /// <param name="direction">The direction of the gradient effect.</param>
+        /// <remarks>
+        /// The gradient must contain at least one color key. If the gradient has multiple color keys,
+        /// only the first and last colors will be used for the gradient effect.
+        /// </remarks>
+        [UsedImplicitly]
+        public void ApplyGradient(
             [NotNull] TComponent component,
             [NotNull] Gradient gradient,
             GradientDirection direction)
@@ -29,6 +40,7 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.Base
             Color endColor,
             GradientDirection direction);
 
+        [UsedImplicitly]
         public abstract void ClearGradient(TComponent component);
     }
 }
