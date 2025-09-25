@@ -25,7 +25,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers
             _graphic = _graphic.AsNullable() ?? GetComponent<Graphic>();
         }
 
-        protected override void OnApplyColor(Color color)
+        protected override void OnUpdateColor(Color color)
         {
             _graphic.color = color;
         }

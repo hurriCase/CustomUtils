@@ -1,5 +1,6 @@
 ﻿using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.Theme.Databases.Base;
+using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 {
@@ -7,7 +8,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
     {
         protected abstract IThemeDatabase<TColor> ThemeDatabase { get; }
 
-        protected string currentColorName;
+        [SerializeField, HideInInspector] protected string currentColorName;
 
         protected virtual void Awake()
         {
@@ -19,10 +20,10 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
             if (ThemeDatabase.TryGetColorByName(colorName, out var color) is false)
                 return;
 
-            OnApplyColor(color);
+            OnUpdateColor(color);
             currentColorName = colorName;
         }
 
-        protected abstract void OnApplyColor(TColor color);
+        protected abstract void OnUpdateColor(TColor color);
     }
 }

@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.Extensions;
+﻿using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme.Base;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using JetBrains.Annotations;
@@ -21,7 +22,7 @@ namespace CustomUtils.Runtime.UI.Theme
     {
         [SerializeField] private ColorData _colorData;
 
-        private ColorModifierBase _currentColorModifier;
+        [SerializeField, InspectorReadOnly] private ColorModifierBase _currentColorModifier;
 
         private ColorData _previousColorData;
 
@@ -38,12 +39,11 @@ namespace CustomUtils.Runtime.UI.Theme
 
         private void UpdateModifier(ColorData colorData)
         {
-            if (_previousColorData.ColorType != colorData.ColorType || !_currentColorModifier)
-            {
+            if ((_previousColorData != default && _previousColorData.ColorType != colorData.ColorType)
+                || !_currentColorModifier)
                 CreateModifier(colorData.ColorType);
-                _previousColorData = colorData;
-            }
 
+            _previousColorData = colorData;
             _currentColorModifier.AsNullable()?.UpdateColor(colorData.ColorName);
         }
 
@@ -52,6 +52,10 @@ namespace CustomUtils.Runtime.UI.Theme
             _currentColorModifier.AsNullable()?.Dispose();
             _currentColorModifier.AsNullable()?.Destroy();
             _currentColorModifier = ColorModifierFactory.CreateModifier(colorType, gameObject);
+
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(this);
+#endif
         }
 
 #if UNITY_EDITOR

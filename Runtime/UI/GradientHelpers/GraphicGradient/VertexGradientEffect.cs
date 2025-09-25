@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.UI.GradientHelpers.Base;
+﻿using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,9 +24,9 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
 
         private readonly UIVertex[] _quadVertices = new UIVertex[VerticesPerQuad];
 
-        private Color _startColor;
-        private Color _endColor;
-        private GradientDirection _direction;
+        [SerializeField, InspectorReadOnly] private Color _startColor;
+        [SerializeField, InspectorReadOnly] private Color _endColor;
+        [SerializeField, InspectorReadOnly] private GradientDirection _direction;
 
         /// <summary>
         /// Sets the gradient parameters for this effect.

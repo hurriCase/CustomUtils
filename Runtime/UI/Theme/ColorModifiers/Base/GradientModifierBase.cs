@@ -21,20 +21,18 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 
         protected override IThemeDatabase<Gradient> ThemeDatabase => GradientColorDatabase.Instance;
 
-        private TGradientEffect _gradientEffectBase;
+        private readonly TGradientEffect _gradientEffectBase = new();
 
         protected override void Awake()
         {
             base.Awake();
-
-            _gradientEffectBase = _gradientEffectBase ?? new TGradientEffect();
 
             _component = _component.AsNullable() ?? GetComponent<TComponent>();
 
             CurrentGradientDirection.SubscribeUntilDestroy(this, static self => self.UpdateColor(self.currentColorName));
         }
 
-        protected override void OnApplyColor(Gradient gradient)
+        protected override void OnUpdateColor(Gradient gradient)
         {
             _gradientEffectBase.ApplyGradient(_component, gradient, CurrentGradientDirection.Value);
         }
