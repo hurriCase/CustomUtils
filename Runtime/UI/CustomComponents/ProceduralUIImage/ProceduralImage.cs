@@ -142,7 +142,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
                 info.NormalizedRadius.z.PackAs16BitWith(info.NormalizedRadius.w)
             );
 
-            var uv3 = new Vector2(info.BorderWidth == 0 ? 1 : Mathf.Clamp01(info.BorderWidth), info.PixelSize);
+            var uv3 = new Vector2(info.NormalizedBorderWidth == 0 ? 1 : Mathf.Clamp01(info.NormalizedBorderWidth), info.PixelSize);
 
             var vert = new UIVertex();
             for (var i = 0; i < vertexHelper.currentVertCount; i++)
@@ -169,6 +169,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
 
             var normalizedRadius = radius / minSide;
+            var normalizedBorderWidth = BorderWidth.Value / minSide;
 
             var info = new ProceduralImageInfo(
                 imageRect.width + FalloffDistance.Value,
@@ -176,7 +177,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
                 FalloffDistance.Value,
                 pixelSize,
                 normalizedRadius,
-                BorderWidth.Value);
+                normalizedBorderWidth);
 
             return info;
         }
