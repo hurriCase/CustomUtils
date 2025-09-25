@@ -38,7 +38,7 @@ namespace CustomUtils.Runtime.UI.Theme
 
         private void UpdateModifier(ColorData colorData)
         {
-            if (_previousColorData != colorData || !_currentColorModifier)
+            if (_previousColorData.ColorType != colorData.ColorType || !_currentColorModifier)
             {
                 CreateModifier(colorData.ColorType);
                 _previousColorData = colorData;
