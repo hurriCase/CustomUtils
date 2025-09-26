@@ -23,7 +23,8 @@ namespace CustomUtils.Runtime.Localization
         {
             if (LocalizationKey.IsValid() is false)
             {
-                Debug.LogWarning($"[LocalizedTextMeshPro::Localize] Localization key is invalid: {LocalizationKey}");
+                Debug.LogWarning("[LocalizedTextMeshPro::Localize] Localization key is invalid", gameObject);
+
                 return;
             }
 
