@@ -1,4 +1,5 @@
 ﻿using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -16,6 +17,10 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
     [ExecuteAlways]
     public sealed class VertexGradientEffect : BaseMeshEffect
     {
+        [SerializeField, InspectorReadOnly] private Color _startColor;
+        [SerializeField, InspectorReadOnly] private Color _endColor;
+        [SerializeField, InspectorReadOnly] private GradientDirection _direction;
+
         private const int VerticesPerQuad = 4;
         private const int BottomLeftIndex = 0;
         private const int TopLeftIndex = 1;
@@ -23,10 +28,6 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
         private const int BottomRightIndex = 3;
 
         private readonly UIVertex[] _quadVertices = new UIVertex[VerticesPerQuad];
-
-        [SerializeField, InspectorReadOnly] private Color _startColor;
-        [SerializeField, InspectorReadOnly] private Color _endColor;
-        [SerializeField, InspectorReadOnly] private GradientDirection _direction;
 
         /// <summary>
         /// Sets the gradient parameters for this effect.
@@ -44,6 +45,7 @@ namespace CustomUtils.Runtime.UI.GradientHelpers.GraphicGradient
             _startColor = startColor;
             _endColor = endColor;
             _direction = direction;
+            this.MarkAsDirty();
         }
 
         /// <summary>
