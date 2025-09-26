@@ -1,4 +1,7 @@
-﻿using JetBrains.Annotations;
+﻿using System.Diagnostics;
+using JetBrains.Annotations;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Extensions
@@ -19,9 +22,39 @@ namespace CustomUtils.Runtime.Extensions
         /// aiding in correctly chaining operations and preventing NullReferenceExceptions.
         /// </remarks>
         /// <typeparam name="T">The type of the object.</typeparam>
-        /// <param name="obj">The object being checked.</param>
+        /// <param name="target">The object being checked.</param>
         /// <returns>The object itself if it exists and not destroyed, null otherwise.</returns>
         [UsedImplicitly]
-        public static T AsNullable<T>(this T obj) where T : Object => obj ? obj : null;
+        public static T AsNullable<T>(this T target) where T : Object => target ? target : null;
+
+        /// <summary>
+        /// Marks the specified Unity object as dirty in the editor, ensuring that any changes are saved during serialization.
+        /// </summary>
+        /// <typeparam name="T">The type of the object, inheriting from <see cref="Object"/>.</typeparam>
+        /// <param name="target">The object to be marked as dirty.</param>
+        /// <remarks>
+        /// This method is only applicable in the Unity Editor
+        /// and does nothing during play mode or when the object is part of a prefab asset.
+        /// It ensures that modifications made to the object are registered by Unity's serialization system.
+        /// </remarks>
+        [UsedImplicitly]
+        [Conditional("UNITY_EDITOR")]
+        public static void MarkAsDirty<T>(this T target) where T : Object
+        {
+            if (PrefabUtility.IsPartOfPrefabAsset(target))
+                return;
+
+            if (Application.isPlaying)
+                return;
+
+            EditorUtility.SetDirty(target);
+
+            if (target is not Component component)
+                return;
+
+            var scene = component.gameObject.scene;
+            if (scene.isLoaded && scene.path.IsValid())
+                EditorSceneManager.MarkSceneDirty(scene);
+        }
     }
 }

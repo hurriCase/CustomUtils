@@ -34,6 +34,8 @@ namespace CustomUtils.Runtime.UI.Theme
         public void UpdateColorData(ColorData colorData)
         {
             _colorData = colorData;
+            this.MarkAsDirty();
+
             UpdateModifier(colorData);
         }
 
@@ -52,10 +54,7 @@ namespace CustomUtils.Runtime.UI.Theme
             _currentColorModifier.AsNullable()?.Dispose();
             _currentColorModifier.AsNullable()?.Destroy();
             _currentColorModifier = ColorModifierFactory.CreateModifier(colorType, gameObject);
-
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(this);
-#endif
+            this.MarkAsDirty();
         }
 
 #if UNITY_EDITOR

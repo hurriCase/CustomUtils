@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.Extensions.Observables;
+﻿using CustomUtils.Runtime.Extensions;
+using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.Theme.Databases.Base;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 
             OnUpdateColor(color);
             currentColorName = colorName;
+            this.MarkAsDirty();
         }
 
         protected abstract void OnUpdateColor(TColor color);

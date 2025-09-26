@@ -28,6 +28,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
             base.Awake();
 
             _component = _component.AsNullable() ?? GetComponent<TComponent>();
+            this.MarkAsDirty();
 
             CurrentGradientDirection.SubscribeUntilDestroy(this, static self => self.UpdateColor(self.currentColorName));
         }
