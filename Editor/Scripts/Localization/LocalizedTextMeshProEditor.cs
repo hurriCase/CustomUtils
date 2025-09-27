@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
-using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using TMPro;
 using UnityEditor;
@@ -57,7 +56,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             DrawLocalizationKeySection(hasValidKey);
 
-            if (hasValidKey is false && currentKey.IsValid())
+            if (hasValidKey is false && string.IsNullOrEmpty(currentKey) is false)
                 DrawKeySearchSuggestions(currentKey);
         }
 

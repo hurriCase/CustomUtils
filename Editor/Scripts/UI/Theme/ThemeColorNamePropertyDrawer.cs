@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
-using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme;
 using CustomUtils.Runtime.UI.Theme.Databases;
 using Cysharp.Text;
@@ -22,7 +21,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             var colorType = property.GetPropertyFromParent<ColorType>(nameof(ColorData.ColorType));
 
-            return colorType != ColorType.None && property.stringValue.IsValid()
+            return colorType != ColorType.None && string.IsNullOrEmpty(property.stringValue) is false
                 ? EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing
                 : EditorGUIUtility.singleLineHeight;
         }

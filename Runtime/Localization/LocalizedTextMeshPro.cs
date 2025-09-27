@@ -1,5 +1,4 @@
 ﻿using CustomUtils.Runtime.Attributes;
-using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using TMPro;
 using UnityEngine;
@@ -21,7 +20,7 @@ namespace CustomUtils.Runtime.Localization
 
         private void Localize()
         {
-            if (LocalizationKey.IsValid() is false)
+            if (string.IsNullOrEmpty(LocalizationKey))
             {
                 Debug.LogWarning("[LocalizedTextMeshPro::Localize] Localization key is invalid", gameObject);
 

@@ -41,10 +41,7 @@ namespace CustomUtils.Runtime.Extensions
         [Conditional("UNITY_EDITOR")]
         public static void MarkAsDirty<T>(this T target) where T : Object
         {
-            if (PrefabUtility.IsPartOfPrefabAsset(target))
-                return;
-
-            if (Application.isPlaying)
+            if (PrefabUtility.IsPartOfPrefabAsset(target) || Application.isPlaying)
                 return;
 
             EditorUtility.SetDirty(target);
@@ -53,7 +50,7 @@ namespace CustomUtils.Runtime.Extensions
                 return;
 
             var scene = component.gameObject.scene;
-            if (scene.isLoaded && scene.path.IsValid())
+            if (scene.isLoaded && string.IsNullOrEmpty(scene.path) is false)
                 EditorSceneManager.MarkSceneDirty(scene);
         }
     }

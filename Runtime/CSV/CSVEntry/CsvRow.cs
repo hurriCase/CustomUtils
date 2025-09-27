@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using CustomUtils.Runtime.Extensions;
 using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.CSV.CSVEntry
@@ -73,7 +72,7 @@ namespace CustomUtils.Runtime.CSV.CSVEntry
                 if (Regex.IsMatch(headerName, pattern, RegexOptions.IgnoreCase) is false)
                     continue;
 
-                if (index < _values.Length && _values[index].IsValid())
+                if (index < _values.Length && string.IsNullOrEmpty(_values[index]) is false)
                     result.Add(_values[index]);
             }
 

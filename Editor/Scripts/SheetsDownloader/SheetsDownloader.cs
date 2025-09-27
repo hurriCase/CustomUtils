@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CustomUtils.Runtime.Downloader;
-using CustomUtils.Runtime.Extensions;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -62,7 +61,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
             await request.SendWebRequest().ToUniTask();
 
-            if (request.error.IsValid())
+            if (string.IsNullOrEmpty(request.error) is false)
             {
                 Debug.LogError($"[SheetsDownloader::ResolveGoogleSheetsAsync] Network error: {request.error}");
                 return;
@@ -149,7 +148,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                 await request.SendWebRequest().ToUniTask();
 
                 var error = GetRequestError(request);
-                if (error.IsValid())
+                if (string.IsNullOrEmpty(error) is false)
                 {
                     var errorMessage = error.Contains("404") ? "Table Id is wrong!" : error;
                     return new DownloadResult(1, errorMessage);

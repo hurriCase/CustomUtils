@@ -857,7 +857,7 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
 
             EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
 
-            if (info.IsValid())
+            if (string.IsNullOrEmpty(info) is false)
                 EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
 
             var progressRect = EditorGUILayout.GetControlRect(false, 20);
