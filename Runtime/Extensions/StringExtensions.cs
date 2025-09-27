@@ -169,5 +169,24 @@ namespace CustomUtils.Runtime.Extensions
             builder.Append(value, start, end - start + 1);
             return builder.ToString();
         }
+
+        /// <summary>
+        /// Attempts to retrieve an environment variable value from the machine target.
+        /// </summary>
+        /// <param name="environmentVariableName">The name of the environment variable to retrieve.</param>
+        /// <param name="value">When this method returns, contains the environment variable value if found; otherwise, null.</param>
+        /// <returns>True if the environment variable exists and has a valid value; otherwise, false.</returns>
+        [UsedImplicitly]
+        public static bool TryGetValueFromEnvironment(this string environmentVariableName, out string value)
+        {
+            value = Environment.GetEnvironmentVariable(environmentVariableName);
+
+            if (value.IsValid() is true)
+                return true;
+
+            Debug.LogError("[StringExtensions::TryGetValueFromEnvironment] " +
+                           $"Environment variable value for {environmentVariableName} wasn't found");
+            return false;
+        }
     }
 }
