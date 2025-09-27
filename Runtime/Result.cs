@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace CustomUtils.Editor.Scripts
+namespace CustomUtils.Runtime
 {
     /// <summary>
     /// Represents the result of a validation or operation with success/failure state.
