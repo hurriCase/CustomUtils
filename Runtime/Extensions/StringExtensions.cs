@@ -19,8 +19,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="propertyName">The name of the property</param>
         /// <returns>The backing field name format</returns>
         [UsedImplicitly]
-        public static string ConvertToBackingField(this string propertyName)
-            => $"<{propertyName}>k__BackingField";
+        public static string ConvertToBackingField(this string propertyName) => $"<{propertyName}>k__BackingField";
 
         /// <summary>
         /// Converts a camelCase or PascalCase string to a spaced string.
@@ -29,7 +28,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <returns>A string with spaces between words.</returns>
         [UsedImplicitly]
         public static string ToSpacedWords(this string text) =>
-            string.IsNullOrEmpty(text) ? text : Regex.Replace(text, "([a-z])([A-Z])", "$1 $2");
+            text.IsValid() ? Regex.Replace(text, "([a-z])([A-Z])", "$1 $2") : text;
 
         /// <summary>
         /// Extracts the substring that appears after the first occurrence of the specified character.
@@ -87,6 +86,14 @@ namespace CustomUtils.Runtime.Extensions
         public static bool IsValid(this string str) => string.IsNullOrEmpty(str) is false;
 
         /// <summary>
+        /// Determines whether the given string is invalid, meaning it is null or empty.
+        /// </summary>
+        /// <param name="str">The string to validate.</param>
+        /// <returns>True if the string is null or empty; otherwise, false.</returns>
+        [UsedImplicitly]
+        public static bool IsInvalid(this string str) => string.IsNullOrEmpty(str);
+
+        /// <summary>
         /// Splits a string by the specified delimiter and returns a list of trimmed string elements,
         /// excluding empty or whitespace-only elements.
         /// </summary>
@@ -95,9 +102,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <returns>A list of trimmed string elements, with empty elements excluded.</returns>
         [UsedImplicitly]
         public static List<string> SplitToListTrimmed(this string value, char delimiter)
-        {
-            return SplitToListTrimmed(value, delimiter, element => element);
-        }
+            => SplitToListTrimmed(value, delimiter, element => element);
 
         /// <summary>
         /// Splits a string by the specified delimiter, trims each element, and converts them to the specified type
@@ -111,7 +116,7 @@ namespace CustomUtils.Runtime.Extensions
         [UsedImplicitly]
         public static List<T> SplitToListTrimmed<T>(this string value, char delimiter, Func<string, T> converter)
         {
-            if (string.IsNullOrEmpty(value))
+            if (value.IsInvalid())
                 return new List<T>();
 
             var result = new List<T>();
@@ -125,7 +130,7 @@ namespace CustomUtils.Runtime.Extensions
                 if (i > startIndex)
                 {
                     var element = ExtractTrimmedElement(value, startIndex, i - 1);
-                    if (string.IsNullOrEmpty(element) is false)
+                    if (element.IsValid() is false)
                     {
                         var convertedValue = converter(element);
                         result.Add(convertedValue);
@@ -171,17 +176,22 @@ namespace CustomUtils.Runtime.Extensions
         }
 
         /// <summary>
-        /// Attempts to retrieve an environment variable value from the machine target.
+        /// Attempts to retrieve the value of an environment variable.
         /// </summary>
         /// <param name="environmentVariableName">The name of the environment variable to retrieve.</param>
-        /// <param name="value">When this method returns, contains the environment variable value if found; otherwise, null.</param>
+        /// <param name="value">When this method returns,
+        /// contains the environment variable value if it exists and is valid; otherwise, null.</param>
+        /// <param name="environmentVariableTarget">The target scope for the environment variable lookup.</param>
         /// <returns>True if the environment variable exists and has a valid value; otherwise, false.</returns>
         [UsedImplicitly]
-        public static bool TryGetValueFromEnvironment(this string environmentVariableName, out string value)
+        public static bool TryGetValueFromEnvironment(
+            this string environmentVariableName,
+            out string value,
+            EnvironmentVariableTarget environmentVariableTarget = EnvironmentVariableTarget.Machine)
         {
-            value = Environment.GetEnvironmentVariable(environmentVariableName);
+            value = Environment.GetEnvironmentVariable(environmentVariableName, environmentVariableTarget);
 
-            if (value.IsValid() is true)
+            if (value.IsValid())
                 return true;
 
             Debug.LogError("[StringExtensions::TryGetValueFromEnvironment] " +
