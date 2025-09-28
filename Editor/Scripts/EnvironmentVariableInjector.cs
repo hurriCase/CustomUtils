@@ -1,5 +1,5 @@
-﻿using System;
-using CustomUtils.Editor.Scripts.InputDialog;
+﻿using CustomUtils.Editor.Scripts.InputDialog;
+using CustomUtils.Runtime.Extensions;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -13,9 +13,7 @@ namespace CustomUtils.Editor.Scripts
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            var password = Environment.GetEnvironmentVariable(Application.identifier, EnvironmentVariableTarget.Machine);
-
-            if (string.IsNullOrEmpty(password))
+            if (Application.identifier.TryGetValueFromEnvironment(out var password) is false)
             {
                 Debug.LogWarning("No password found in environment variables! Using default or empty value.");
                 password = EditorUtility.DisplayDialog("Password Required",
