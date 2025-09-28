@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using CustomUtils.Runtime.Localization;
 using Cysharp.Text;
@@ -180,6 +183,31 @@ namespace CustomUtils.Runtime.Extensions
             Debug.LogError("[StringExtensions::TryGetValueFromEnvironment] " +
                            $"Environment variable value for {environmentVariableName} wasn't found");
             return false;
+        }
+
+        /// <summary>
+        /// Computes a SHA256 hash of the string and returns the first 16 characters as a hexadecimal string.
+        /// </summary>
+        /// <param name="text">The text to hash.</param>
+        /// <returns>A 16-character hexadecimal string representing the truncated SHA256 hash.</returns>
+        [UsedImplicitly]
+        public static string GetHash(this string text)
+        {
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
+            return BitConverter.ToString(hash).Replace("-", "")[..16]; // The first 16 chars should be enough
+        }
+
+        /// <summary>
+        /// Creates a directory if it does not exist.
+        /// </summary>
+        /// <param name="path">The path to the directory to create.</param>
+        /// <returns>True if the directory was created, false otherwise.</returns>
+        [UsedImplicitly]
+        public static void CreateDirectoryIfNotExist(this string path)
+        {
+            if (Directory.Exists(path) is false)
+                Directory.CreateDirectory(path);
         }
     }
 }
