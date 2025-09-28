@@ -56,6 +56,13 @@ namespace CustomUtils.Editor.Scripts.Extensions
                 .First(fieldInfo => fieldInfo.FieldType == typeof(List<TElement>))
                 .Name;
 
+        /// <summary>
+        /// Searches for a field with the specified name in the type hierarchy, including private and protected fields from base classes.
+        /// </summary>
+        /// <param name="type">The type to search for the field.</param>
+        /// <param name="fieldName">The name of the field to find.</param>
+        /// <returns>The <see cref="FieldInfo"/> object representing the field if found; otherwise, null.</returns>
+        [UsedImplicitly]
         public static FieldInfo GetFieldInfo(this Type type, string fieldName)
         {
             while (type != null)
