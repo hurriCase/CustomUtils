@@ -177,7 +177,7 @@ namespace CustomUtils.Runtime.Extensions
         {
             value = Environment.GetEnvironmentVariable(environmentVariableName, environmentVariableTarget);
 
-            if (string.IsNullOrEmpty(environmentVariableName) is false)
+            if (string.IsNullOrEmpty(value) is false)
                 return true;
 
             Debug.LogError("[StringExtensions::TryGetValueFromEnvironment] " +
