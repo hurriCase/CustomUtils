@@ -1,7 +1,9 @@
 ﻿using System;
 using JetBrains.Annotations;
 using R3;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.Extensions.Observables
 {
@@ -92,6 +94,31 @@ namespace CustomUtils.Runtime.Extensions.Observables
             observable.Subscribe((self, tuple, onNext),
                     static (value, state) => state.onNext(value, state.self, state.tuple))
                 .RegisterTo(self.destroyCancellationToken);
+        }
+
+        /// <summary>
+        /// Subscribes to the boolean observable and updates the selectable's interactable state until the selectable is destroyed.
+        /// </summary>
+        /// <param name="source">The boolean observable source.</param>
+        /// <param name="selectable">The selectable UI element to update.</param>
+        [UsedImplicitly]
+        public static void SubscribeToInteractableUntilDestroy(this Observable<bool> source, Selectable selectable)
+        {
+            source.SubscribeToInteractable(selectable).RegisterTo(selectable.destroyCancellationToken);
+        }
+
+        /// <summary>
+        /// Subscribes to the observable and updates the TextMeshProUGUI text until the text component is destroyed.
+        /// </summary>
+        /// <typeparam name="T">The type of value being observed.</typeparam>
+        /// <param name="source">The observable source.</param>
+        /// <param name="text">The TextMeshProUGUI component to update.</param>
+        [UsedImplicitly]
+        public static void SubscribeToTextUntilDestroy<T>(this Observable<T> source, TextMeshProUGUI text)
+        {
+            // ReSharper disable once HeapView.PossibleBoxingAllocation | We don't care about boxing here
+            source.Subscribe(text, static (value, text) => text.text = value.ToString())
+                .RegisterTo(text.destroyCancellationToken);
         }
     }
 }
