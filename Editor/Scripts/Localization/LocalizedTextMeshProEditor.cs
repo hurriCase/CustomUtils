@@ -165,7 +165,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             EditorVisualControls.LabelField(language.ToString(), GUILayout.Width(100));
 
-            var localizedText = LocalizationController.GetLocalizedText(key, language);
+            var localizedText = LocalizationController.Localize(key, language);
 
             if (EditorVisualControls.Button(localizedText, GUI.skin.textField))
                 ApplyPreviewText(localizedText);
@@ -187,7 +187,7 @@ namespace CustomUtils.Editor.Scripts.Localization
                 return;
 
             var localizedText =
-                LocalizationController.GetLocalizedText(_localizationKeyProperty.stringValue, _selectedLanguage);
+                LocalizationController.Localize(_localizationKeyProperty.stringValue, _selectedLanguage);
 
             Undo.RecordObject(_textComponent, "Apply Localized Text");
             _textComponent.text = localizedText;

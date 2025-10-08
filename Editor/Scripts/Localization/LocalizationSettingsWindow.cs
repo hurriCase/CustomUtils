@@ -94,7 +94,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             foreach (var key in allKeys)
             {
-                var localizedText = LocalizationController.GetLocalizedText(key, language);
+                var localizedText = LocalizationController.Localize(key, language);
 
                 if (string.IsNullOrEmpty(localizedText) || localizedText == key)
                     continue;
