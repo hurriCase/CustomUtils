@@ -22,7 +22,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="self">MonoBehaviour instance for disposal registration.</param>
         /// <param name="onNext">Action called with MonoBehaviour instance.</param>
         [UsedImplicitly]
-        public static void SubscribeAndRegister<TSelf, T>(
+        public static void SubscribeUntilDestroy<TSelf, T>(
             this PersistentReactiveProperty<T> observable,
             TSelf self,
             Action<TSelf> onNext)
@@ -41,7 +41,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="self">MonoBehaviour instance for disposal registration.</param>
         /// <param name="onNext">Action called with property value and MonoBehaviour instance.</param>
         [UsedImplicitly]
-        public static void SubscribeAndRegister<TSelf, T>(
+        public static void SubscribeUntilDestroy<TSelf, T>(
             this PersistentReactiveProperty<T> observable,
             TSelf self,
             Action<T, TSelf> onNext)
