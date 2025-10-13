@@ -24,7 +24,9 @@ namespace CustomUtils.Runtime.UI.Theme
 
         [SerializeField, InspectorReadOnly] private ColorModifierBase _currentColorModifier;
 
-        private ColorData _previousColorData;
+#if UNITY_EDITOR // to prevent OnValidate from updating the color
+        [SerializeField, HideInInspector] private ColorData _previousColorData;
+#endif
 
         /// <summary>
         /// Updates the color data for this theme component and applies the corresponding color modifier.
@@ -33,6 +35,9 @@ namespace CustomUtils.Runtime.UI.Theme
         [UsedImplicitly]
         public void UpdateColorData(ColorData colorData)
         {
+            if (_colorData == colorData)
+                return;
+
             _colorData = colorData;
             this.MarkAsDirty();
 
@@ -41,11 +46,9 @@ namespace CustomUtils.Runtime.UI.Theme
 
         private void UpdateModifier(ColorData colorData)
         {
-            if ((_previousColorData != default && _previousColorData.ColorType != colorData.ColorType)
-                || !_currentColorModifier)
+            if (!_currentColorModifier || _colorData.ColorType != colorData.ColorType)
                 CreateModifier(colorData.ColorType);
 
-            _previousColorData = colorData;
             _currentColorModifier.AsNullable()?.UpdateColor(colorData.ColorName);
         }
 
@@ -66,8 +69,12 @@ namespace CustomUtils.Runtime.UI.Theme
             // We can't destroy an object during OnValidate
             EditorApplication.delayCall += () =>
             {
-                if (this && _previousColorData != _colorData)
-                    UpdateModifier(_colorData);
+                if (!this || _previousColorData == _colorData)
+                    return;
+
+                UpdateModifier(_colorData);
+                _previousColorData = _colorData;
+                this.MarkAsDirty();
             };
         }
 #endif
