@@ -1,5 +1,6 @@
 ﻿using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Runtime.UI.CustomComponents;
+using CustomUtils.Runtime.UI.CustomComponents.FilledImage;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine.UI;
