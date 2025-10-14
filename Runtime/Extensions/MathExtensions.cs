@@ -75,6 +75,12 @@ namespace CustomUtils.Runtime.Extensions
                 1f                                   // Maximum scale
             );
 
+        /// <summary>
+        /// Encodes two floating point numbers as a single 16-bit normalized value.
+        /// </summary>
+        /// <param name="a">The first floating point number to encode.</param>
+        /// <param name="b">The second floating point number to encode.</param>
+        /// <returns>A float value representing the encoded values of <paramref name="a"/> and <paramref name="b"/>.</returns>
         [UsedImplicitly]
         public static float PackAs16BitWith(this float a, float b)
         {
@@ -85,5 +91,22 @@ namespace CustomUtils.Runtime.Extensions
 
             return Vector2.Dot(encodedValues, _decodeDot);
         }
+
+        /// <summary>
+        /// Converts an angle in degrees to its equivalent in radians.
+        /// </summary>
+        /// <param name="degrees">The angle in degrees to convert.</param>
+        /// <returns>The equivalent angle in radians.</returns>
+        [UsedImplicitly]
+        public static float ToRadians(this float degrees) => degrees * Mathf.Deg2Rad;
+
+        /// <summary>
+        /// Calculates the directional vector from a given angle in radians.
+        /// </summary>
+        /// <param name="angleInRadians">The angle in radians for which the direction vector is calculated.</param>
+        /// <returns>A 2D vector representing the direction corresponding to the given angle.</returns>
+        [UsedImplicitly]
+        public static Vector2 GetDirectionFromAngle(this float angleInRadians)
+            => new(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians));
     }
 }
