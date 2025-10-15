@@ -1,7 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Storage.Base;
 
-// ReSharper disable MemberCanBeInternal
 namespace CustomUtils.Runtime.Storage.DataTransformers
 {
     internal sealed class IdentityDataTransformer : IDataTransformer
