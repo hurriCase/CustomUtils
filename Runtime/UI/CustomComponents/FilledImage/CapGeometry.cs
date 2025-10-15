@@ -13,12 +13,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
         private const float HalfCircleRadians = Mathf.PI * 0.5f;
 
-        internal CapGeometry(
-            Vector2 center,
-            float innerRadius,
-            float outerRadius,
-            float startRadians,
-            float endRadians)
+        internal CapGeometry(Vector2 center, float innerRadius, float outerRadius, float startRadians, float endRadians)
         {
             var middleRadius = innerRadius + (outerRadius - innerRadius) * 0.5f;
             var capRadius = (outerRadius - innerRadius) * 0.5f;

@@ -13,7 +13,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
         [field: SerializeField, Range(0, 359)] public float CustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] public float ThicknessRatio { get; set; } = 0.2f;
         [field: SerializeField, Range(3, 36)] public int RoundedCapResolution { get; set; } = 15;
-        [field: SerializeField] public float SegmentsPerRadian { get; set; } = 30;
+        [field: SerializeField] public int SegmentsPerRadian { get; set; } = 30;
 
         private const float HalfPivot = 0.5f;
         private const float AlmostZeroFill = 0.001f;
@@ -63,12 +63,12 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
                 return;
             }
 
-            var geometry = CalculateGeometry();
+            var (arcGeometry, capGeometry) = CalculateGeometry();
 
-            _meshBuilder.BuildMesh(vertexHelper, geometry, color, RoundedCapResolution);
+            _meshBuilder.BuildMesh(vertexHelper, arcGeometry, capGeometry, color, RoundedCapResolution);
         }
 
-        private ArcGeometry CalculateGeometry()
+        private (ArcGeometry arcGeometry, CapGeometry capGeometry) CalculateGeometry()
         {
             var rect = rectTransform.rect;
             var center = rect.center;
@@ -77,27 +77,16 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             var innerRadius = outerRadius - thickness;
 
             var (startRadians, endRadians) = CalculateCapAngles();
-            var arcLengthInRadians = Mathf.Abs(endRadians - startRadians);
-            var segmentCount = Mathf.FloorToInt(SegmentsPerRadian * arcLengthInRadians);
-
-            var innerPoints = new Vector2[segmentCount + 1];
-            var outerPoints = new Vector2[segmentCount + 1];
-
-            for (var i = 0; i <= segmentCount; i++)
-            {
-                var angle = Mathf.Lerp(startRadians, endRadians, (float)i / segmentCount);
-                var direction = angle.GetDirectionFromAngle();
-
-                innerPoints[i] = center + direction * innerRadius;
-                outerPoints[i] = center + direction * outerRadius;
-            }
 
             var hasRoundedCaps = IsRoundedCaps && fillAmount is > AlmostZeroFill and < AlmostFullFill;
             var capGeometry = hasRoundedCaps
                 ? new CapGeometry(center, innerRadius, outerRadius, startRadians, endRadians)
                 : default;
 
-            return new ArcGeometry(innerPoints, outerPoints, segmentCount, capGeometry);
+            var arcGeometry = new ArcGeometry(endRadians, startRadians, center, innerRadius, outerRadius,
+                SegmentsPerRadian);
+
+            return (arcGeometry, capGeometry);
         }
 
         private (float startRadians, float endRadians) CalculateCapAngles()

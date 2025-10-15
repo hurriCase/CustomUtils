@@ -10,18 +10,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
         private const float HalfCircleRadians = Mathf.PI * 0.5f;
         private readonly List<Vector2> _capPointsCache = new();
 
-        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, Color color, int capResolution)
+        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, CapGeometry capGeometry, Color color, int capResolution)
         {
             vertexHelper.Clear();
 
             BuildArcSegments(vertexHelper, geometry, color);
 
-            if (geometry.CapGeometry.Radius <= 0f)
+            if (capGeometry.Radius <= 0f)
                 return;
 
-            var cap = geometry.CapGeometry;
-            BuildSingleCap(vertexHelper, cap.StartCenter, cap.Radius, cap.StartAngle, color, capResolution);
-            BuildSingleCap(vertexHelper, cap.EndCenter, cap.Radius, cap.EndAngle, color, capResolution);
+            BuildSingleCap(vertexHelper, capGeometry.StartCenter, capGeometry.Radius, capGeometry.StartAngle, color, capResolution);
+            BuildSingleCap(vertexHelper, capGeometry.EndCenter, capGeometry.Radius, capGeometry.EndAngle, color, capResolution);
         }
 
         private void BuildArcSegments(VertexHelper vertexHelper, ArcGeometry geometry, Color color)
