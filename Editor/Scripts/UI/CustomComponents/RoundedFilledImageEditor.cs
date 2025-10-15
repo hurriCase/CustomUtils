@@ -23,7 +23,7 @@ namespace CustomUtils.Editor.Scripts.UI.CustomComponents
 
             EditorStateControls.PropertyField(nameof(RoundedFilledImage.CustomFillOrigin));
             EditorStateControls.PropertyField(nameof(RoundedFilledImage.ThicknessRatio));
-            EditorStateControls.PropertyField(nameof(RoundedFilledImage.SegmentsPerRadian));
+            EditorStateControls.PropertyField(nameof(RoundedFilledImage.ArcResolutionPerRadian));
 
             serializedObject.ApplyModifiedProperties();
         }

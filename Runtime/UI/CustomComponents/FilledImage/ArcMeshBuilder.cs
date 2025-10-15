@@ -7,20 +7,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 {
     internal sealed class ArcMeshBuilder
     {
-        private const float HalfCircleRadians = Mathf.PI * 0.5f;
-        private readonly List<Vector2> _capPointsCache = new();
-
-        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, CapGeometry capGeometry, Color color, int capResolution)
+        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, CapGeometry capGeometry, Color color)
         {
             vertexHelper.Clear();
 
             BuildArcSegments(vertexHelper, geometry, color);
 
-            if (capGeometry.Radius <= 0f)
+            if (capGeometry.HasCap is false)
                 return;
 
-            BuildSingleCap(vertexHelper, capGeometry.StartCenter, capGeometry.Radius, capGeometry.StartAngle, color, capResolution);
-            BuildSingleCap(vertexHelper, capGeometry.EndCenter, capGeometry.Radius, capGeometry.EndAngle, color, capResolution);
+            BuildSingleCap(vertexHelper, capGeometry.StartCapPoints, color);
+            BuildSingleCap(vertexHelper, capGeometry.EndCapPoints, color);
         }
 
         private void BuildArcSegments(VertexHelper vertexHelper, ArcGeometry geometry, Color color)
@@ -29,39 +26,24 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             {
                 var vertexStart = vertexHelper.currentVertCount;
 
-                vertexHelper.AddVert(geometry.InnerPoints[i], color, Vector2.zero);
-                vertexHelper.AddVert(geometry.OuterPoints[i], color, Vector2.zero);
-                vertexHelper.AddVert(geometry.InnerPoints[i + 1], color, Vector2.zero);
-                vertexHelper.AddVert(geometry.OuterPoints[i + 1], color, Vector2.zero);
+                vertexHelper.AddVert(geometry.InnerPoints[i], color, Vector4.zero);
+                vertexHelper.AddVert(geometry.OuterPoints[i], color, Vector4.zero);
+                vertexHelper.AddVert(geometry.InnerPoints[i + 1], color, Vector4.zero);
+                vertexHelper.AddVert(geometry.OuterPoints[i + 1], color, Vector4.zero);
 
                 vertexHelper.AddTriangle(vertexStart, vertexStart + 1, vertexStart + 2);
                 vertexHelper.AddTriangle(vertexStart + 1, vertexStart + 3, vertexStart + 2);
             }
         }
 
-        private void BuildSingleCap(
-            VertexHelper vertexHelper,
-            Vector2 center,
-            float radius,
-            float baseAngle,
-            Color color,
-            int resolution)
+        private void BuildSingleCap(VertexHelper vertexHelper, IReadOnlyCollection<Vector2> capPoints, Color color)
         {
-            _capPointsCache.Clear();
-            _capPointsCache.Add(center);
-
-            for (var i = 0; i <= resolution; i++)
-            {
-                var angle = baseAngle + Mathf.Lerp(-HalfCircleRadians, HalfCircleRadians, (float)i / resolution);
-                _capPointsCache.Add(center + angle.GetDirectionFromAngle() * radius);
-            }
-
             var vertexStart = vertexHelper.currentVertCount;
 
-            foreach (var point in _capPointsCache)
+            foreach (var point in capPoints)
                 vertexHelper.AddVert(point, color, Vector2.zero);
 
-            for (var i = 1; i < _capPointsCache.Count - 1; i++)
+            for (var i = 1; i < capPoints.Count - 1; i++)
                 vertexHelper.AddTriangle(vertexStart, vertexStart + i, vertexStart + i + 1);
         }
     }

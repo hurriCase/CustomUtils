@@ -13,9 +13,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
         [field: SerializeField, Range(0, 359)] public float CustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] public float ThicknessRatio { get; set; } = 0.2f;
         [field: SerializeField, Range(3, 36)] public int RoundedCapResolution { get; set; } = 15;
-        [field: SerializeField] public int SegmentsPerRadian { get; set; } = 30;
+        [field: SerializeField, Range(0, 100)] public int ArcResolutionPerRadian { get; set; } = 30;
 
-        private const float HalfPivot = 0.5f;
         private const float AlmostZeroFill = 0.001f;
         private const float AlmostFullFill = 0.999f;
 
@@ -65,14 +64,14 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
             var (arcGeometry, capGeometry) = CalculateGeometry();
 
-            _meshBuilder.BuildMesh(vertexHelper, arcGeometry, capGeometry, color, RoundedCapResolution);
+            _meshBuilder.BuildMesh(vertexHelper, arcGeometry, capGeometry, color);
         }
 
         private (ArcGeometry arcGeometry, CapGeometry capGeometry) CalculateGeometry()
         {
             var rect = rectTransform.rect;
             var center = rect.center;
-            var outerRadius = Mathf.Min(rect.width, rect.height) * HalfPivot;
+            var outerRadius = Mathf.Min(rect.width, rect.height) * 0.5f;
             var thickness = outerRadius * ThicknessRatio;
             var innerRadius = outerRadius - thickness;
 
@@ -80,11 +79,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
             var hasRoundedCaps = IsRoundedCaps && fillAmount is > AlmostZeroFill and < AlmostFullFill;
             var capGeometry = hasRoundedCaps
-                ? new CapGeometry(center, innerRadius, outerRadius, startRadians, endRadians)
+                ? new CapGeometry(center, innerRadius, outerRadius, startRadians, endRadians, RoundedCapResolution)
                 : default;
 
             var arcGeometry = new ArcGeometry(endRadians, startRadians, center, innerRadius, outerRadius,
-                SegmentsPerRadian);
+                ArcResolutionPerRadian);
 
             return (arcGeometry, capGeometry);
         }
