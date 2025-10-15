@@ -7,17 +7,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 {
     internal sealed class ArcMeshBuilder
     {
-        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, CapGeometry capGeometry, Color color)
+        internal void BuildMesh(VertexHelper vertexHelper, ArcGeometry geometry, Color color)
         {
             vertexHelper.Clear();
 
             BuildArcSegments(vertexHelper, geometry, color);
 
-            if (capGeometry.HasCap is false)
+            if (geometry.StartCap.HasCap is false)
                 return;
 
-            BuildSingleCap(vertexHelper, capGeometry.StartCapPoints, color);
-            BuildSingleCap(vertexHelper, capGeometry.EndCapPoints, color);
+            BuildSingleCap(vertexHelper, geometry.StartCap.CapPoints, color);
+            BuildSingleCap(vertexHelper, geometry.EndCap.CapPoints, color);
         }
 
         private void BuildArcSegments(VertexHelper vertexHelper, ArcGeometry geometry, Color color)

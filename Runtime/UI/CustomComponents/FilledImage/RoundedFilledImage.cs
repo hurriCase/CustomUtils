@@ -9,11 +9,12 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
     [ExecuteAlways]
     public sealed class RoundedFilledImage : Image
     {
-        [field: SerializeField] public bool IsRoundedCaps { get; set; }
         [field: SerializeField, Range(0, 359)] public float CustomFillOrigin { get; set; }
         [field: SerializeField, Range(0.01f, 0.5f)] public float ThicknessRatio { get; set; } = 0.2f;
+        [field: SerializeField, Range(1, 100)] public int ArcResolutionPerRadian { get; set; } = 15;
+
+        [field: SerializeField] public bool IsRoundedCaps { get; set; }
         [field: SerializeField, Range(3, 36)] public int RoundedCapResolution { get; set; } = 15;
-        [field: SerializeField, Range(0, 100)] public int ArcResolutionPerRadian { get; set; } = 30;
 
         private const float AlmostZeroFill = 0.001f;
         private const float AlmostFullFill = 0.999f;
@@ -62,12 +63,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
                 return;
             }
 
-            var (arcGeometry, capGeometry) = CalculateGeometry();
-
-            _meshBuilder.BuildMesh(vertexHelper, arcGeometry, capGeometry, color);
+            var arcGeometry = CalculateGeometry();
+            _meshBuilder.BuildMesh(vertexHelper, arcGeometry, color);
         }
 
-        private (ArcGeometry arcGeometry, CapGeometry capGeometry) CalculateGeometry()
+        private ArcGeometry CalculateGeometry()
         {
             var rect = rectTransform.rect;
             var center = rect.center;
@@ -78,14 +78,13 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             var (startRadians, endRadians) = CalculateCapAngles();
 
             var hasRoundedCaps = IsRoundedCaps && fillAmount is > AlmostZeroFill and < AlmostFullFill;
-            var capGeometry = hasRoundedCaps
-                ? new CapGeometry(center, innerRadius, outerRadius, startRadians, endRadians, RoundedCapResolution)
-                : default;
 
-            var arcGeometry = new ArcGeometry(endRadians, startRadians, center, innerRadius, outerRadius,
-                ArcResolutionPerRadian);
+            var capParams = new CapParameters(center, innerRadius, outerRadius, RoundedCapResolution);
+            var startCap = CapGeometry.CreateStartCap(hasRoundedCaps, capParams, startRadians);
+            var endCap = CapGeometry.CreateEndCap(hasRoundedCaps, capParams, endRadians);
 
-            return (arcGeometry, capGeometry);
+            var arcParameters = new ArcParameters(endRadians, startRadians, center, innerRadius, outerRadius);
+            return new ArcGeometry(arcParameters, ArcResolutionPerRadian, startCap, endCap);
         }
 
         private (float startRadians, float endRadians) CalculateCapAngles()

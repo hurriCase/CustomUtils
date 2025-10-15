@@ -5,39 +5,43 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 {
     internal readonly struct CapGeometry
     {
-        internal Vector2[] StartCapPoints { get; }
-        internal Vector2[] EndCapPoints { get; }
-
-        internal bool HasCap => StartCapPoints.Length > 0 || EndCapPoints.Length > 0;
+        internal Vector2[] CapPoints { get; }
+        internal bool HasCap => CapPoints?.Length > 0;
 
         private const float HalfCircleRadians = Mathf.PI * 0.5f;
 
-        internal CapGeometry(Vector2 center, float innerRadius, float outerRadius, float startRadians, float endRadians
-            , int resolution)
+        private CapGeometry(Vector2[] points)
         {
-            var middleRadius = innerRadius + (outerRadius - innerRadius) * 0.5f;
-            var capRadius = (outerRadius - innerRadius) * 0.5f;
+            CapPoints = points;
+        }
 
-            var startDirection = startRadians.GetDirectionFromAngle();
-            var endDirection = endRadians.GetDirectionFromAngle();
+        internal static CapGeometry CreateStartCap(bool isEnabled, CapParameters parameters, float radians) =>
+            isEnabled
+                ? CreateCap(parameters, radians, -HalfCircleRadians)
+                : default;
 
-            StartCapPoints = new Vector2[resolution + 1];
-            var startCenter = center + startDirection * middleRadius;
-            var startAngle = startRadians - HalfCircleRadians;
-            for (var i = 0; i <= resolution; i++)
+        internal static CapGeometry CreateEndCap(bool isEnabled, CapParameters parameters, float radians) =>
+            isEnabled
+                ? CreateCap(parameters, radians, HalfCircleRadians)
+                : default;
+
+        private static CapGeometry CreateCap(CapParameters parameters, float radians, float initialOffset)
+        {
+            var points = new Vector2[parameters.Resolution + 1];
+            var middleRadius = parameters.InnerRadius + (parameters.OuterRadius - parameters.InnerRadius) * 0.5f;
+            var direction = radians.GetDirectionFromAngle();
+            var centerPoint = parameters.Center + direction * middleRadius;
+            var startAngle = radians + initialOffset;
+            var capRadius = (parameters.OuterRadius - parameters.InnerRadius) * 0.5f;
+
+            for (var i = 0; i <= parameters.Resolution; i++)
             {
-                var angle = startAngle + Mathf.Lerp(-HalfCircleRadians, HalfCircleRadians, (float)i / resolution);
-                StartCapPoints[i] = startCenter + angle.GetDirectionFromAngle() * capRadius;
+                var t = (float)i / parameters.Resolution;
+                var angle = startAngle + Mathf.Lerp(-HalfCircleRadians, HalfCircleRadians, t);
+                points[i] = centerPoint + angle.GetDirectionFromAngle() * capRadius;
             }
 
-            EndCapPoints = new Vector2[resolution + 1];
-            var endCenter = center + endDirection * middleRadius;
-            var endAngle = endRadians + HalfCircleRadians;
-            for (var i = 0; i <= resolution; i++)
-            {
-                var angle = endAngle + Mathf.Lerp(-HalfCircleRadians, HalfCircleRadians, (float)i / resolution);
-                EndCapPoints[i] = endCenter + angle.GetDirectionFromAngle() * capRadius;
-            }
+            return new CapGeometry(points);
         }
     }
 }

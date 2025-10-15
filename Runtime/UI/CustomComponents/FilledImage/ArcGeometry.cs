@@ -7,28 +7,31 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
     {
         internal Vector2[] InnerPoints { get; }
         internal Vector2[] OuterPoints { get; }
+        internal CapGeometry StartCap { get; }
+        internal CapGeometry EndCap { get; }
         internal int SegmentCount { get; }
 
-        internal ArcGeometry(float endRadians, float startRadians, Vector2 center, float innerRadius, float outerRadius,
-            int segmentsPerRadian)
+        internal ArcGeometry(ArcParameters parameters, int arcResolution, CapGeometry startCap, CapGeometry endCap)
         {
-            var arcLengthInRadians = Mathf.Abs(endRadians - startRadians);
-            var segmentCount = Mathf.FloorToInt(segmentsPerRadian * arcLengthInRadians);
+            var arcLengthInRadians = Mathf.Abs(parameters.EndRadians - parameters.StartRadians);
+            var segmentCount = Mathf.FloorToInt(arcResolution * arcLengthInRadians);
 
             var innerPoints = new Vector2[segmentCount + 1];
             var outerPoints = new Vector2[segmentCount + 1];
 
             for (var i = 0; i <= segmentCount; i++)
             {
-                var angle = Mathf.Lerp(startRadians, endRadians, (float)i / segmentCount);
+                var angle = Mathf.Lerp(parameters.StartRadians, parameters.EndRadians, (float)i / segmentCount);
                 var direction = angle.GetDirectionFromAngle();
 
-                innerPoints[i] = center + direction * innerRadius;
-                outerPoints[i] = center + direction * outerRadius;
+                innerPoints[i] = parameters.Center + direction * parameters.InnerRadius;
+                outerPoints[i] = parameters.Center + direction * parameters.OuterRadius;
             }
 
             InnerPoints = innerPoints;
             OuterPoints = outerPoints;
+            StartCap = startCap;
+            EndCap = endCap;
             SegmentCount = segmentCount;
         }
     }
