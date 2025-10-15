@@ -14,7 +14,9 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         /// <summary>
         /// Access to the enhanced GUI system with automatic undo support
         /// </summary>
-        protected EditorStateControls EditorStateControls => _editorStateControls ??= new EditorStateControls(target);
+        protected EditorStateControls EditorStateControls
+            => _editorStateControls ??= new EditorStateControls(target, serializedObject);
+
         private EditorStateControls _editorStateControls;
 
         /// <summary>

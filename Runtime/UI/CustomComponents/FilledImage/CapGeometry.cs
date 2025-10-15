@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CustomUtils.Runtime.Extensions;
+using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 {
@@ -10,13 +11,26 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
         internal float StartAngle { get; }
         internal float EndAngle { get; }
 
-        internal CapGeometry(Vector2 startCenter, Vector2 endCenter, float radius, float startAngle, float endAngle)
+        private const float HalfCircleRadians = Mathf.PI * 0.5f;
+
+        internal CapGeometry(
+            Vector2 center,
+            float innerRadius,
+            float outerRadius,
+            float startRadians,
+            float endRadians)
         {
-            StartCenter = startCenter;
-            EndCenter = endCenter;
-            Radius = radius;
-            StartAngle = startAngle;
-            EndAngle = endAngle;
+            var middleRadius = innerRadius + (outerRadius - innerRadius) * 0.5f;
+            var capRadius = (outerRadius - innerRadius) * 0.5f;
+
+            var startDirection = startRadians.GetDirectionFromAngle();
+            var endDirection = endRadians.GetDirectionFromAngle();
+
+            StartCenter = center + startDirection * middleRadius;
+            EndCenter = center + endDirection * middleRadius;
+            Radius = capRadius;
+            StartAngle = startRadians - HalfCircleRadians;
+            EndAngle = endRadians + HalfCircleRadians;
         }
     }
 }
