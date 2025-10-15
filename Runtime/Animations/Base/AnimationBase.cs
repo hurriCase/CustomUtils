@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Animations.Base
 {
     [Serializable]
-    public abstract class AnimationBase<TState, TValue> : IAnimationComponent<TState>
+    public abstract class AnimationBase<TState, TValue> : IAnimation<TState>
         where TState : unmanaged, Enum
     {
         [SerializeField] protected EnumArray<TState, AnimationData<TValue>> states;

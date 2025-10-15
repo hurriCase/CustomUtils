@@ -9,7 +9,7 @@ namespace CustomUtils.Runtime.Animations.Base
     /// </summary>
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
-    public interface IAnimationComponent<in TState>
+    public interface IAnimation<in TState>
         where TState : unmanaged, Enum
     {
         /// <summary>

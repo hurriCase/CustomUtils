@@ -15,7 +15,7 @@ namespace CustomUtils.Runtime.Animations
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
     [Serializable]
-    public sealed class SpriteSwapAnimation<TState> : IAnimationComponent<TState>
+    public sealed class SpriteSwapAnimation<TState> : IAnimation<TState>
         where TState : unmanaged, Enum
     {
         [SerializeField] private Image _target;
