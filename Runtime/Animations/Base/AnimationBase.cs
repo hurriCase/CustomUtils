@@ -6,10 +6,11 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Animations.Base
 {
     [Serializable]
-    public abstract class AnimationBase<TState, TValue> : IAnimation<TState>
+    public abstract class AnimationBase<TState, TValue, TAnimationSettings> : IAnimation<TState>
         where TState : unmanaged, Enum
+        where TAnimationSettings : AnimationSettings<TValue>
     {
-        [SerializeField] protected EnumArray<TState, AnimationData<TValue>> states;
+        [SerializeField] protected EnumArray<TState, TAnimationSettings> states;
 
         private Tween _currentAnimation;
 
@@ -35,6 +36,6 @@ namespace CustomUtils.Runtime.Animations.Base
         }
 
         protected abstract void SetValueInstant(TValue value);
-        protected abstract Tween CreateTween(AnimationData<TValue> animationData);
+        protected abstract Tween CreateTween(TAnimationSettings animationSettings);
     }
 }

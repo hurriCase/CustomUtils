@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Animations.Base;
+using CustomUtils.Runtime.Animations.Settings;
 using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace CustomUtils.Runtime.Animations
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
     [Serializable]
-    public sealed class AnchoredPositionAnimation<TState> : AnimationBase<TState, Vector2>
+    public sealed class AnchoredPositionAnimation<TState> : AnimationBase<TState, Vector2, Vector2AnimationSettings>
         where TState : unmanaged, Enum
     {
         [SerializeField] private RectTransform _target;
@@ -31,17 +32,18 @@ namespace CustomUtils.Runtime.Animations
             };
         }
 
-        protected override Tween CreateTween(AnimationData<Vector2> animationData)
+        protected override Tween CreateTween(Vector2AnimationSettings animationSettings)
         {
             if (_axis == AnimationAxis.None)
                 return Tween.Delay(0f);
 
-            var endValue = animationData.Value;
+            var endValue = animationSettings.Value;
+            var tweenSettings = animationSettings.TweenSettings;
             return _axis switch
             {
-                AnimationAxis.X => Tween.UIAnchoredPositionX(_target, endValue.x, animationData.TweenSettings),
-                AnimationAxis.Y => Tween.UIAnchoredPositionY(_target, endValue.y, animationData.TweenSettings),
-                _ => Tween.UIAnchoredPosition(_target, endValue, animationData.TweenSettings)
+                AnimationAxis.X => Tween.UIAnchoredPositionX(_target, endValue.x, tweenSettings),
+                AnimationAxis.Y => Tween.UIAnchoredPositionY(_target, endValue.y, tweenSettings),
+                _ => Tween.UIAnchoredPosition(_target, endValue, tweenSettings)
             };
         }
     }

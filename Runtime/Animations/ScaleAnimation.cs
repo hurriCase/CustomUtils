@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Animations.Base;
+using CustomUtils.Runtime.Animations.Settings;
 using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace CustomUtils.Runtime.Animations
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
     [Serializable]
-    public sealed class ScaleAnimation<TState> : AnimationBase<TState, Vector3>
+    public sealed class ScaleAnimation<TState> : AnimationBase<TState, Vector3, Vector3AnimationSettings>
         where TState : unmanaged, Enum
     {
         [SerializeField] private Transform _target;
@@ -22,7 +23,7 @@ namespace CustomUtils.Runtime.Animations
             _target.localScale = value;
         }
 
-        protected override Tween CreateTween(AnimationData<Vector3> animationData)
-            => Tween.Scale(_target, animationData.Value, animationData.TweenSettings);
+        protected override Tween CreateTween(Vector3AnimationSettings animationSettings)
+            => Tween.Scale(_target, animationSettings.Value, animationSettings.TweenSettings);
     }
 }

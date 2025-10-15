@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Animations.Base;
+using CustomUtils.Runtime.Animations.Settings;
 using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace CustomUtils.Runtime.Animations
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
     [Serializable]
-    public sealed class RotationZAnimation<TState> : AnimationBase<TState, float>
+    public sealed class RotationZAnimation<TState> : AnimationBase<TState, float, FloatAnimationSettings>
         where TState : unmanaged, Enum
     {
         [SerializeField] private RectTransform _target;
@@ -25,11 +26,11 @@ namespace CustomUtils.Runtime.Animations
             SetRotation(endValue);
         }
 
-        protected override Tween CreateTween(AnimationData<float> animationData)
+        protected override Tween CreateTween(FloatAnimationSettings animationSettings)
             => Tween.Custom(this,
                 _currentRotationZ,
-                CalculateFinalZ(animationData.Value),
-                animationData.TweenSettings,
+                CalculateFinalZ(animationSettings.Value),
+                animationSettings.TweenSettings,
                 (self, rotationZ) => self.SetRotation(rotationZ));
 
         private void SetRotation(float rotationZ)

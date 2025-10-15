@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Animations.Base;
+using CustomUtils.Runtime.Animations.Settings;
 using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace CustomUtils.Runtime.Animations
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [UsedImplicitly]
     [Serializable]
-    public sealed class AlphaAnimation<TState> : AnimationBase<TState, float>
+    public sealed class AlphaAnimation<TState> : AnimationBase<TState, float, FloatAnimationSettings>
         where TState : unmanaged, Enum
     {
         [SerializeField] private CanvasGroup _target;
@@ -22,7 +23,7 @@ namespace CustomUtils.Runtime.Animations
             _target.alpha = value;
         }
 
-        protected override Tween CreateTween(AnimationData<float> animationData)
-            => Tween.Alpha(_target, animationData.Value, animationData.TweenSettings);
+        protected override Tween CreateTween(FloatAnimationSettings animationSettings)
+            => Tween.Alpha(_target, animationSettings.Value, animationSettings.TweenSettings);
     }
 }
