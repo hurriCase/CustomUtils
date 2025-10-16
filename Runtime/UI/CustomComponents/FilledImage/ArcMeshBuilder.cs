@@ -13,11 +13,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
             BuildArcSegments(vertexHelper, geometry, color);
 
-            if (geometry.StartCap.HasCap is false)
+            if (geometry.HasRoundedCaps is false)
                 return;
 
-            BuildSingleCap(vertexHelper, geometry.StartCap.CapPoints, color);
-            BuildSingleCap(vertexHelper, geometry.EndCap.CapPoints, color);
+            BuildSingleCap(vertexHelper, geometry.StartCapPoints, color);
+            BuildSingleCap(vertexHelper, geometry.EndCapPoints, color);
         }
 
         private void BuildArcSegments(VertexHelper vertexHelper, ArcGeometry geometry, Color color)

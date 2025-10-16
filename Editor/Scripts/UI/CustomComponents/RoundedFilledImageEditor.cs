@@ -25,6 +25,10 @@ namespace CustomUtils.Editor.Scripts.UI.CustomComponents
                 roundedCapsProperty.boolValue is false,
                 nameof(RoundedFilledImage.RoundedCapResolution));
 
+            EditorStateControls.PropertyFieldIf(
+                roundedCapsProperty.boolValue is false,
+                nameof(RoundedFilledImage.CapGeometryType));
+
             serializedObject.ApplyModifiedProperties();
         }
     }

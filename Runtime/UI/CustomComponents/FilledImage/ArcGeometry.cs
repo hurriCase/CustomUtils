@@ -7,11 +7,17 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
     {
         internal Vector2[] InnerPoints { get; }
         internal Vector2[] OuterPoints { get; }
-        internal CapGeometry StartCap { get; }
-        internal CapGeometry EndCap { get; }
+        internal bool HasRoundedCaps { get; }
+        internal Vector2[] StartCapPoints { get; }
+        internal Vector2[] EndCapPoints { get; }
         internal int SegmentCount { get; }
 
-        internal ArcGeometry(ArcParameters parameters, int arcResolution, CapGeometry startCap, CapGeometry endCap)
+        internal ArcGeometry(
+            ArcParameters parameters,
+            int arcResolution,
+            bool hasRoundedCaps,
+            Vector2[] startCapPoints,
+            Vector2[] endCapPoints)
         {
             var arcLengthInRadians = Mathf.Abs(parameters.EndRadians - parameters.StartRadians);
             var segmentCount = Mathf.FloorToInt(arcResolution * arcLengthInRadians);
@@ -30,8 +36,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
             InnerPoints = innerPoints;
             OuterPoints = outerPoints;
-            StartCap = startCap;
-            EndCap = endCap;
+            HasRoundedCaps = hasRoundedCaps;
+            StartCapPoints = startCapPoints;
+            EndCapPoints = endCapPoints;
             SegmentCount = segmentCount;
         }
     }
