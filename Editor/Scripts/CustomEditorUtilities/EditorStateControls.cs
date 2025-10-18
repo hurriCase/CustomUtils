@@ -268,6 +268,24 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
         }
 
         /// <summary>
+        /// Draws the script property in the Inspector.
+        /// This displays the "Script" field which shows the script file associated with the component.
+        /// </summary>
+        [UsedImplicitly]
+        public void DrawScriptProperty()
+        {
+            if (_serializedObject is null)
+            {
+                EditorVisualControls.WarningBox("Serialized Object isn't set.");
+                return;
+            }
+
+            GUI.enabled = false;
+            PropertyField(_serializedObject.FindProperty("m_Script"));
+            GUI.enabled = true;
+        }
+
+        /// <summary>
         /// Creates a dropdown with undo support using string value selection.
         /// </summary>
         /// <param name="label">The label to display next to the dropdown.</param>
