@@ -12,6 +12,7 @@ namespace CustomUtils.Editor.Scripts.UI.CustomComponents
         {
             serializedObject.Update();
 
+            EditorStateControls.DrawScriptProperty();
             EditorStateControls.PropertyField(serializedObject.FindProperty("m_FillAmount"));
 
             EditorStateControls.PropertyField(nameof(RoundedFilledImage.CustomFillOrigin));
