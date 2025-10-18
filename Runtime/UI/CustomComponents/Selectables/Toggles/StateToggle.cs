@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage;
 using CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings;
@@ -18,15 +19,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
         [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
         [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
         [field: SerializeField] public List<ToggleGraphicMapping> AdditionalGraphics { get; set; }
-
-#if UNITY_EDITOR
-        protected override void Reset()
-        {
-            base.Reset();
-
-            transition = Transition.None;
-        }
-#endif
 
         protected override void Awake()
         {
@@ -53,20 +45,16 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
 
         private void SwitchObjects(bool isOn)
         {
-            if (CheckedObjects is not null)
-                foreach (var checkedObject in CheckedObjects)
-                    checkedObject.SetActive(isOn);
-
-            if (UncheckedObjects is null)
-                return;
+            foreach (var checkedObject in CheckedObjects)
+                checkedObject.AsNullable()?.SetActive(isOn);
 
             foreach (var uncheckedObject in UncheckedObjects)
-                uncheckedObject.SetActive(isOn is false);
+                uncheckedObject.AsNullable()?.SetActive(isOn is false);
         }
 
         private void ApplyGraphics(SelectionState state)
         {
-            if (AdditionalGraphics is null || AdditionalGraphics.Count == 0)
+            if (AdditionalGraphics.Count == 0)
                 return;
 
             var mappedState = isOn ? ToggleStateType.On : MapSelectionStateToToggleState(state);
