@@ -19,7 +19,7 @@ namespace CustomUtils.Runtime.Animations.Base
         /// <param name="isInstant">If true, applies the animation immediately without tweening.</param>
         /// <returns>The tween controlling the animation, or default if instant.</returns>
         [UsedImplicitly]
-        Tween PlayAnimation(TState state, bool isInstant);
+        Tween PlayAnimation(TState state, bool isInstant = false);
 
         /// <summary>
         /// Cancels the currently playing animation.
