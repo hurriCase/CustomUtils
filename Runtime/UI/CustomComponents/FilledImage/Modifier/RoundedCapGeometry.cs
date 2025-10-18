@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage.Modifier
 {
+    [DisallowMultipleComponent]
     internal sealed class RoundedCapGeometry : CapGeometryBase
     {
         internal override Vector2[] CreateStartCap(CapParameters parameters, float startRadians) =>

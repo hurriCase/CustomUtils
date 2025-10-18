@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage.Modifier
 {
+    [DisallowMultipleComponent]
     internal sealed class CustomCapGeometry : CapGeometryBase
     {
         [SerializeField] private float _radius;

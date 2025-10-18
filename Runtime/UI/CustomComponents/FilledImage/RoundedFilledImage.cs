@@ -43,6 +43,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             base.SetAllDirty();
 
             SetVerticesDirty();
+            this.MarkAsDirty();
         }
 
         [UsedImplicitly]
