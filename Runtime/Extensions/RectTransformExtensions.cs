@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using R3;
 using R3.Triggers;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.Extensions
 {
@@ -48,6 +49,14 @@ namespace CustomUtils.Runtime.Extensions
                 .Select((target, dimensionToCopy: dimension),
                     static (_, tuple) => GetDimensionValue(tuple.target, tuple.dimensionToCopy))
                 .DistinctUntilChanged();
+
+        /// <summary>
+        /// Marks the specified RectTransform for rebuild by the LayoutRebuilder.
+        /// </summary>
+        /// <param name="rectTransform">The RectTransform to mark for rebuild.</param>
+        [UsedImplicitly]
+        public static void MarkLayoutForRebuild(this RectTransform rectTransform) =>
+            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
 
         private static float GetDimensionValue(RectTransform rectTransform, DimensionType dimension) =>
             dimension switch
