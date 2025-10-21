@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions.Observables
 {
     /// <summary>
-    /// Extension methods for Observable Do operator with state management.
+    /// Provides extension methods for <see cref="Observable{T}"/> Do operator with MonoBehaviour context.
     /// </summary>
     public static partial class ObservableExtensions
     {

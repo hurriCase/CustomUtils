@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions.Observables
 {
     /// <summary>
-    /// Extension methods for Observable subscription with automatic disposal on disable.
+    /// Provides extension methods for <see cref="Observable{T}"/> with automatic disposal on disable.
     /// </summary>
     public static partial class ObservableExtensions
     {

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace CustomUtils.Runtime.Extensions.Observables
 {
     /// <summary>
-    /// Extension methods for Observable subscription with automatic disposal on destruction.
+    /// Provides extension methods for <see cref="Observable{T}"/> with automatic disposal on destruction.
     /// </summary>
     public static partial class ObservableExtensions
     {

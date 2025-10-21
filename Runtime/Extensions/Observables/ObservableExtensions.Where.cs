@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CustomUtils.Runtime.Extensions.Observables
 {
     /// <summary>
-    /// Extension methods for Observable filtering with MonoBehaviour context.
+    /// Provides extension methods for <see cref="Observable{T}"/> filtering with MonoBehaviour context.
     /// </summary>
     public static partial class ObservableExtensions
     {
