@@ -18,12 +18,20 @@ namespace CustomUtils.Runtime.Animations
     {
         [SerializeField] private CanvasGroup _target;
 
+        private float _targetAlpha;
+
         protected override void SetValueInstant(float value)
         {
             _target.alpha = value;
+            _target.interactable = value > 0;
+            _target.blocksRaycasts = value > 0;
         }
 
         protected override Tween CreateTween(FloatAnimationSettings animationSettings)
-            => Tween.Alpha(_target, animationSettings.Value, animationSettings.TweenSettings);
+        {
+            _targetAlpha = animationSettings.Value;
+            return Tween.Alpha(_target, animationSettings.Value, animationSettings.TweenSettings)
+                .OnComplete(this, static self => self.SetValueInstant(self._targetAlpha));
+        }
     }
 }
