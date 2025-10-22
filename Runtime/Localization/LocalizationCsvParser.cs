@@ -18,14 +18,14 @@ namespace CustomUtils.Runtime.Localization
 
             return csvText.Split('\n')
                 .AsValueEnumerable()
-                .Where(line => string.IsNullOrEmpty(line) is false)
+                .Where(static line => string.IsNullOrEmpty(line) is false)
                 .ToList();
         }
 
         internal static List<string> ParseColumns(string line) =>
             line.Split(',')
                 .AsValueEnumerable()
-                .Select(column => column.Trim()
+                .Select(static column => column.Trim()
                     .Replace(QuotePlaceholder, "\"")
                     .Replace(CommaPlaceholder, ",")
                     .Replace(NewlinePlaceholder, "\n"))

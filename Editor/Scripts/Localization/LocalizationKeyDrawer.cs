@@ -1,4 +1,5 @@
-﻿using CustomUtils.Runtime.Localization;
+﻿using CustomUtils.Editor.Scripts.Extensions;
+using CustomUtils.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,29 +13,24 @@ namespace CustomUtils.Editor.Scripts.Localization
         private const float Spacing = 2f;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return EditorGUIUtility.singleLineHeight;
-        }
+            => EditorGUIUtility.singleLineHeight;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            var guidProperty = property.FindPropertyRelative("_guid");
-            var keyProperty = property.FindPropertyRelative("_key");
-            var tableProperty = property.FindPropertyRelative("_tableName");
+            var guidProperty = property.FindFieldRelative(nameof(LocalizationKey.Guid));
+            var keyProperty = property.FindFieldRelative(nameof(LocalizationKey.Key));
+            var tableProperty = property.FindFieldRelative(nameof(LocalizationKey.TableName));
 
-            // Validate and sync the key with registry
             var hasValidGuid = string.IsNullOrEmpty(guidProperty.stringValue) is false;
             var isValid = false;
 
             if (hasValidGuid)
-            {
                 if (LocalizationRegistry.Instance.TryGetEntry(guidProperty.stringValue, out var entry))
                 {
                     isValid = true;
 
-                    // Fix visual bug: Update key if it changed in the registry
                     if (keyProperty.stringValue != entry.Key)
                     {
                         keyProperty.stringValue = entry.Key;
@@ -47,13 +43,10 @@ namespace CustomUtils.Editor.Scripts.Localization
                         property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                     }
                 }
-            }
 
-            // Draw label
             var labelRect = new Rect(position.x, position.y, EditorGUIUtility.labelWidth, position.height);
             EditorGUI.LabelField(labelRect, label);
 
-            // Draw validation icon
             var iconRect = new Rect(
                 position.x + EditorGUIUtility.labelWidth,
                 position.y,
@@ -62,7 +55,6 @@ namespace CustomUtils.Editor.Scripts.Localization
             );
             DrawValidationIcon(iconRect, isValid);
 
-            // Draw key display field (read-only)
             var fieldRect = new Rect(
                 iconRect.x + iconRect.width + Spacing,
                 position.y,
@@ -71,7 +63,6 @@ namespace CustomUtils.Editor.Scripts.Localization
             );
             DrawKeyField(fieldRect, keyProperty.stringValue, tableProperty.stringValue, isValid);
 
-            // Draw select button
             var buttonRect = new Rect(
                 position.x + position.width - ButtonWidth,
                 position.y,
@@ -80,13 +71,11 @@ namespace CustomUtils.Editor.Scripts.Localization
             );
 
             if (GUI.Button(buttonRect, "Select", EditorStyles.miniButton))
-            {
                 LocalizationKeySelectorWindow.Show(property, () =>
                 {
                     property.serializedObject.Update();
                     EditorUtility.SetDirty(property.serializedObject.targetObject);
                 });
-            }
 
             EditorGUI.EndProperty();
         }

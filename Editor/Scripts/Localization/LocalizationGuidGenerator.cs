@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CustomUtils.Runtime.Localization;
-using UnityEditor;
 using UnityEngine;
 using ZLinq;
 
@@ -11,9 +10,6 @@ namespace CustomUtils.Editor.Scripts.Localization
 {
     internal static class LocalizationGuidGenerator
     {
-        /// <summary>
-        /// Generates GUIDs for all existing localization keys and exports to CSV format.
-        /// </summary>
         internal static string GenerateGuidsForExistingKeys()
         {
             var allKeys = LocalizationController.GetAllKeys();
@@ -34,15 +30,12 @@ namespace CustomUtils.Editor.Scripts.Localization
             return CreateCsvOutput(guidMapping);
         }
 
-        /// <summary>
-        /// Generates GUIDs for a specific sheet and exports to CSV format with all language columns.
-        /// </summary>
         internal static string GenerateGuidsForSheet(string sheetName)
         {
             var settings = LocalizationDatabase.Instance;
             var sheet = settings.Sheets.FirstOrDefault(s => s.Name == sheetName);
 
-            if (sheet?.TextAsset == null)
+            if (!sheet?.TextAsset)
             {
                 Debug.LogError($"[LocalizationGuidGenerator] Sheet '{sheetName}' not found or has no TextAsset.");
                 return string.Empty;
@@ -57,13 +50,11 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             var csvBuilder = new StringBuilder();
 
-            // Write header
             csvBuilder.Append("GUID,Key");
             foreach (var language in languages)
                 csvBuilder.Append($",{language}");
             csvBuilder.AppendLine();
 
-            // Process data rows
             for (var i = 1; i < lines.Count; i++)
             {
                 var columns = LocalizationCsvParser.ParseColumns(lines[i]);
@@ -75,7 +66,6 @@ namespace CustomUtils.Editor.Scripts.Localization
 
                 csvBuilder.Append($"{guid},{key}");
 
-                // Add all language translations
                 for (var j = 1; j < columns.Count && j - 1 < languages.Count; j++)
                 {
                     var translation = EscapeCsvField(columns[j]);
@@ -106,7 +96,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             var csvBuilder = new StringBuilder();
             csvBuilder.AppendLine("GUID,Key");
 
-            foreach (var kvp in guidMapping.AsValueEnumerable().OrderBy(x => x.Key))
+            foreach (var kvp in guidMapping.AsValueEnumerable().OrderBy(static x => x.Key))
                 csvBuilder.AppendLine($"{kvp.Value},{EscapeCsvField(kvp.Key)}");
 
             return csvBuilder.ToString();

@@ -8,10 +8,6 @@ using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {
-    /// <summary>
-    /// Registry that stores all localization entries with GUID-based lookup.
-    /// Persists data between sessions as a ScriptableObject asset.
-    /// </summary>
     [Resource(
         ResourcePaths.LocalizationSettingsFullPath,
         ResourcePaths.LocalizationRegistryAssetName,
@@ -23,8 +19,8 @@ namespace CustomUtils.Runtime.Localization
 
         [SerializeField] private List<LocalizationEntry> _entries = new();
 
-        private Dictionary<string, LocalizationEntry> _guidLookup = new();
-        private Dictionary<string, List<LocalizationEntry>> _tableLookup = new();
+        private readonly Dictionary<string, LocalizationEntry> _guidLookup = new();
+        private readonly Dictionary<string, List<LocalizationEntry>> _tableLookup = new();
         private bool _isInitialized;
 
         internal IReadOnlyList<LocalizationEntry> Entries => _entries;
@@ -43,7 +39,7 @@ namespace CustomUtils.Runtime.Localization
             return _guidLookup.TryGetValue(guid, out entry);
         }
 
-        internal LocalizationEntry[] GetEntriesForTable(string tableName)
+        private LocalizationEntry[] GetEntriesForTable(string tableName)
         {
             if (_isInitialized is false)
                 Initialize();
@@ -73,19 +69,12 @@ namespace CustomUtils.Runtime.Localization
             BuildLookupTables();
         }
 
-        internal void RemoveEntry(string guid)
-        {
-            _entries.RemoveAll(e => e.Guid == guid);
-            BuildLookupTables();
-        }
-
         internal void Clear()
         {
             _entries.Clear();
             BuildLookupTables();
         }
 
-        [ContextMenu("Build Lookup Tables")]
         private void BuildLookupTables()
         {
             _guidLookup.Clear();
@@ -110,16 +99,14 @@ namespace CustomUtils.Runtime.Localization
                 Initialize();
 
             if (string.IsNullOrEmpty(searchText))
-            {
                 return string.IsNullOrEmpty(tableName)
                     ? _entries.ToArray()
                     : GetEntriesForTable(tableName);
-            }
 
             return _entries.AsValueEnumerable()
                 .Where(e => (string.IsNullOrEmpty(tableName) || e.TableName == tableName) &&
-                           (e.Key.Contains(searchText, System.StringComparison.OrdinalIgnoreCase) ||
-                            e.Guid.Contains(searchText, System.StringComparison.OrdinalIgnoreCase)))
+                            (e.Key.Contains(searchText, System.StringComparison.OrdinalIgnoreCase) ||
+                             e.Guid.Contains(searchText, System.StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
         }
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Runtime.Downloader;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {
@@ -70,7 +69,7 @@ namespace CustomUtils.Runtime.Localization
                 }
 
                 Debug.LogWarning($"[LocalizationSheetProcessor::ParseLanguageHeader] " +
-                                $"Unknown language '{headerColumns[i]}' - skipping");
+                                 $"Unknown language '{headerColumns[i]}' - skipping");
             }
 
             return systemLanguages;
@@ -84,8 +83,8 @@ namespace CustomUtils.Runtime.Localization
             if (languages.Count == languages.Distinct().Count())
                 return true;
 
-            Debug.LogError($"[LocalizationSheetProcessor::ValidateLanguages] " +
-                          $"Duplicated languages found in '{sheetName}'. Sheet not loaded.");
+            Debug.LogError("[LocalizationSheetProcessor::ValidateLanguages] " +
+                           $"Duplicated languages found in '{sheetName}'. Sheet not loaded.");
             return false;
         }
 
@@ -125,14 +124,13 @@ namespace CustomUtils.Runtime.Localization
 
                 if (processedKeys.Add(guid) is false)
                 {
-                    Debug.LogError($"[LocalizationSheetProcessor::ProcessDataRows] " +
-                                  $"Duplicated GUID '{guid}' found in '{sheetName}'. Entry not loaded.");
+                    Debug.LogError("[LocalizationSheetProcessor::ProcessDataRows] " +
+                                   $"Duplicated GUID '{guid}' found in '{sheetName}'. Entry not loaded.");
                     continue;
                 }
 
                 var entry = new LocalizationEntry(guid, key, sheetName);
-                AddTranslationsForEntry(entry, columns, headerColumns, guidColumnIndex, keyColumnIndex,
-                    languages, dictionary, sheetName);
+                AddTranslationsForEntry(entry, columns, headerColumns, languages, dictionary, sheetName);
 
                 LocalizationRegistry.Instance.AddOrUpdateEntry(entry);
             }
@@ -142,8 +140,6 @@ namespace CustomUtils.Runtime.Localization
             LocalizationEntry entry,
             List<string> columns,
             List<string> headerColumns,
-            int guidColumnIndex,
-            int keyColumnIndex,
             List<SystemLanguage> languages,
             Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
             string sheetName)
@@ -158,8 +154,8 @@ namespace CustomUtils.Runtime.Localization
 
                 if (dictionary[language].ContainsKey(entry.Guid))
                 {
-                    Debug.LogError($"[LocalizationSheetProcessor::AddTranslationsForEntry] " +
-                                  $"Duplicated GUID '{entry.Guid}' in '{sheetName}' for language '{language}'.");
+                    Debug.LogError("[LocalizationSheetProcessor::AddTranslationsForEntry] " +
+                                   $"Duplicated GUID '{entry.Guid}' in '{sheetName}' for language '{language}'.");
                     continue;
                 }
 

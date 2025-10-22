@@ -36,7 +36,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             EditorStateControls.PropertyField(_localizationKeyProperty);
 
-            var guidProperty = _localizationKeyProperty.FindPropertyRelative("_guid");
+            var guidProperty = _localizationKeyProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
             if (string.IsNullOrEmpty(guidProperty.stringValue) is false)
             {
                 DrawLanguageSelection();
@@ -75,7 +75,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void DrawLocalizedContent()
         {
-            var guidProperty = _localizationKeyProperty.FindPropertyRelative("_guid");
+            var guidProperty = _localizationKeyProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
 
             if (LocalizationRegistry.Instance.TryGetEntry(guidProperty.stringValue, out var entry) is false)
             {
@@ -116,7 +116,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void ApplyLocalizedText()
         {
-            var guidProperty = _localizationKeyProperty.FindPropertyRelative("_guid");
+            var guidProperty = _localizationKeyProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
 
             if (string.IsNullOrEmpty(guidProperty.stringValue))
                 return;

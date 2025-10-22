@@ -11,23 +11,20 @@ namespace CustomUtils.Runtime.Localization
     [Serializable]
     internal sealed class LocalizationEntry
     {
-        [SerializeField, InspectorReadOnly] private string _key;
-        [SerializeField, InspectorReadOnly] private string _guid;
-        [SerializeField, InspectorReadOnly] private string _tableName;
+        [field: SerializeField, InspectorReadOnly] internal string Key { get; private set; }
+        [field: SerializeField, InspectorReadOnly] internal string Guid { get; private set; }
+        [field: SerializeField, InspectorReadOnly] internal string TableName { get; private set; }
+
         [SerializeField, InspectorReadOnly] private List<SystemLanguage> _languages = new();
         [SerializeField, InspectorReadOnly] private List<string> _translations = new();
 
         private Dictionary<SystemLanguage, string> _translationLookup;
 
-        internal string Guid => _guid;
-        internal string Key => _key;
-        internal string TableName => _tableName;
-
         internal LocalizationEntry(string guid, string key, string tableName)
         {
-            _guid = guid;
-            _key = key;
-            _tableName = tableName;
+            Guid = guid;
+            Key = key;
+            TableName = tableName;
         }
 
         internal void SetTranslation(SystemLanguage language, string translation)
@@ -35,16 +32,13 @@ namespace CustomUtils.Runtime.Localization
             var index = _languages.IndexOf(language);
 
             if (index >= 0)
-            {
                 _translations[index] = translation;
-            }
             else
             {
                 _languages.Add(language);
                 _translations.Add(translation);
             }
 
-            // Clear lookup cache to rebuild on next access
             _translationLookup = null;
         }
 

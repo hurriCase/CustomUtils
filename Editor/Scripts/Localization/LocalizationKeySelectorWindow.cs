@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
@@ -17,8 +17,6 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private const float WindowWidth = 500f;
         private const float WindowHeight = 600f;
-        private const float SearchFieldHeight = 20f;
-        private const float TableDropdownHeight = 20f;
         private const float Spacing = 5f;
 
         internal static void Show(SerializedProperty property, Action onSelectionChanged)
@@ -98,16 +96,14 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void DrawCurrentSelection()
         {
-            var guidProperty = _targetProperty.FindPropertyRelative("_guid");
-            var keyProperty = _targetProperty.FindPropertyRelative("_key");
-            var tableProperty = _targetProperty.FindPropertyRelative("_tableName");
+            var guidProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
+            var keyProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Key));
+            var tableProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
 
             EditorGUILayout.LabelField("Current Selection:", EditorStyles.boldLabel);
 
             if (string.IsNullOrEmpty(guidProperty.stringValue))
-            {
                 EditorGUILayout.LabelField("None", EditorStyles.miniLabel);
-            }
             else
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -140,14 +136,10 @@ namespace CustomUtils.Editor.Scripts.Localization
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             if (entries.Length == 0)
-            {
                 EditorGUILayout.LabelField("No localization keys found.", EditorStyles.centeredGreyMiniLabel);
-            }
             else
-            {
                 for (var i = 0; i < entries.Length; i++)
                 {
-                    // Alternating row colors
                     var backgroundColor = i % 2 == 0
                         ? new Color(0.3f, 0.3f, 0.3f, 0.2f)
                         : new Color(0.2f, 0.2f, 0.2f, 0.2f);
@@ -159,7 +151,6 @@ namespace CustomUtils.Editor.Scripts.Localization
 
                     EditorGUILayout.EndHorizontal();
                 }
-            }
 
             EditorGUILayout.EndScrollView();
         }
@@ -168,18 +159,14 @@ namespace CustomUtils.Editor.Scripts.Localization
         {
             EditorGUILayout.BeginHorizontal();
 
-            // Key name (bold)
             EditorGUILayout.LabelField(entry.Key, EditorStyles.boldLabel, GUILayout.Width(200));
 
-            // Table name
             EditorGUILayout.LabelField($"Table: {entry.TableName}", EditorStyles.miniLabel, GUILayout.Width(120));
 
-            // Preview text
             var preview = GetPreviewText(entry);
             if (string.IsNullOrEmpty(preview) is false)
                 EditorGUILayout.LabelField($"Preview: {preview}", EditorStyles.miniLabel);
 
-            // Select button
             if (GUILayout.Button("Select", GUILayout.Width(60)))
             {
                 SelectEntry(entry);
@@ -195,18 +182,16 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             if (entry.TryGetTranslation(defaultLanguage, out var text) &&
                 string.IsNullOrEmpty(text) is false)
-            {
                 return text.Length > 50 ? text.Substring(0, 47) + "..." : text;
-            }
 
             return "[No translation]";
         }
 
         private void SelectEntry(LocalizationEntry entry)
         {
-            var guidProperty = _targetProperty.FindPropertyRelative("_guid");
-            var keyProperty = _targetProperty.FindPropertyRelative("_key");
-            var tableProperty = _targetProperty.FindPropertyRelative("_tableName");
+            var guidProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
+            var keyProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Key));
+            var tableProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
 
             guidProperty.stringValue = entry.Guid;
             keyProperty.stringValue = entry.Key;
@@ -218,9 +203,9 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void ClearSelection()
         {
-            var guidProperty = _targetProperty.FindPropertyRelative("_guid");
-            var keyProperty = _targetProperty.FindPropertyRelative("_key");
-            var tableProperty = _targetProperty.FindPropertyRelative("_tableName");
+            var guidProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
+            var keyProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Key));
+            var tableProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
 
             guidProperty.stringValue = string.Empty;
             keyProperty.stringValue = string.Empty;
@@ -236,8 +221,8 @@ namespace CustomUtils.Editor.Scripts.Localization
             var entries = LocalizationRegistry.Instance.SearchEntries(_searchText, tableName);
 
             return entries.AsValueEnumerable()
-                .OrderBy(e => e.TableName)
-                .ThenBy(e => e.Key)
+                .OrderBy(static e => e.TableName)
+                .ThenBy(static e => e.Key)
                 .ToArray();
         }
     }

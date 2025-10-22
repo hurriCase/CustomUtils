@@ -15,7 +15,7 @@ namespace CustomUtils.Runtime.Localization
 
         private void Start()
         {
-            LocalizationController.Language.SubscribeUntilDestroy(this, self => self.Localize());
+            LocalizationController.Language.SubscribeUntilDestroy(this, static self => self.Localize());
         }
 
         private void Localize()

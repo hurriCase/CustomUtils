@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using R3;
@@ -37,8 +38,6 @@ namespace CustomUtils.Runtime.Localization
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeInRuntime()
         {
-            // Runtime uses the persisted LocalizationRegistry - no CSV parsing needed
-            LocalizationRegistry.Instance.Initialize();
             BuildDictionaryFromRegistry();
 
             var systemLanguage = Application.systemLanguage;
@@ -51,25 +50,21 @@ namespace CustomUtils.Runtime.Localization
             _dictionary.Clear();
             var availableLanguages = new HashSet<SystemLanguage>();
 
-            // Collect all available languages from entries
             foreach (var entry in LocalizationRegistry.Instance.Entries)
             {
-                // Get languages from each entry by trying common ones
-                foreach (SystemLanguage language in System.Enum.GetValues(typeof(SystemLanguage)))
+                foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
                 {
                     if (entry.HasTranslation(language))
                         availableLanguages.Add(language);
                 }
             }
 
-            // Initialize dictionary for each language
             foreach (var language in availableLanguages)
             {
                 if (_dictionary.ContainsKey(language) is false)
                     _dictionary[language] = new Dictionary<string, string>();
             }
 
-            // Populate translations
             foreach (var entry in LocalizationRegistry.Instance.Entries)
             {
                 foreach (var language in availableLanguages)
@@ -98,21 +93,18 @@ namespace CustomUtils.Runtime.Localization
 
             if (LocalizationRegistry.Instance.TryGetEntry(localizationKey.Guid, out var entry) is false)
             {
-                Debug.LogWarning($"[LocalizationController::Localize] Entry not found for GUID: {localizationKey.Guid}");
+                Debug.LogWarning(
+                    $"[LocalizationController::Localize] Entry not found for GUID: {localizationKey.Guid}");
                 return localizationKey.Key;
             }
 
             if (entry.TryGetTranslation(language, out var translation) &&
                 string.IsNullOrEmpty(translation) is false)
-            {
                 return translation;
-            }
 
             if (entry.TryGetTranslation(SystemLanguage.English, out var fallback) &&
                 string.IsNullOrEmpty(fallback) is false)
-            {
                 return fallback;
-            }
 
             return localizationKey.Key;
         }
@@ -144,7 +136,7 @@ namespace CustomUtils.Runtime.Localization
                     _keys.Add(key);
             }
 
-            return _keys.AsValueEnumerable().OrderBy(key => key).ToArray();
+            return _keys.AsValueEnumerable().OrderBy(static key => key).ToArray();
         }
 
         /// <summary>
@@ -158,11 +150,11 @@ namespace CustomUtils.Runtime.Localization
             var settings = LocalizationDatabase.Instance;
             if (!settings || settings.Sheets == null)
             {
-                Debug.LogWarning("[LocalizationController] No localization settings or sheets found");
+                Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
+                                 "No localization settings or sheets found");
                 return;
             }
 
-            // Parse CSVs and populate registry - only called when downloading sheets in editor
             LocalizationRegistry.Instance.Clear();
             _dictionary.Clear();
 
@@ -171,7 +163,8 @@ namespace CustomUtils.Runtime.Localization
             {
                 if (!sheet?.TextAsset)
                 {
-                    Debug.LogWarning($"[LocalizationController] Sheet '{sheet?.Name}' has no TextAsset");
+                    Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
+                                     $"Sheet '{sheet?.Name}' has no TextAsset");
                     continue;
                 }
 
@@ -180,8 +173,9 @@ namespace CustomUtils.Runtime.Localization
 
             LocalizationRegistry.Instance.Initialize();
 
-            Debug.Log($"[LocalizationController] Loaded {LocalizationRegistry.Instance.Entries.Count} " +
-                     $"localization entries from {settings.Sheets.Count} sheets");
+            Debug.Log("[LocalizationController::ReadLocalizationData] " +
+                      $"Loaded {LocalizationRegistry.Instance.Entries.Count} " +
+                      $"localization entries from {settings.Sheets.Count} sheets");
         }
     }
 }

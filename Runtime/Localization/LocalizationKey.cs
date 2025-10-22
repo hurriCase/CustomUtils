@@ -10,29 +10,23 @@ namespace CustomUtils.Runtime.Localization
     [Serializable]
     public struct LocalizationKey : IEquatable<LocalizationKey>
     {
-        [SerializeField] private string _guid;
-        [SerializeField] private string _key;
-        [SerializeField] private string _tableName;
+        [field: SerializeField] internal string Key { get; private set; }
+        [field: SerializeField] internal string Guid { get; private set; }
+        [field: SerializeField] internal string TableName { get; private set; }
 
-        internal string Guid => _guid;
-        internal string Key => _key;
-        internal string TableName => _tableName;
-
-        internal bool IsValid => string.IsNullOrEmpty(_guid) is false;
+        internal readonly bool IsValid => string.IsNullOrEmpty(Guid) is false;
 
         internal LocalizationKey(string guid, string key, string tableName)
         {
-            _guid = guid;
-            _key = key;
-            _tableName = tableName;
+            Guid = guid;
+            Key = key;
+            TableName = tableName;
         }
 
-        internal static LocalizationKey Empty => new(string.Empty, string.Empty, string.Empty);
-
-        public bool Equals(LocalizationKey other) => _guid == other._guid;
+        public bool Equals(LocalizationKey other) => Guid == other.Guid;
         public override bool Equals(object obj) => obj is LocalizationKey other && Equals(other);
-        public override int GetHashCode() => _guid?.GetHashCode() ?? 0;
-        public override string ToString() => string.IsNullOrEmpty(_key) ? "[Empty]" : _key;
+        public readonly override int GetHashCode() => Guid?.GetHashCode() ?? 0;
+        public readonly override string ToString() => string.IsNullOrEmpty(Key) ? "[Empty]" : Key;
 
         public static bool operator ==(LocalizationKey left, LocalizationKey right) => left.Equals(right);
         public static bool operator !=(LocalizationKey left, LocalizationKey right) => !left.Equals(right);
