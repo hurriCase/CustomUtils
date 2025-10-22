@@ -61,7 +61,7 @@ namespace CustomUtils.Editor.Scripts
             _unusedValues = Enum.GetValues(typeof(TEnum))
                 .Cast<TEnum>()
                 .Where(value => !usedValues.Contains(value))
-                .OrderBy(value => Convert.ToInt32(value))
+                .OrderBy(static value => Convert.ToInt32(value))
                 .ToList();
         }
 
@@ -149,7 +149,8 @@ namespace CustomUtils.Editor.Scripts
                 _selectedEnumValue = _unusedValues[0];
             }
 
-            var displayOptions = _unusedValues.AsValueEnumerable().Select(@enum => @enum.ToString()).ToArray();
+            var displayOptions = _unusedValues.AsValueEnumerable().Select(static @enum => @enum.ToString())
+                .ToArray();
             var newSelectedIndex = EditorGUILayout.Popup("Add Specific Type", selectedIndex, displayOptions);
 
             if (newSelectedIndex >= 0 && newSelectedIndex < _unusedValues.Count)

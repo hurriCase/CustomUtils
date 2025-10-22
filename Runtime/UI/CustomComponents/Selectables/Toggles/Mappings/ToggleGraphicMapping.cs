@@ -33,7 +33,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
             }
         }
 
-        private void ApplyColorTransition(ToggleStateType state)
+        private readonly void ApplyColorTransition(ToggleStateType state)
         {
             if (!_colorMapping || !_themeComponent)
                 return;
@@ -41,7 +41,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles.Mappings
             _colorMapping.SetComponentForState(state, _themeComponent);
         }
 
-        private void ApplySpriteTransition(ToggleStateType state)
+        private readonly void ApplySpriteTransition(ToggleStateType state)
         {
             if (!_targetImage || !_spriteMapping)
                 return;

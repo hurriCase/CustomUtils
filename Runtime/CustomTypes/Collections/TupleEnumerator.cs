@@ -94,7 +94,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         [UsedImplicitly]
         public readonly TupleEnumerator<TEnum, TValue> GetEnumerator() => this;
 
-        // ReSharper disable once HeapView.BoxingAllocation | Required for explicit interface implementation
+        // ReSharper disable once HeapView.BoxingAllocation | Required by interface implementation
 
         /// <summary>
         /// Explicit interface implementation for non-generic Current property.

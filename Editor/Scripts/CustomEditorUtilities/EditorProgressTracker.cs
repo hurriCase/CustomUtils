@@ -82,7 +82,7 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
                 1.0f);
 
             _cancellationTween.Complete();
-            _cancellationTween = Tween.Delay(this, _completedProgressShowingDuration, tracker =>
+            _cancellationTween = Tween.Delay(this, _completedProgressShowingDuration, static tracker =>
             {
                 tracker.HasOperation = false;
                 tracker._currentOperation = string.Empty;

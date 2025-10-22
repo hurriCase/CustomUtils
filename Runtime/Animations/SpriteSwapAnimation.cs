@@ -39,7 +39,7 @@ namespace CustomUtils.Runtime.Animations
             if (_currentAnimation.isAlive)
                 _currentAnimation.Stop();
 
-            return _currentAnimation = Tween.Delay(this, _duration, self => self.UpdateSprite());
+            return _currentAnimation = Tween.Delay(this, _duration, static self => self.UpdateSprite());
         }
 
         private void UpdateSprite()

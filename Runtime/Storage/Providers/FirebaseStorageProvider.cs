@@ -96,7 +96,8 @@ namespace CustomUtils.Runtime.Storage.Providers
                 var reference = GetFileReference(key);
 
                 var result = await reference.GetMetadataAsync()
-                    .ContinueWithOnMainThread(task => task.IsFaulted is false && task.IsCanceled is false).AsUniTask()
+                    .ContinueWithOnMainThread(static task => task.IsFaulted is false && task.IsCanceled is false)
+                    .AsUniTask()
                     .AttachExternalCancellation(cancellationToken);
 
                 return result;

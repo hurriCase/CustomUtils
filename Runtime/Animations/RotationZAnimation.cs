@@ -30,8 +30,7 @@ namespace CustomUtils.Runtime.Animations
             => Tween.Custom(this,
                 _currentRotationZ,
                 CalculateFinalZ(animationSettings.Value),
-                animationSettings.TweenSettings,
-                (self, rotationZ) => self.SetRotation(rotationZ));
+                animationSettings.TweenSettings, static (self, rotationZ) => self.SetRotation(rotationZ));
 
         private void SetRotation(float rotationZ)
         {

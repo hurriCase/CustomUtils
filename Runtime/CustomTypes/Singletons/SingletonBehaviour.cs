@@ -19,7 +19,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 #if UNITY_EDITOR
         static SingletonBehaviour()
         {
-            SingletonResetter.RegisterResetAction(() =>
+            SingletonResetter.RegisterResetAction(static () =>
             {
                 Instance = null;
                 OnDestroyed = null;

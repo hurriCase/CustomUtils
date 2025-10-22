@@ -32,7 +32,7 @@ namespace CustomUtils.Editor.Scripts.Extensions
             typeof(TClass)
                 .GetFields(bindingFlags)
                 .AsValueEnumerable()
-                .First(fieldInfo => fieldInfo.FieldType == typeof(TField))
+                .First(static fieldInfo => fieldInfo.FieldType == typeof(TField))
                 .Name;
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace CustomUtils.Editor.Scripts.Extensions
             where TClass : class =>
             typeof(TClass)
                 .GetFields(bindingFlags)
-                .First(fieldInfo => fieldInfo.FieldType == typeof(List<TElement>))
+                .First(static fieldInfo => fieldInfo.FieldType == typeof(List<TElement>))
                 .Name;
 
         /// <summary>

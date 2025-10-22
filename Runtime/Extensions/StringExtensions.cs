@@ -4,7 +4,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using CustomUtils.Runtime.Localization;
 using Cysharp.Text;
 using JetBrains.Annotations;
 using UnityEngine;

@@ -20,9 +20,9 @@ namespace CustomUtils.Runtime.Extensions
         {
             using var nonZeroIndices = data
                 .AsValueEnumerable()
-                .Select((value, index) => (value, index))
-                .Where(tuple => tuple.value > 0)
-                .Select(tuple => tuple.index)
+                .Select(static (value, index) => (value, index))
+                .Where(static tuple => tuple.value > 0)
+                .Select(static tuple => tuple.index)
                 .ToArrayPool();
 
             if (nonZeroIndices.Size == 0)

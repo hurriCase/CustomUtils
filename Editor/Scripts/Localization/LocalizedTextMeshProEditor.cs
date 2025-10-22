@@ -60,7 +60,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             }
 
             var languageStrings = availableLanguages.AsValueEnumerable()
-                .Select(lang => lang.ToString()).ToArray();
+                .Select(static lang => lang.ToString()).ToArray();
 
             var currentIndex = Array.IndexOf(languageStrings, _selectedLanguage.ToString());
             if (currentIndex == -1)

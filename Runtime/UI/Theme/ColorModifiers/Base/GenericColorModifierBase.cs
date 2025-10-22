@@ -13,7 +13,8 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
 
         protected virtual void Awake()
         {
-            ThemeHandler.CurrentThemeType.SubscribeUntilDestroy(this, self => self.UpdateColor(self.currentColorName));
+            ThemeHandler.CurrentThemeType
+                .SubscribeUntilDestroy(this, static self => self.UpdateColor(self.currentColorName));
         }
 
         internal override void UpdateColor(string colorName)

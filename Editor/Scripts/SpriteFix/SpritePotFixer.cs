@@ -194,7 +194,7 @@ namespace CustomUtils.Editor.Scripts.SpriteFix
         private void ProcessSprites(List<SpriteResizeInfo> spriteInfos)
         {
             var processedCount = 0;
-            var totalToProcess = spriteInfos.AsValueEnumerable().Count(s => s.ShouldResize);
+            var totalToProcess = spriteInfos.AsValueEnumerable().Count(static s => s.ShouldResize);
 
             foreach (var spriteInfo in spriteInfos)
             {

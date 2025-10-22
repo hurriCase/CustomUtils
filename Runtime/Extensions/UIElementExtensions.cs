@@ -28,7 +28,7 @@ namespace CustomUtils.Runtime.Extensions
         {
             var targetInt = UnsafeEnumConverter<T>.ToInt32(targetEnum);
 
-            var subscription = source.Subscribe((element, targetInt), (newValue, tuple) =>
+            var subscription = source.Subscribe((element, targetInt), static (newValue, tuple) =>
             {
                 var newInt = UnsafeEnumConverter<T>.ToInt32(newValue);
                 tuple.element.style.display = newInt == tuple.targetInt ? DisplayStyle.Flex : DisplayStyle.None;

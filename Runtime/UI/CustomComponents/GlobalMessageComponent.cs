@@ -52,7 +52,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                 _fadingDuration,
                 useUnscaledTime: true,
                 endDelay: _showingDuration
-            ).OnComplete(this, globalMessage =>
+            ).OnComplete(this, static globalMessage =>
             {
                 globalMessage._canvasGroup.alpha = 1f;
 
@@ -74,7 +74,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents
                 endValue: 0f,
                 _fadingDuration,
                 useUnscaledTime: true
-            ).OnComplete(this, globalMessage => globalMessage._canvasGroup.alpha = 0f);
+            ).OnComplete(this, static globalMessage => globalMessage._canvasGroup.alpha = 0f);
         }
 
         private void OnDisable()

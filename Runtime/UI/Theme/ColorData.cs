@@ -24,7 +24,7 @@ namespace CustomUtils.Runtime.UI.Theme
 
         public bool Equals(ColorData other) => ColorType == other.ColorType && ColorName == other.ColorName;
         public override bool Equals(object obj) => obj is ColorData other && Equals(other);
-        public override int GetHashCode() => HashCode.Combine((int)ColorType, ColorName);
+        public readonly override int GetHashCode() => HashCode.Combine((int)ColorType, ColorName);
         public static bool operator ==(ColorData left, ColorData right) => left.Equals(right);
         public static bool operator !=(ColorData left, ColorData right) => left.Equals(right) is false;
     }

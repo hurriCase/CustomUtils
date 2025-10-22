@@ -187,7 +187,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             }
 
             var existingSheets =
-                _database.Sheets.ToDictionary(sheet => sheet.Id, s => s.ContentLength);
+                _database.Sheets.ToDictionary(static sheet => sheet.Id, static s => s.ContentLength);
 
             _database.Sheets.Clear();
             foreach (var (sheetName, id) in sheetsDict)

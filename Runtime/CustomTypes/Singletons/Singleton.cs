@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.CustomTypes.Singletons
 #if UNITY_EDITOR
         static Singleton()
         {
-            SingletonResetter.RegisterResetAction(() =>
+            SingletonResetter.RegisterResetAction(static () =>
             {
                 _instance = null;
             });

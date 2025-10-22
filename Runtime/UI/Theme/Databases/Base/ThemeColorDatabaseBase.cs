@@ -18,7 +18,7 @@ namespace CustomUtils.Runtime.UI.Theme.Databases.Base
             if (Colors == null || Colors.Count == 0)
                 return null;
 
-            return Colors.Select(color => color.Name).ToList();
+            return Colors.Select(static color => color.Name).ToList();
         }
 
         public bool TryGetColorByName(string colorName, out TColor color)

@@ -49,11 +49,11 @@ namespace CustomUtils.Runtime.Audio
             audioDatabaseGeneric.Init();
 
             SoundVolume
-                .Subscribe(this, (volume, handler) => handler.OnSoundVolumeChanged(volume))
+                .Subscribe(this, static (volume, handler) => handler.OnSoundVolumeChanged(volume))
                 .AddTo(ref _disposableBag);
 
             MusicVolume
-                .Subscribe(this, (volume, handler) => handler.OnMusicVolumeChanged(volume))
+                .Subscribe(this, static (volume, handler) => handler.OnMusicVolumeChanged(volume))
                 .AddTo(ref _disposableBag);
         }
 
