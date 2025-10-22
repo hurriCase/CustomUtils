@@ -111,7 +111,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
                 EditorUtility.DisplayDialog("Success",
                     $"Successfully resolved {Database.Sheets.Count} sheets from Google Sheets", "OK");
-            }, "ProcessResolveGoogleSheetsAsync");
+            });
         }
 
         private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
@@ -127,7 +127,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                     OnSheetsDownloaded();
                     Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {result.Message}");
                 }
-            }, "ProcessDownloadSingleSheetAsync");
+            });
         }
 
         private async UniTaskVoid ProcessDownloadSheetsAsync()
@@ -144,10 +144,10 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                     OnSheetsDownloaded();
                     EditorUtility.DisplayDialog("Success", result.Message, "OK");
                 }
-            }, "ProcessDownloadSheetsAsync");
+            });
         }
 
-        private async UniTask ExecuteWithErrorHandling(Func<UniTask> operation, string operationName)
+        private async UniTask ExecuteWithErrorHandling(Func<UniTask> operation)
         {
             if (string.IsNullOrEmpty(Database.TableId))
             {
@@ -163,7 +163,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             catch (Exception ex)
             {
                 EditorUtility.DisplayDialog("Error", $"Download failed: {ex.Message}", "OK");
-                Debug.LogError($"[SheetsDownloaderWindowBase::{operationName}] {ex}");
+                Debug.LogException(ex);
             }
         }
 
