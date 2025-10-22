@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
@@ -7,7 +8,7 @@ using ZLinq;
 
 namespace CustomUtils.Editor.Scripts.Localization
 {
-    internal sealed class LocalizationKeySelectorWindow : EditorWindow
+    internal sealed class LocalizationKeySelectorWindow : WindowBase
     {
         private Vector2 _scrollPosition;
         private string _searchText = string.Empty;
@@ -15,41 +16,24 @@ namespace CustomUtils.Editor.Scripts.Localization
         private SerializedProperty _targetProperty;
         private Action _onSelectionChanged;
 
-        private const float WindowWidth = 500f;
-        private const float WindowHeight = 600f;
-        private const float Spacing = 5f;
-
         internal static void Show(SerializedProperty property, Action onSelectionChanged)
         {
             var window = GetWindow<LocalizationKeySelectorWindow>(true, "Select Localization Key", true);
-            window.minSize = new Vector2(WindowWidth, WindowHeight);
-            window.maxSize = new Vector2(WindowWidth * 2, WindowHeight * 2);
             window._targetProperty = property;
             window._onSelectionChanged = onSelectionChanged;
             window.ShowUtility();
         }
 
-        private void OnGUI()
+        protected override void DrawWindowContent()
         {
-            if (_targetProperty == null || _targetProperty.serializedObject.targetObject == null)
-            {
-                Close();
-                return;
-            }
-
-            DrawHeader();
             DrawTableFilter();
             DrawSearchField();
-            DrawCurrentSelection();
-            DrawSeparator();
-            DrawEntryList();
-        }
 
-        private void DrawHeader()
-        {
-            EditorGUILayout.Space(Spacing);
-            EditorGUILayout.LabelField("Select Localization Key", EditorStyles.boldLabel);
-            EditorGUILayout.Space(Spacing);
+            DrawCurrentSelection();
+
+            EditorVisualControls.DrawHorizontalLine();
+
+            DrawEntryList();
         }
 
         private void DrawTableFilter()
@@ -67,31 +51,28 @@ namespace CustomUtils.Editor.Scripts.Localization
                 currentIndex = 0;
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Table:", GUILayout.Width(50));
+            EditorVisualControls.LabelField("Table:", GUILayout.Width(50));
             var newIndex = EditorGUILayout.Popup(currentIndex, tableOptions);
             EditorGUILayout.EndHorizontal();
 
             _selectedTable = newIndex == 0 ? string.Empty : tableOptions[newIndex];
-
-            EditorGUILayout.Space(Spacing);
         }
 
         private void DrawSearchField()
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Search:", GUILayout.Width(50));
+            EditorVisualControls.LabelField("Search:", GUILayout.Width(50));
 
             GUI.SetNextControlName("SearchField");
             _searchText = EditorGUILayout.TextField(_searchText);
 
-            if (GUILayout.Button("Clear", GUILayout.Width(50)))
+            if (EditorVisualControls.Button("Clear", GUILayout.Width(50)))
             {
                 _searchText = string.Empty;
                 GUI.FocusControl("SearchField");
             }
 
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space(Spacing);
         }
 
         private void DrawCurrentSelection()
@@ -100,30 +81,22 @@ namespace CustomUtils.Editor.Scripts.Localization
             var keyProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.Key));
             var tableProperty = _targetProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
 
-            EditorGUILayout.LabelField("Current Selection:", EditorStyles.boldLabel);
+            EditorVisualControls.LabelField("Current Selection:", EditorStyles.boldLabel);
 
             if (string.IsNullOrEmpty(guidProperty.stringValue))
-                EditorGUILayout.LabelField("None", EditorStyles.miniLabel);
+                EditorVisualControls.LabelField("None", EditorStyles.miniLabel);
             else
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.LabelField($"Key: {keyProperty.stringValue}");
-                EditorGUILayout.LabelField($"Table: {tableProperty.stringValue}");
-                EditorGUILayout.LabelField($"GUID: {guidProperty.stringValue}", EditorStyles.miniLabel);
+                EditorVisualControls.LabelField($"Key: {keyProperty.stringValue}");
+                EditorVisualControls.LabelField($"Table: {tableProperty.stringValue}");
+                EditorVisualControls.LabelField($"GUID: {guidProperty.stringValue}", EditorStyles.miniLabel);
 
                 if (GUILayout.Button("Clear Selection"))
                     ClearSelection();
 
                 EditorGUILayout.EndVertical();
             }
-
-            EditorGUILayout.Space(Spacing);
-        }
-
-        private void DrawSeparator()
-        {
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-            EditorGUILayout.Space(Spacing);
         }
 
         private void DrawEntryList()
@@ -131,12 +104,11 @@ namespace CustomUtils.Editor.Scripts.Localization
             var entries = GetFilteredEntries();
 
             EditorGUILayout.LabelField($"Available Keys ({entries.Length}):", EditorStyles.boldLabel);
-            EditorGUILayout.Space(Spacing);
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             if (entries.Length == 0)
-                EditorGUILayout.LabelField("No localization keys found.", EditorStyles.centeredGreyMiniLabel);
+                EditorVisualControls.LabelField("No localization keys found.", EditorStyles.centeredGreyMiniLabel);
             else
                 for (var i = 0; i < entries.Length; i++)
                 {
@@ -165,9 +137,9 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             var preview = GetPreviewText(entry);
             if (string.IsNullOrEmpty(preview) is false)
-                EditorGUILayout.LabelField($"Preview: {preview}", EditorStyles.miniLabel);
+                EditorVisualControls.LabelField($"Preview: {preview}", EditorStyles.miniLabel);
 
-            if (GUILayout.Button("Select", GUILayout.Width(60)))
+            if (EditorVisualControls.Button("Select", GUILayout.Width(60)))
             {
                 SelectEntry(entry);
                 Close();
