@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Runtime.AssetLoader;
+using CustomUtils.Runtime.CustomTypes.Singletons;
+using CustomUtils.Runtime.Extensions;
 using UnityEngine;
 using ZLinq;
 
@@ -8,50 +10,43 @@ namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
     /// Registry that stores all localization entries with GUID-based lookup.
+    /// Persists data between sessions as a ScriptableObject asset.
     /// </summary>
     [Resource(
-        ResourcePaths.LocalizationRegistryFullPath,
+        ResourcePaths.LocalizationSettingsFullPath,
         ResourcePaths.LocalizationRegistryAssetName,
-        ResourcePaths.LocalizationRegistryResourcesPath
+        ResourcePaths.LocalizationSettingsResourcesPath
     )]
-    internal sealed class LocalizationRegistry : ScriptableObject
+    internal sealed class LocalizationRegistry : SingletonScriptableObject<LocalizationRegistry>
     {
         private static LocalizationRegistry _instance;
 
         [SerializeField] private List<LocalizationEntry> _entries = new();
 
-        private Dictionary<string, LocalizationEntry> _guidLookup;
-        private Dictionary<string, List<LocalizationEntry>> _tableLookup;
-
-        internal static LocalizationRegistry Instance
-        {
-            get
-            {
-                if (_instance == null)
-                    _instance = CreateInstance<LocalizationRegistry>();
-                return _instance;
-            }
-        }
+        private Dictionary<string, LocalizationEntry> _guidLookup = new();
+        private Dictionary<string, List<LocalizationEntry>> _tableLookup = new();
+        private bool _isInitialized;
 
         internal IReadOnlyList<LocalizationEntry> Entries => _entries;
 
         internal void Initialize()
         {
             BuildLookupTables();
+            _isInitialized = true;
         }
 
         internal bool TryGetEntry(string guid, out LocalizationEntry entry)
         {
-            if (_guidLookup == null)
-                BuildLookupTables();
+            if (_isInitialized is false)
+                Initialize();
 
             return _guidLookup.TryGetValue(guid, out entry);
         }
 
         internal LocalizationEntry[] GetEntriesForTable(string tableName)
         {
-            if (_tableLookup == null)
-                BuildLookupTables();
+            if (_isInitialized is false)
+                Initialize();
 
             return _tableLookup.TryGetValue(tableName, out var entries)
                 ? entries.ToArray()
@@ -60,8 +55,8 @@ namespace CustomUtils.Runtime.Localization
 
         internal string[] GetAllTableNames()
         {
-            if (_tableLookup == null)
-                BuildLookupTables();
+            if (_isInitialized is false)
+                Initialize();
 
             return _tableLookup.Keys.ToArray();
         }
@@ -90,10 +85,11 @@ namespace CustomUtils.Runtime.Localization
             BuildLookupTables();
         }
 
+        [ContextMenu("Build Lookup Tables")]
         private void BuildLookupTables()
         {
-            _guidLookup = new Dictionary<string, LocalizationEntry>();
-            _tableLookup = new Dictionary<string, List<LocalizationEntry>>();
+            _guidLookup.Clear();
+            _tableLookup.Clear();
 
             foreach (var entry in _entries)
             {
@@ -104,10 +100,15 @@ namespace CustomUtils.Runtime.Localization
 
                 _tableLookup[entry.TableName].Add(entry);
             }
+
+            this.MarkAsDirty();
         }
 
         internal LocalizationEntry[] SearchEntries(string searchText, string tableName = null)
         {
+            if (_isInitialized is false)
+                Initialize();
+
             if (string.IsNullOrEmpty(searchText))
             {
                 return string.IsNullOrEmpty(tableName)

@@ -37,11 +37,47 @@ namespace CustomUtils.Runtime.Localization
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeInRuntime()
         {
-            ReadLocalizationData();
+            // Runtime uses the persisted LocalizationRegistry - no CSV parsing needed
+            LocalizationRegistry.Instance.Initialize();
+            BuildDictionaryFromRegistry();
 
             var systemLanguage = Application.systemLanguage;
             if (HasLanguage(systemLanguage))
                 Language.Value = systemLanguage;
+        }
+
+        private static void BuildDictionaryFromRegistry()
+        {
+            _dictionary.Clear();
+            var availableLanguages = new HashSet<SystemLanguage>();
+
+            // Collect all available languages from entries
+            foreach (var entry in LocalizationRegistry.Instance.Entries)
+            {
+                // Get languages from each entry by trying common ones
+                foreach (SystemLanguage language in System.Enum.GetValues(typeof(SystemLanguage)))
+                {
+                    if (entry.HasTranslation(language))
+                        availableLanguages.Add(language);
+                }
+            }
+
+            // Initialize dictionary for each language
+            foreach (var language in availableLanguages)
+            {
+                if (_dictionary.ContainsKey(language) is false)
+                    _dictionary[language] = new Dictionary<string, string>();
+            }
+
+            // Populate translations
+            foreach (var entry in LocalizationRegistry.Instance.Entries)
+            {
+                foreach (var language in availableLanguages)
+                {
+                    if (entry.TryGetTranslation(language, out var translation))
+                        _dictionary[language][entry.Guid] = translation;
+                }
+            }
         }
 
         /// <summary>
@@ -126,6 +162,7 @@ namespace CustomUtils.Runtime.Localization
                 return;
             }
 
+            // Parse CSVs and populate registry - only called when downloading sheets in editor
             LocalizationRegistry.Instance.Clear();
             _dictionary.Clear();
 
@@ -142,6 +179,9 @@ namespace CustomUtils.Runtime.Localization
             }
 
             LocalizationRegistry.Instance.Initialize();
+
+            Debug.Log($"[LocalizationController] Loaded {LocalizationRegistry.Instance.Entries.Count} " +
+                     $"localization entries from {settings.Sheets.Count} sheets");
         }
     }
 }
