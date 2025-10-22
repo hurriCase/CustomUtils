@@ -16,6 +16,7 @@
 
         internal const string LocalizationSettingsFullPath = ResourcesPath + "/" + LocalizationSettingsResourcesPath;
         internal const string LocalizationSettingsAssetName = "LocalizationDatabase";
+        internal const string LocalizationRegistryAssetName = "LocalizationRegistry";
         internal const string LocalizationSettingsResourcesPath = "CustomLocalization";
         internal const string LocalizationSheetsPath =
             ResourcesPath + "/" + LocalizationSettingsResourcesPath + "/" + "Localization";
@@ -30,6 +31,10 @@
         internal const string LoggerSettingsResourcesPath = "Logger";
         internal const string LoggerSettingsFullPath = ResourcesPath + LoggerSettingsResourcesPath;
         internal const string LoggerSettingsAssetName = "LogCollectorSettings";
+
+        internal const string LocalizationKeyDatabaseAssetName = "LocalizationKeyDatabase";
+        internal const string LocalizationKeyDatabaseResourcesPath = "Assets/Resources/Localization";
+        internal const string LocalizationKeyDatabaseFullPath = LocalizationKeyDatabaseResourcesPath + "/" + LocalizationKeyDatabaseAssetName + ".asset";
 
         internal const string MappingsPath = "Mappings/";
 
