@@ -12,7 +12,7 @@ using UnityEditor;
 namespace CustomUtils.Runtime.Localization
 {
     /// <summary>
-    /// Reactive localization controller with SystemLanguage support.
+    /// Reactive localization controller with GUID-based key support.
     /// Manages localized text retrieval and language switching for Unity applications.
     /// </summary>
     [UsedImplicitly]
@@ -45,36 +45,49 @@ namespace CustomUtils.Runtime.Localization
         }
 
         /// <summary>
-        /// Gets the localized text for the specified key using the current language.
+        /// Gets the localized text for the specified localization key using the current language.
         /// </summary>
         [UsedImplicitly]
-        public static string Localize(string localizationKey) => Localize(localizationKey, Language.Value);
+        public static string Localize(LocalizationKey localizationKey) =>
+            Localize(localizationKey, Language.Value);
 
         /// <summary>
-        /// Gets the localized text for the specified key and language.
+        /// Gets the localized text for the specified localization key and language.
         /// </summary>
         [UsedImplicitly]
-        public static string Localize(string localizationKey, SystemLanguage language)
+        public static string Localize(LocalizationKey localizationKey, SystemLanguage language)
         {
-            if (string.IsNullOrEmpty(localizationKey))
-                return localizationKey;
+            if (localizationKey.IsValid is false)
+                return localizationKey.Key;
 
-            if (TryGetTranslation(language, localizationKey, out var translation))
+            if (LocalizationRegistry.Instance.TryGetEntry(localizationKey.Guid, out var entry) is false)
+            {
+                Debug.LogWarning($"[LocalizationController::Localize] Entry not found for GUID: {localizationKey.Guid}");
+                return localizationKey.Key;
+            }
+
+            if (entry.TryGetTranslation(language, out var translation) &&
+                string.IsNullOrEmpty(translation) is false)
+            {
                 return translation;
+            }
 
-            Debug.LogWarning("[LocalizationController::Localize] " +
-                             $"Translation not found: {localizationKey} ({language})");
+            if (entry.TryGetTranslation(SystemLanguage.English, out var fallback) &&
+                string.IsNullOrEmpty(fallback) is false)
+            {
+                return fallback;
+            }
 
-            return GetFallbackTranslation(localizationKey);
+            return localizationKey.Key;
         }
 
         /// <summary>
-        /// Checks if a localization key exists for the current language.
+        /// Checks if a localization key exists in the registry.
         /// </summary>
         [UsedImplicitly]
-        public static bool HasKey(string localizationKey) =>
-            _dictionary.ContainsKey(Language.Value) &&
-            _dictionary[Language.Value].ContainsKey(localizationKey);
+        public static bool HasKey(LocalizationKey localizationKey) =>
+            localizationKey.IsValid &&
+            LocalizationRegistry.Instance.TryGetEntry(localizationKey.Guid, out _);
 
         /// <summary>
         /// Checks if localization data exists for the specified language.
@@ -113,6 +126,7 @@ namespace CustomUtils.Runtime.Localization
                 return;
             }
 
+            LocalizationRegistry.Instance.Clear();
             _dictionary.Clear();
 
             var processedKeys = new HashSet<string>();
@@ -126,22 +140,8 @@ namespace CustomUtils.Runtime.Localization
 
                 LocalizationSheetProcessor.ProcessSheet(sheet, _dictionary, processedKeys);
             }
+
+            LocalizationRegistry.Instance.Initialize();
         }
-
-        private static bool TryGetTranslation(SystemLanguage language, string key, out string translation)
-        {
-            translation = null;
-
-            if (_dictionary.TryGetValue(language, out var languageDict) is false)
-                return false;
-
-            if (languageDict.TryGetValue(key, out translation) is false)
-                return false;
-
-            return string.IsNullOrEmpty(translation) is false;
-        }
-
-        private static string GetFallbackTranslation(string key)
-            => TryGetTranslation(SystemLanguage.English, key, out var fallback) ? fallback : key;
     }
 }

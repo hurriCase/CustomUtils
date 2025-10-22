@@ -9,7 +9,7 @@ namespace CustomUtils.Runtime.Localization
     [RequireComponent(typeof(TextMeshProUGUI))]
     internal sealed class LocalizedTextMeshPro : MonoBehaviour
     {
-        [field: SerializeField] internal string LocalizationKey { get; private set; }
+        [field: SerializeField] internal LocalizationKey LocalizationKey { get; private set; }
 
         [field: SerializeField, Self] internal TextMeshProUGUI Text { get; private set; }
 
@@ -20,7 +20,7 @@ namespace CustomUtils.Runtime.Localization
 
         private void Localize()
         {
-            if (string.IsNullOrEmpty(LocalizationKey))
+            if (LocalizationKey.IsValid is false)
             {
                 Debug.LogWarning("[LocalizedTextMeshPro::Localize] Localization key is invalid", gameObject);
                 return;

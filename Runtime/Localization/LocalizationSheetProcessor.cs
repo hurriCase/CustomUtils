@@ -9,6 +9,9 @@ namespace CustomUtils.Runtime.Localization
 {
     internal static class LocalizationSheetProcessor
     {
+        private const string GuidColumnName = "GUID";
+        private const string KeyColumnName = "Key";
+
         internal static void ProcessSheet(
             Sheet sheet,
             Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
@@ -18,33 +21,56 @@ namespace CustomUtils.Runtime.Localization
             if (lines.Count == 0)
                 return;
 
-            var languages = ParseLanguageHeader(lines[0]);
+            var headerColumns = LocalizationCsvParser.ParseColumns(lines[0]);
+            var guidColumnIndex = FindColumnIndex(headerColumns, GuidColumnName);
+            var keyColumnIndex = FindColumnIndex(headerColumns, KeyColumnName);
+
+            if (guidColumnIndex == -1 || keyColumnIndex == -1)
+            {
+                Debug.LogError($"[LocalizationSheetProcessor] Sheet '{sheet.Name}' must have 'GUID' and 'Key' columns");
+                return;
+            }
+
+            var languages = ParseLanguageHeader(headerColumns, guidColumnIndex, keyColumnIndex);
             if (ValidateLanguages(languages, sheet.Name) is false)
                 return;
 
             InitializeLanguageDictionaries(dictionary, languages);
-            ProcessDataRows(lines, languages, dictionary, processedKeys, sheet.Name);
+            ProcessDataRows(lines, headerColumns, guidColumnIndex, keyColumnIndex, languages,
+                dictionary, processedKeys, sheet.Name);
         }
 
-        private static List<SystemLanguage> ParseLanguageHeader(string headerLine)
+        private static int FindColumnIndex(List<string> columns, string columnName)
         {
-            var languageStrings = headerLine.Split(',')
-                .AsValueEnumerable()
-                .Select(lang => lang.Trim())
-                .ToList();
+            for (var i = 0; i < columns.Count; i++)
+            {
+                if (columns[i].Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
 
+            return -1;
+        }
+
+        private static List<SystemLanguage> ParseLanguageHeader(
+            List<string> headerColumns,
+            int guidColumnIndex,
+            int keyColumnIndex)
+        {
             var systemLanguages = new List<SystemLanguage>();
 
-            for (var i = 1; i < languageStrings.Count; i++)
+            for (var i = 0; i < headerColumns.Count; i++)
             {
-                if (TryParseSystemLanguage(languageStrings[i], out var systemLang))
+                if (i == guidColumnIndex || i == keyColumnIndex)
+                    continue;
+
+                if (TryParseSystemLanguage(headerColumns[i], out var systemLang))
                 {
                     systemLanguages.Add(systemLang);
                     continue;
                 }
 
-                Debug.LogWarning("[LocalizationSheetProcessor::ParseLanguageHeader]" +
-                                 $" Unknown language '{languageStrings[i]}' - skipping");
+                Debug.LogWarning($"[LocalizationSheetProcessor::ParseLanguageHeader] " +
+                                $"Unknown language '{headerColumns[i]}' - skipping");
             }
 
             return systemLanguages;
@@ -58,8 +84,8 @@ namespace CustomUtils.Runtime.Localization
             if (languages.Count == languages.Distinct().Count())
                 return true;
 
-            Debug.LogError("[LocalizationSheetProcessor::ValidateLanguages] " +
-                           $"Duplicated languages found in '{sheetName}'. Sheet not loaded.");
+            Debug.LogError($"[LocalizationSheetProcessor::ValidateLanguages] " +
+                          $"Duplicated languages found in '{sheetName}'. Sheet not loaded.");
             return false;
         }
 
@@ -76,6 +102,9 @@ namespace CustomUtils.Runtime.Localization
 
         private static void ProcessDataRows(
             List<string> lines,
+            List<string> headerColumns,
+            int guidColumnIndex,
+            int keyColumnIndex,
             List<SystemLanguage> languages,
             Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
             HashSet<string> processedKeys,
@@ -84,42 +113,58 @@ namespace CustomUtils.Runtime.Localization
             for (var i = 1; i < lines.Count; i++)
             {
                 var columns = LocalizationCsvParser.ParseColumns(lines[i]);
-                var key = columns.FirstOrDefault();
 
-                if (string.IsNullOrEmpty(key))
+                if (columns.Count <= guidColumnIndex || columns.Count <= keyColumnIndex)
                     continue;
 
-                if (processedKeys.Add(key) is false)
+                var guid = columns[guidColumnIndex];
+                var key = columns[keyColumnIndex];
+
+                if (string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(key))
+                    continue;
+
+                if (processedKeys.Add(guid) is false)
                 {
-                    Debug.LogError("[LocalizationSheetProcessor::ProcessDataRows] " +
-                                   $"Duplicated key '{key}' found in '{sheetName}'. Key not loaded.");
+                    Debug.LogError($"[LocalizationSheetProcessor::ProcessDataRows] " +
+                                  $"Duplicated GUID '{guid}' found in '{sheetName}'. Entry not loaded.");
                     continue;
                 }
 
-                AddTranslationsForKey(key, columns, languages, dictionary, sheetName);
+                var entry = new LocalizationEntry(guid, key, sheetName);
+                AddTranslationsForEntry(entry, columns, headerColumns, guidColumnIndex, keyColumnIndex,
+                    languages, dictionary, sheetName);
+
+                LocalizationRegistry.Instance.AddOrUpdateEntry(entry);
             }
         }
 
-        private static void AddTranslationsForKey(
-            string key,
+        private static void AddTranslationsForEntry(
+            LocalizationEntry entry,
             List<string> columns,
+            List<string> headerColumns,
+            int guidColumnIndex,
+            int keyColumnIndex,
             List<SystemLanguage> languages,
             Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
             string sheetName)
         {
-            for (var j = 0; j < languages.Count && j + 1 < columns.Count; j++)
+            foreach (var language in languages)
             {
-                var language = languages[j];
-                var translation = columns[j + 1];
+                var languageColumnIndex = FindColumnIndex(headerColumns, language.ToString());
+                if (languageColumnIndex == -1 || languageColumnIndex >= columns.Count)
+                    continue;
 
-                if (dictionary[language].ContainsKey(key))
+                var translation = columns[languageColumnIndex];
+
+                if (dictionary[language].ContainsKey(entry.Guid))
                 {
-                    Debug.LogError("[LocalizationSheetProcessor::AddTranslationsForKey] " +
-                                   $"Duplicated key '{key}' in '{sheetName}' for language '{language}'.");
+                    Debug.LogError($"[LocalizationSheetProcessor::AddTranslationsForEntry] " +
+                                  $"Duplicated GUID '{entry.Guid}' in '{sheetName}' for language '{language}'.");
                     continue;
                 }
 
-                dictionary[language][key] = translation;
+                dictionary[language][entry.Guid] = translation;
+                entry.SetTranslation(language, translation);
             }
         }
     }

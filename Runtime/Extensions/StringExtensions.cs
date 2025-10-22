@@ -62,24 +62,6 @@ namespace CustomUtils.Runtime.Extensions
         }
 
         /// <summary>
-        /// Gets the localized string for the specified localization key.
-        /// </summary>
-        /// <param name="key">The localization key to retrieve the translated text for.</param>
-        /// <returns>The localized string corresponding to the key, or the key itself if no localization is found.</returns>
-        [UsedImplicitly]
-        public static string GetLocalization(this string key) => LocalizationController.Localize(key);
-
-        /// <summary>
-        /// Gets the localized string for the specified localization key.
-        /// </summary>
-        /// <param name="key">The localization key to retrieve the translated text for.</param>
-        /// <param name="language">The specific language to use for localization.</param>
-        /// <returns>The localized string corresponding to the key, or the key itself if no localization is found.</returns>
-        [UsedImplicitly]
-        public static string GetLocalization(this string key, SystemLanguage language)
-            => LocalizationController.Localize(key, language);
-
-        /// <summary>
         /// Splits a string by the specified delimiter and returns a list of trimmed string elements,
         /// excluding empty or whitespace-only elements.
         /// </summary>
@@ -88,7 +70,7 @@ namespace CustomUtils.Runtime.Extensions
         /// <returns>A list of trimmed string elements, with empty elements excluded.</returns>
         [UsedImplicitly]
         public static List<string> SplitToListTrimmed(this string str, char delimiter)
-            => SplitToListTrimmed(str, delimiter, element => element);
+            => SplitToListTrimmed(str, delimiter, static element => element);
 
         /// <summary>
         /// Splits a string by the specified delimiter, trims each element, and converts them to the specified type

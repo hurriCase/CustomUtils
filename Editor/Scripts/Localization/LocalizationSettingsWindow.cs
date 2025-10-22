@@ -15,6 +15,7 @@ namespace CustomUtils.Editor.Scripts.Localization
     {
         private Vector2 _scrollPosition;
         private SystemLanguage _selectedLanguage = SystemLanguage.English;
+        private string _selectedSheetForGuidGeneration = string.Empty;
 
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
 
@@ -37,7 +38,87 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             DrawCommonSheetsSection();
 
+            DisplayGuidGenerationSection();
+
             DisplayCopyAllTextSection();
+        }
+
+        private void DisplayGuidGenerationSection()
+        {
+            EditorGUILayout.Space();
+            EditorVisualControls.LabelField("GUID Generation");
+
+            DrawSheetSelection();
+
+            EditorGUILayout.Space();
+
+            if (EditorVisualControls.Button("Generate GUIDs for Selected Sheet"))
+                GenerateGuidsForSheet();
+
+            if (EditorVisualControls.Button("Generate GUIDs for All Keys"))
+                GenerateGuidsForAllKeys();
+        }
+
+        private void DrawSheetSelection()
+        {
+            var sheets = Database.Sheets;
+            if (sheets == null || sheets.Count == 0)
+            {
+                EditorGUILayout.LabelField("No sheets available. Add sheets first.");
+                return;
+            }
+
+            var sheetNames = sheets.AsValueEnumerable()
+                .Select(sheet => sheet.Name).ToArray();
+
+            var currentIndex = Array.IndexOf(sheetNames, _selectedSheetForGuidGeneration);
+            if (currentIndex == -1 && sheetNames.Length > 0)
+                currentIndex = 0;
+
+            var newIndex = EditorGUILayout.Popup("Sheet", currentIndex, sheetNames);
+            _selectedSheetForGuidGeneration = sheetNames[newIndex];
+        }
+
+        private void GenerateGuidsForSheet()
+        {
+            if (string.IsNullOrEmpty(_selectedSheetForGuidGeneration))
+            {
+                EditorUtility.DisplayDialog("Error", "Please select a sheet first.", "OK");
+                return;
+            }
+
+            var csvContent = LocalizationGuidGenerator.GenerateGuidsForSheet(_selectedSheetForGuidGeneration);
+
+            if (string.IsNullOrEmpty(csvContent))
+            {
+                EditorUtility.DisplayDialog("Error",
+                    $"Failed to generate GUIDs for sheet '{_selectedSheetForGuidGeneration}'.", "OK");
+                return;
+            }
+
+            EditorGUIUtility.systemCopyBuffer = csvContent;
+
+            EditorUtility.DisplayDialog("Success",
+                $"Generated GUIDs for sheet '{_selectedSheetForGuidGeneration}' and copied to clipboard.\n\n" +
+                "You can now paste this into your Google Sheet.", "OK");
+        }
+
+        private void GenerateGuidsForAllKeys()
+        {
+            var csvContent = LocalizationGuidGenerator.GenerateGuidsForExistingKeys();
+
+            if (string.IsNullOrEmpty(csvContent))
+            {
+                EditorUtility.DisplayDialog("Error", "No localization keys found.", "OK");
+                return;
+            }
+
+            EditorGUIUtility.systemCopyBuffer = csvContent;
+
+            EditorUtility.DisplayDialog("Success",
+                "Generated GUIDs for all localization keys and copied to clipboard.\n\n" +
+                "This is a simple GUID-Key mapping. For full sheet export, use 'Generate GUIDs for Selected Sheet'.",
+                "OK");
         }
 
         private void DisplayCopyAllTextSection()
@@ -82,24 +163,23 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void CopyAllTextForLanguage(SystemLanguage language, bool includeKeys)
         {
-            var allKeys = LocalizationController.GetAllKeys();
-            if (allKeys == null || allKeys.Length == 0)
+            var allEntries = LocalizationRegistry.Instance.Entries;
+            if (allEntries == null || allEntries.Count == 0)
             {
-                EditorUtility.DisplayDialog("Warning", "No localization keys found.", "OK");
+                EditorUtility.DisplayDialog("Warning", "No localization entries found.", "OK");
                 return;
             }
 
             var textBuilder = new StringBuilder();
             var copiedCount = 0;
 
-            foreach (var key in allKeys)
+            foreach (var entry in allEntries)
             {
-                var localizedText = LocalizationController.Localize(key, language);
-
-                if (string.IsNullOrEmpty(localizedText) || localizedText == key)
+                if (entry.TryGetTranslation(language, out var localizedText) is false ||
+                    string.IsNullOrEmpty(localizedText))
                     continue;
 
-                var line = includeKeys ? $"{key}: {localizedText}" : localizedText;
+                var line = includeKeys ? $"{entry.Key}: {localizedText}" : localizedText;
                 textBuilder.AppendLine(line);
                 copiedCount++;
             }
