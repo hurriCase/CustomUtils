@@ -10,7 +10,6 @@ namespace CustomUtils.Runtime.Localization
     internal sealed class LocalizedTextMeshPro : MonoBehaviour
     {
         [field: SerializeField] internal LocalizationKey LocalizationKey { get; private set; }
-
         [field: SerializeField, Self] internal TextMeshProUGUI Text { get; private set; }
 
         private void Start()

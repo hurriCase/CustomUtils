@@ -20,14 +20,12 @@ namespace CustomUtils.Editor.Scripts.Localization
         private LocalizationKey _currentLocalizationKey;
         private Action<LocalizationEntry> _onSelectionChanged;
 
-        internal static void ShowWindow(
-            LocalizationKey currentLocalizationKey,
-            Action<LocalizationEntry> onSelectionChanged)
+        internal static void ShowWindow(LocalizationKey currentKey, Action<LocalizationEntry> onSelectionChanged)
         {
             var window = CreateInstance<LocalizationSelectorWindow>();
 
             window.titleContent = new GUIContent("Localization Selector");
-            window._currentLocalizationKey = currentLocalizationKey;
+            window._currentLocalizationKey = currentKey;
             window._onSelectionChanged = onSelectionChanged;
 
             window.ShowUtility();

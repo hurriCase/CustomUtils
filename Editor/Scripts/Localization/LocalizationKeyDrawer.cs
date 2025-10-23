@@ -2,114 +2,72 @@
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace CustomUtils.Editor.Scripts.Localization
 {
     [CustomPropertyDrawer(typeof(LocalizationKey))]
     internal sealed class LocalizationKeyDrawer : PropertyDrawer
     {
-        private const float ButtonWidth = 60f;
-        private const float Spacing = 2f;
+        [SerializeField] private VisualTreeAsset _localizationKeyLayout;
 
-        private SerializedProperty _serializedProperty;
-        private SerializedProperty _guidProperty;
         private SerializedProperty _keyProperty;
         private SerializedProperty _tableNameProperty;
+        private SerializedProperty _guidProperty;
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        private DropdownField _keyLabel;
+
+        private SerializedProperty _serializedProperty;
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             _serializedProperty = property;
-            _guidProperty = property.FindFieldRelative(nameof(LocalizationKey.Guid));
-            _keyProperty = property.FindFieldRelative(nameof(LocalizationKey.Key));
-            _tableNameProperty = property.FindFieldRelative(nameof(LocalizationKey.TableName));
 
-            return EditorGUIUtility.singleLineHeight;
+            var container = _localizationKeyLayout.CloneTree();
+
+            SetProperties();
+
+            _keyLabel = container.Q<DropdownField>("LocalizationKeyLabel");
+            _keyLabel.RegisterCallback<MouseDownEvent>(ShowKeySelectionWindow, TrickleDown.TrickleDown);
+
+            UpdateKeyFieldDisplay(_keyProperty.stringValue);
+
+            return container;
         }
 
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        private void SetProperties()
         {
-            EditorGUI.BeginProperty(position, label, property);
+            _keyProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Key));
+            _tableNameProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
+            _guidProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
+        }
 
-            var hasValidGuid = string.IsNullOrEmpty(_guidProperty.stringValue) is false;
-            var isValid = false;
-
-            if (hasValidGuid)
-                if (LocalizationRegistry.Instance.TryGetEntry(_guidProperty.stringValue, out var entry))
-                {
-                    isValid = true;
-
-                    if (_keyProperty.stringValue != entry.Key)
-                    {
-                        _keyProperty.stringValue = entry.Key;
-                        property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                    }
-
-                    if (_tableNameProperty.stringValue != entry.TableName)
-                    {
-                        _tableNameProperty.stringValue = entry.TableName;
-                        property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
-                    }
-                }
-
-            var labelRect = new Rect(position.x, position.y, EditorGUIUtility.labelWidth, position.height);
-            EditorGUI.LabelField(labelRect, label);
-
-            var fieldRect = new Rect(
-                position.x + EditorGUIUtility.labelWidth,
-                position.y,
-                position.width - EditorGUIUtility.labelWidth - ButtonWidth - Spacing * 3,
-                position.height
-            );
-            DrawKeyField(fieldRect, _keyProperty.stringValue, _tableNameProperty.stringValue, isValid);
-
-            var buttonRect = new Rect(
-                position.x + position.width - ButtonWidth,
-                position.y,
-                ButtonWidth,
-                position.height
-            );
-
+        private void ShowKeySelectionWindow(MouseDownEvent _)
+        {
             var currentKey = new LocalizationKey(
                 _guidProperty.stringValue,
                 _keyProperty.stringValue,
                 _tableNameProperty.stringValue
             );
 
-            if (GUI.Button(buttonRect, "Select", EditorStyles.miniButton))
-                LocalizationSelectorWindow.ShowWindow(
-                    currentKey,
-                    SelectEntry);
-
-            EditorGUI.EndProperty();
+            LocalizationSelectorWindow.ShowWindow(currentKey, OnSelectionChanged);
         }
 
-        private void SelectEntry(LocalizationEntry entry)
+        private void OnSelectionChanged(LocalizationEntry selectedEntry)
         {
-            _guidProperty.stringValue = entry.Guid;
-            _keyProperty.stringValue = entry.Key;
-            _tableNameProperty.stringValue = entry.TableName;
+            _guidProperty.stringValue = selectedEntry.Guid;
+            _keyProperty.stringValue = selectedEntry.Key;
+            _tableNameProperty.stringValue = selectedEntry.TableName;
 
             _serializedProperty.serializedObject.ApplyModifiedProperties();
+
+            UpdateKeyFieldDisplay(selectedEntry.Key);
         }
 
-        private void DrawKeyField(Rect position, string key, string tableName, bool isValid)
+        private void UpdateKeyFieldDisplay(string key)
         {
-            var displayText = string.IsNullOrEmpty(key)
-                ? "[None]"
-                : string.IsNullOrEmpty(tableName)
-                    ? key
-                    : $"[{tableName}] {key}";
-
-            var previousColor = GUI.color;
-            GUI.color = isValid ? Color.white : new Color(0.7f, 0.7f, 0.7f);
-
-            var style = new GUIStyle(EditorStyles.label)
-            {
-                alignment = TextAnchor.MiddleLeft
-            };
-
-            EditorGUI.LabelField(position, displayText, style);
-            GUI.color = previousColor;
+            var displayText = string.IsNullOrEmpty(key) ? "[None]" : key;
+            _keyLabel.value = displayText;
         }
     }
 }
