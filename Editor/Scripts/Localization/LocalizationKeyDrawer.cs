@@ -9,7 +9,6 @@ namespace CustomUtils.Editor.Scripts.Localization
     internal sealed class LocalizationKeyDrawer : PropertyDrawer
     {
         private const float ButtonWidth = 60f;
-        private const float ValidationIconWidth = 20f;
         private const float Spacing = 2f;
 
         private SerializedProperty _serializedProperty;
@@ -55,18 +54,10 @@ namespace CustomUtils.Editor.Scripts.Localization
             var labelRect = new Rect(position.x, position.y, EditorGUIUtility.labelWidth, position.height);
             EditorGUI.LabelField(labelRect, label);
 
-            var iconRect = new Rect(
+            var fieldRect = new Rect(
                 position.x + EditorGUIUtility.labelWidth,
                 position.y,
-                ValidationIconWidth,
-                position.height
-            );
-            DrawValidationIcon(iconRect, isValid);
-
-            var fieldRect = new Rect(
-                iconRect.x + iconRect.width + Spacing,
-                position.y,
-                position.width - EditorGUIUtility.labelWidth - ValidationIconWidth - ButtonWidth - Spacing * 3,
+                position.width - EditorGUIUtility.labelWidth - ButtonWidth - Spacing * 3,
                 position.height
             );
             DrawKeyField(fieldRect, _keyProperty.stringValue, _tableNameProperty.stringValue, isValid);
@@ -99,23 +90,6 @@ namespace CustomUtils.Editor.Scripts.Localization
             _tableNameProperty.stringValue = entry.TableName;
 
             _serializedProperty.serializedObject.ApplyModifiedProperties();
-        }
-
-        private void DrawValidationIcon(Rect position, bool isValid)
-        {
-            var icon = isValid ? "✔" : "✘";
-            var color = isValid ? Color.green : Color.red;
-
-            var previousColor = GUI.color;
-            GUI.color = color;
-
-            var style = new GUIStyle(EditorStyles.boldLabel)
-            {
-                alignment = TextAnchor.MiddleCenter
-            };
-
-            EditorGUI.LabelField(position, icon, style);
-            GUI.color = previousColor;
         }
 
         private void DrawKeyField(Rect position, string key, string tableName, bool isValid)
