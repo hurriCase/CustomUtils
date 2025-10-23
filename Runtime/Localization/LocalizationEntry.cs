@@ -7,15 +7,13 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime.Localization
 {
-    /// <summary>
-    /// Represents a single localization entry with GUID, key, and translations.
-    /// </summary>
     [Serializable]
     internal sealed class LocalizationEntry
     {
         [field: SerializeField, InspectorReadOnly] internal string Key { get; private set; }
         [field: SerializeField, InspectorReadOnly] internal string Guid { get; private set; }
         [field: SerializeField, InspectorReadOnly] internal string TableName { get; private set; }
+
         [field: SerializeField, InspectorReadOnly]
         internal SerializedDictionary<SystemLanguage, string> Translations { get; private set; } = new();
 
