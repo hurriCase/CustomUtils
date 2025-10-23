@@ -1,0 +1,53 @@
+:root {
+}
+
+.localization-column__key {
+    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
+}
+
+.localization-column__table {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+}
+
+.localization-column__text {
+    flex-grow: 1;
+}
+
+.localization-column__button {
+    width: 80px;
+}
+
+.localization-text {
+    -unity-text-align: middle-left;
+    white-space: normal;
+    overflow: hidden;
+}
+
+.localization-text--ellipsis {
+    text-overflow: ellipsis;
+}
+
+.localization-spacing__small {
+    margin-bottom: 4px;
+}
+
+.localization-spacing__medium {
+    margin-bottom: 8px;
+}
+
+.localization-background__light {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.localization-background__dark {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.localization-border__bottom {
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+}

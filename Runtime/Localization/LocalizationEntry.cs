@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using AYellowpaper.SerializedCollections;
 using CustomUtils.Runtime.Attributes;
 using UnityEngine;
 
@@ -14,11 +16,8 @@ namespace CustomUtils.Runtime.Localization
         [field: SerializeField, InspectorReadOnly] internal string Key { get; private set; }
         [field: SerializeField, InspectorReadOnly] internal string Guid { get; private set; }
         [field: SerializeField, InspectorReadOnly] internal string TableName { get; private set; }
-
-        [SerializeField, InspectorReadOnly] private List<SystemLanguage> _languages = new();
-        [SerializeField, InspectorReadOnly] private List<string> _translations = new();
-
-        private Dictionary<SystemLanguage, string> _translationLookup;
+        [field: SerializeField, InspectorReadOnly]
+        internal SerializedDictionary<SystemLanguage, string> Translations { get; private set; } = new();
 
         internal LocalizationEntry(string guid, string key, string tableName)
         {
@@ -29,41 +28,12 @@ namespace CustomUtils.Runtime.Localization
 
         internal void SetTranslation(SystemLanguage language, string translation)
         {
-            var index = _languages.IndexOf(language);
-
-            if (index >= 0)
-                _translations[index] = translation;
-            else
-            {
-                _languages.Add(language);
-                _translations.Add(translation);
-            }
-
-            _translationLookup = null;
+            Translations[language] = translation;
         }
 
         internal bool TryGetTranslation(SystemLanguage language, out string translation)
-        {
-            BuildLookupIfNeeded();
-            return _translationLookup.TryGetValue(language, out translation);
-        }
+            => Translations.TryGetValue(language, out translation);
 
-        internal bool HasTranslation(SystemLanguage language)
-        {
-            BuildLookupIfNeeded();
-            return _translationLookup.ContainsKey(language) &&
-                   string.IsNullOrEmpty(_translationLookup[language]) is false;
-        }
-
-        private void BuildLookupIfNeeded()
-        {
-            if (_translationLookup != null)
-                return;
-
-            _translationLookup = new Dictionary<SystemLanguage, string>();
-
-            for (var i = 0; i < _languages.Count && i < _translations.Count; i++)
-                _translationLookup[_languages[i]] = _translations[i];
-        }
+        internal bool HasTranslation(SystemLanguage language) => Translations.ContainsKey(language);
     }
 }

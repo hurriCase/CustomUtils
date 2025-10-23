@@ -1,0 +1,26 @@
+.localization-entry {
+    flex-direction: row;
+    padding: 4px 8px;
+    min-height: 50px;
+}
+
+.localization-entry__key {
+    padding-right: 8px;
+}
+
+.localization-entry__table {
+    padding-right: 8px;
+}
+
+.localization-entry__text {
+    padding-right: 8px;
+}
+
+.localization-entry__button {
+    align-self: center;
+    height: 30px;
+}
+
+.localization-entry:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}

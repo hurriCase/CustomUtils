@@ -23,7 +23,7 @@ namespace CustomUtils.Runtime.Localization
         private readonly Dictionary<string, List<LocalizationEntry>> _tableLookup = new();
         private bool _isInitialized;
 
-        internal IReadOnlyList<LocalizationEntry> Entries => _entries;
+        internal IList<LocalizationEntry> Entries => _entries;
 
         internal void Initialize()
         {
@@ -49,12 +49,12 @@ namespace CustomUtils.Runtime.Localization
                 : System.Array.Empty<LocalizationEntry>();
         }
 
-        internal string[] GetAllTableNames()
+        internal List<string> GetAllTableNames()
         {
             if (_isInitialized is false)
                 Initialize();
 
-            return _tableLookup.Keys.ToArray();
+            return _tableLookup.Keys.ToList();
         }
 
         internal void AddOrUpdateEntry(LocalizationEntry entry)

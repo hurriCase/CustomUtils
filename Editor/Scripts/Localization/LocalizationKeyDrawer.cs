@@ -12,34 +12,42 @@ namespace CustomUtils.Editor.Scripts.Localization
         private const float ValidationIconWidth = 20f;
         private const float Spacing = 2f;
 
+        private SerializedProperty _serializedProperty;
+        private SerializedProperty _guidProperty;
+        private SerializedProperty _keyProperty;
+        private SerializedProperty _tableNameProperty;
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            => EditorGUIUtility.singleLineHeight;
+        {
+            _serializedProperty = property;
+            _guidProperty = property.FindFieldRelative(nameof(LocalizationKey.Guid));
+            _keyProperty = property.FindFieldRelative(nameof(LocalizationKey.Key));
+            _tableNameProperty = property.FindFieldRelative(nameof(LocalizationKey.TableName));
+
+            return EditorGUIUtility.singleLineHeight;
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            var guidProperty = property.FindFieldRelative(nameof(LocalizationKey.Guid));
-            var keyProperty = property.FindFieldRelative(nameof(LocalizationKey.Key));
-            var tableProperty = property.FindFieldRelative(nameof(LocalizationKey.TableName));
-
-            var hasValidGuid = string.IsNullOrEmpty(guidProperty.stringValue) is false;
+            var hasValidGuid = string.IsNullOrEmpty(_guidProperty.stringValue) is false;
             var isValid = false;
 
             if (hasValidGuid)
-                if (LocalizationRegistry.Instance.TryGetEntry(guidProperty.stringValue, out var entry))
+                if (LocalizationRegistry.Instance.TryGetEntry(_guidProperty.stringValue, out var entry))
                 {
                     isValid = true;
 
-                    if (keyProperty.stringValue != entry.Key)
+                    if (_keyProperty.stringValue != entry.Key)
                     {
-                        keyProperty.stringValue = entry.Key;
+                        _keyProperty.stringValue = entry.Key;
                         property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                     }
 
-                    if (tableProperty.stringValue != entry.TableName)
+                    if (_tableNameProperty.stringValue != entry.TableName)
                     {
-                        tableProperty.stringValue = entry.TableName;
+                        _tableNameProperty.stringValue = entry.TableName;
                         property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
                     }
                 }
@@ -61,7 +69,7 @@ namespace CustomUtils.Editor.Scripts.Localization
                 position.width - EditorGUIUtility.labelWidth - ValidationIconWidth - ButtonWidth - Spacing * 3,
                 position.height
             );
-            DrawKeyField(fieldRect, keyProperty.stringValue, tableProperty.stringValue, isValid);
+            DrawKeyField(fieldRect, _keyProperty.stringValue, _tableNameProperty.stringValue, isValid);
 
             var buttonRect = new Rect(
                 position.x + position.width - ButtonWidth,
@@ -70,14 +78,27 @@ namespace CustomUtils.Editor.Scripts.Localization
                 position.height
             );
 
+            var currentKey = new LocalizationKey(
+                _guidProperty.stringValue,
+                _keyProperty.stringValue,
+                _tableNameProperty.stringValue
+            );
+
             if (GUI.Button(buttonRect, "Select", EditorStyles.miniButton))
-                LocalizationKeySelectorWindow.Show(property, () =>
-                {
-                    property.serializedObject.Update();
-                    EditorUtility.SetDirty(property.serializedObject.targetObject);
-                });
+                LocalizationSelectorWindow.ShowWindow(
+                    currentKey,
+                    SelectEntry);
 
             EditorGUI.EndProperty();
+        }
+
+        private void SelectEntry(LocalizationEntry entry)
+        {
+            _guidProperty.stringValue = entry.Guid;
+            _keyProperty.stringValue = entry.Key;
+            _tableNameProperty.stringValue = entry.TableName;
+
+            _serializedProperty.serializedObject.ApplyModifiedProperties();
         }
 
         private void DrawValidationIcon(Rect position, bool isValid)

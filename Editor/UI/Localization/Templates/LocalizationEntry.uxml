@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/Styles/LocalizationGlobal.uss?fileID=7433441132597879392&amp;guid=e987d12d5143f894a9e9bf55048ee068&amp;type=3#LocalizationGlobal"/>
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/Styles/LocalizationEntry.uss?fileID=7433441132597879392&amp;guid=fbeccd44dcf16e24cb9427d36665af11&amp;type=3#LocalizationEntry"/>
+    <ui:VisualElement name="LocalizationEntry" class="localization-entry localization-border__bottom">
+        <ui:Label text="Label" name="KeyLabel" class="localization-entry__key localization-column__key localization-text localization-text--ellipsis"/>
+        <ui:Label text="Label" name="TableNameLabel" class="localization-entry__table localization-column__table localization-text localization-text--ellipsis"/>
+        <ui:Label text="Label" name="LocalizationLabel" class="localization-entry__text localization-column__text localization-text"/>
+        <ui:Button text="Select" name="SelectButton" class="localization-entry__button localization-column__button"/>
+    </ui:VisualElement>
+</ui:UXML>
