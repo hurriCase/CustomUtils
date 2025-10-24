@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using R3;
 using UnityEngine;
-using ZLinq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,8 +18,6 @@ namespace CustomUtils.Runtime.Localization
     [UsedImplicitly]
     public static class LocalizationController
     {
-        private static readonly Dictionary<SystemLanguage, Dictionary<string, string>> _dictionary = new();
-
         /// <summary>
         /// Reactive property for current language with automatic localization updates.
         /// </summary>
@@ -28,51 +25,12 @@ namespace CustomUtils.Runtime.Localization
         public static ReactiveProperty<SystemLanguage> Language { get; } =
             new(LocalizationDatabase.Instance.DefaultLanguage);
 
-        private static readonly HashSet<string> _keys = new();
-
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        private static void InitializeInEditor() => ReadLocalizationData();
-#endif
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeInRuntime()
         {
-            BuildDictionaryFromRegistry();
-
             var systemLanguage = Application.systemLanguage;
             if (HasLanguage(systemLanguage))
                 Language.Value = systemLanguage;
-        }
-
-        private static void BuildDictionaryFromRegistry()
-        {
-            _dictionary.Clear();
-            var availableLanguages = new HashSet<SystemLanguage>();
-
-            foreach (var entry in LocalizationRegistry.Instance.Entries)
-            {
-                foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
-                {
-                    if (entry.HasTranslation(language))
-                        availableLanguages.Add(language);
-                }
-            }
-
-            foreach (var language in availableLanguages)
-            {
-                if (_dictionary.ContainsKey(language) is false)
-                    _dictionary[language] = new Dictionary<string, string>();
-            }
-
-            foreach (var entry in LocalizationRegistry.Instance.Entries)
-            {
-                foreach (var language in availableLanguages)
-                {
-                    if (entry.TryGetTranslation(language, out var translation))
-                        _dictionary[language][entry.GUID] = translation;
-                }
-            }
         }
 
         /// <summary>
@@ -89,7 +47,7 @@ namespace CustomUtils.Runtime.Localization
         public static string Localize(LocalizationKey localizationKey, SystemLanguage language)
         {
             if (localizationKey.IsValid is false
-                || LocalizationRegistry.Instance.TryGetEntry(localizationKey.GUID, out var entry) is false)
+                || LocalizationRegistry.Instance.Entries.TryGetValue(localizationKey.GUID, out var entry) is false)
                 return string.Empty;
 
             if (entry.TryGetTranslation(language, out var translation) &&
@@ -107,34 +65,51 @@ namespace CustomUtils.Runtime.Localization
         /// Checks if localization data exists for the specified language.
         /// </summary>
         [UsedImplicitly]
-        public static bool HasLanguage(SystemLanguage language) => _dictionary.ContainsKey(language);
+        public static bool HasLanguage(SystemLanguage language)
+        {
+            foreach (var localizationEntry in LocalizationRegistry.Instance.Entries.Values)
+            {
+                if (localizationEntry.HasTranslation(language))
+                    return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Retrieves all localization keys across all available languages.
         /// </summary>
         [UsedImplicitly]
-        public static string[] GetAllKeys()
-        {
-            _keys.Clear();
-            foreach (var localizations in _dictionary.Values)
-            {
-                foreach (var key in localizations.Keys)
-                    _keys.Add(key);
-            }
-
-            return _keys.AsValueEnumerable().OrderBy(static key => key).ToArray();
-        }
+        public static string[] GetAllKeys() =>
+            LocalizationRegistry.Instance.Entries.Values
+                .Select(static localizationEntry => localizationEntry.Key)
+                .OrderBy(static guid => guid)
+                .ToArray();
 
         /// <summary>
         /// Retrieves all supported languages available in the localization dictionary.
         /// </summary>
         [UsedImplicitly]
-        public static SystemLanguage[] GetAllLanguages() => _dictionary.Keys.ToArray();
+        public static SystemLanguage[] GetAllLanguages()
+        {
+            var languages = new HashSet<SystemLanguage>();
+
+            foreach (var entry in LocalizationRegistry.Instance.Entries.Values)
+            {
+                foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
+                {
+                    if (entry.HasTranslation(language))
+                        languages.Add(language);
+                }
+            }
+
+            return languages.ToArray();
+        }
 
         internal static void ReadLocalizationData()
         {
             var settings = LocalizationDatabase.Instance;
-            if (!settings || settings.Sheets == null)
+            if (settings.Sheets == null)
             {
                 Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
                                  "No localization settings or sheets found");
@@ -142,9 +117,10 @@ namespace CustomUtils.Runtime.Localization
             }
 
             LocalizationRegistry.Instance.Clear();
-            _dictionary.Clear();
 
+            var dictionary = new Dictionary<SystemLanguage, Dictionary<string, string>>();
             var processedKeys = new HashSet<string>();
+
             foreach (var sheet in settings.Sheets)
             {
                 if (!sheet?.TextAsset)
@@ -154,14 +130,13 @@ namespace CustomUtils.Runtime.Localization
                     continue;
                 }
 
-                LocalizationSheetProcessor.ProcessSheet(sheet, _dictionary, processedKeys);
+                LocalizationSheetProcessor.ProcessSheet(sheet, dictionary, processedKeys);
             }
 
-            LocalizationRegistry.Instance.Initialize();
+            var entriesCount = LocalizationRegistry.Instance.Entries.Count;
 
             Debug.Log("[LocalizationController::ReadLocalizationData] " +
-                      $"Loaded {LocalizationRegistry.Instance.Entries.Count} " +
-                      $"localization entries from {settings.Sheets.Count} sheets");
+                      $"Loaded {entriesCount} localization entries from {settings.Sheets.Count} sheets");
         }
     }
 }

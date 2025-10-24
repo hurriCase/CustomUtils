@@ -163,8 +163,8 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void CopyAllTextForLanguage(SystemLanguage language, bool includeKeys)
         {
-            var allEntries = LocalizationRegistry.Instance.Entries;
-            if (allEntries == null || allEntries.Count == 0)
+            var allEntries = LocalizationRegistry.Instance.Entries.Values;
+            if (allEntries.Count == 0)
             {
                 EditorUtility.DisplayDialog("Warning", "No localization entries found.", "OK");
                 return;

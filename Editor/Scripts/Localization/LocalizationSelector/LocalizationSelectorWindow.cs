@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
@@ -43,7 +44,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
 
         private void SetupTableNamesDropdown()
         {
-            var tableNames = LocalizationRegistry.Instance.GetAllTableNames();
+            var tableNames = LocalizationRegistry.Instance.TableToGuids.Keys.ToList();
             tableNames.Insert(0, AllTablesName);
 
             _elements.TableNamesDropdown.choices = tableNames;

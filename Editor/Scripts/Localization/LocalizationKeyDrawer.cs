@@ -30,7 +30,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             _guidProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.GUID));
             _translationsProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Translations));
 
-            LocalizationRegistry.Instance.TryGetEntry(_guidProperty.stringValue, out _selectedEntry);
+            LocalizationRegistry.Instance.Entries.TryGetValue(_guidProperty.stringValue, out _selectedEntry);
 
             _keyLabel = container.Q<DropdownField>("LocalizationKeyLabel");
             _keyLabel.RegisterCallback<MouseDownEvent>(ShowKeySelectionWindow, TrickleDown.TrickleDown);

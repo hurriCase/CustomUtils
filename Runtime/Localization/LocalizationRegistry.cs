@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using AYellowpaper.SerializedCollections;
 using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.CustomTypes.Singletons;
 using CustomUtils.Runtime.Extensions;
@@ -15,99 +18,48 @@ namespace CustomUtils.Runtime.Localization
     )]
     internal sealed class LocalizationRegistry : SingletonScriptableObject<LocalizationRegistry>
     {
-        private static LocalizationRegistry _instance;
+        [field: SerializeField]
+        internal SerializedDictionary<string, LocalizationEntry> Entries { get; private set; } = new();
 
-        [SerializeField] private List<LocalizationEntry> _entries = new();
-
-        private readonly Dictionary<string, LocalizationEntry> _guidLookup = new();
-        private readonly Dictionary<string, List<LocalizationEntry>> _tableLookup = new();
-        private bool _isInitialized;
-
-        internal IList<LocalizationEntry> Entries => _entries;
-
-        internal void Initialize()
-        {
-            BuildLookupTables();
-            _isInitialized = true;
-        }
-
-        internal bool TryGetEntry(string guid, out LocalizationEntry entry)
-        {
-            if (_isInitialized is false)
-                Initialize();
-
-            return _guidLookup.TryGetValue(guid, out entry);
-        }
-
-        private LocalizationEntry[] GetEntriesForTable(string tableName)
-        {
-            if (_isInitialized is false)
-                Initialize();
-
-            return _tableLookup.TryGetValue(tableName, out var entries)
-                ? entries.ToArray()
-                : System.Array.Empty<LocalizationEntry>();
-        }
-
-        internal List<string> GetAllTableNames()
-        {
-            if (_isInitialized is false)
-                Initialize();
-
-            return _tableLookup.Keys.ToList();
-        }
+        [field: SerializeField]
+        internal SerializedDictionary<string, HashSet<string>> TableToGuids { get; private set; } = new();
 
         internal void AddOrUpdateEntry(LocalizationEntry entry)
         {
-            var existingIndex = _entries.FindIndex(e => e.GUID == entry.GUID);
+            Entries[entry.GUID] = entry;
 
-            if (existingIndex >= 0)
-                _entries[existingIndex] = entry;
-            else
-                _entries.Add(entry);
+            if (TableToGuids.ContainsKey(entry.TableName) is false)
+                TableToGuids[entry.TableName] = new HashSet<string>();
 
-            BuildLookupTables();
-        }
-
-        internal void Clear()
-        {
-            _entries.Clear();
-            BuildLookupTables();
-        }
-
-        private void BuildLookupTables()
-        {
-            _guidLookup.Clear();
-            _tableLookup.Clear();
-
-            foreach (var entry in _entries)
-            {
-                _guidLookup[entry.GUID] = entry;
-
-                if (_tableLookup.ContainsKey(entry.TableName) is false)
-                    _tableLookup[entry.TableName] = new List<LocalizationEntry>();
-
-                _tableLookup[entry.TableName].Add(entry);
-            }
+            TableToGuids[entry.TableName].Add(entry.GUID);
 
             this.MarkAsDirty();
         }
 
-        internal LocalizationEntry[] SearchEntries(string searchText, string tableName = null)
+        internal IList SearchEntries(string searchText, string tableName = null)
         {
-            if (_isInitialized is false)
-                Initialize();
-
             if (string.IsNullOrEmpty(searchText))
-                return string.IsNullOrEmpty(tableName)
-                    ? _entries.ToArray()
-                    : GetEntriesForTable(tableName);
+                return Entries.Values.ToArray();
 
-            return _entries.AsValueEnumerable()
-                .Where(e => (string.IsNullOrEmpty(tableName) || e.TableName == tableName) &&
-                            (e.Key.Contains(searchText, System.StringComparison.OrdinalIgnoreCase) ||
-                             e.GUID.Contains(searchText, System.StringComparison.OrdinalIgnoreCase)))
+            var entriesToSearch = string.IsNullOrEmpty(tableName)
+                ? Entries.Values
+                : GetEntriesForTable(tableName);
+
+            return entriesToSearch.AsValueEnumerable()
+                .Where(entry => entry.Key.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
         }
+
+        internal void Clear()
+        {
+            Entries.Clear();
+            TableToGuids.Clear();
+            this.MarkAsDirty();
+        }
+
+        private IReadOnlyCollection<LocalizationEntry> GetEntriesForTable(string tableName) =>
+            TableToGuids.TryGetValue(tableName, out var guids)
+                ? guids.Select(guid => Entries[guid]).ToArray()
+                : Array.Empty<LocalizationEntry>();
     }
 }
