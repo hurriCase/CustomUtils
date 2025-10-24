@@ -59,7 +59,7 @@ namespace CustomUtils.Runtime.Localization
 
         internal void AddOrUpdateEntry(LocalizationEntry entry)
         {
-            var existingIndex = _entries.FindIndex(e => e.Guid == entry.Guid);
+            var existingIndex = _entries.FindIndex(e => e.GUID == entry.GUID);
 
             if (existingIndex >= 0)
                 _entries[existingIndex] = entry;
@@ -82,7 +82,7 @@ namespace CustomUtils.Runtime.Localization
 
             foreach (var entry in _entries)
             {
-                _guidLookup[entry.Guid] = entry;
+                _guidLookup[entry.GUID] = entry;
 
                 if (_tableLookup.ContainsKey(entry.TableName) is false)
                     _tableLookup[entry.TableName] = new List<LocalizationEntry>();
@@ -106,7 +106,7 @@ namespace CustomUtils.Runtime.Localization
             return _entries.AsValueEnumerable()
                 .Where(e => (string.IsNullOrEmpty(tableName) || e.TableName == tableName) &&
                             (e.Key.Contains(searchText, System.StringComparison.OrdinalIgnoreCase) ||
-                             e.Guid.Contains(searchText, System.StringComparison.OrdinalIgnoreCase)))
+                             e.GUID.Contains(searchText, System.StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
         }
     }

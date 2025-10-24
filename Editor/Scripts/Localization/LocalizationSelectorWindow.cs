@@ -17,15 +17,15 @@ namespace CustomUtils.Editor.Scripts.Localization
         private TextField _searchTextField;
         private ListView _localizationEntriesList;
 
-        private LocalizationKey _currentLocalizationKey;
+        private LocalizationEntry _currentLocalizationEntry;
         private Action<LocalizationEntry> _onSelectionChanged;
 
-        internal static void ShowWindow(LocalizationKey currentKey, Action<LocalizationEntry> onSelectionChanged)
+        internal static void ShowWindow(LocalizationEntry localizationEntry, Action<LocalizationEntry> onSelectionChanged)
         {
             var window = CreateInstance<LocalizationSelectorWindow>();
 
             window.titleContent = new GUIContent("Localization Selector");
-            window._currentLocalizationKey = currentKey;
+            window._currentLocalizationEntry = localizationEntry;
             window._onSelectionChanged = onSelectionChanged;
 
             window.ShowUtility();
@@ -58,15 +58,23 @@ namespace CustomUtils.Editor.Scripts.Localization
         {
             var noneSelectedLabel = rootVisualElement.Q<Label>("NoneSelectedLabel");
             var currentInfoContainer = rootVisualElement.Q<VisualElement>("CurrentSelectionInfo");
-            noneSelectedLabel.SetActive(_currentLocalizationKey.IsValid is false);
-            currentInfoContainer.SetActive(_currentLocalizationKey.IsValid);
 
-            if (_currentLocalizationKey.IsValid is false)
+            if (_currentLocalizationEntry is null)
+            {
+                noneSelectedLabel.SetActive(true);
+                currentInfoContainer.SetActive(false);
+                return;
+            }
+
+            noneSelectedLabel.SetActive(_currentLocalizationEntry.IsValid is false);
+            currentInfoContainer.SetActive(_currentLocalizationEntry.IsValid);
+
+            if (_currentLocalizationEntry.IsValid is false)
                 return;
 
-            rootVisualElement.Q<Label>("KeyLabel").text = $"Key: {_currentLocalizationKey.Key}";
-            rootVisualElement.Q<Label>("TableNameLabel").text = $"Table: {_currentLocalizationKey.TableName}";
-            rootVisualElement.Q<Label>("GUIDLabel").text = $"GUID: {_currentLocalizationKey.Guid}";
+            rootVisualElement.Q<Label>("KeyLabel").text = $"Key: {_currentLocalizationEntry.Key}";
+            rootVisualElement.Q<Label>("TableNameLabel").text = $"Table: {_currentLocalizationEntry.TableName}";
+            rootVisualElement.Q<Label>("GUIDLabel").text = $"GUID: {_currentLocalizationEntry.GUID}";
         }
 
         private void SetupLocalizationEntriesList()

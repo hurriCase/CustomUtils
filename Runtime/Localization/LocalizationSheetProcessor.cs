@@ -152,14 +152,14 @@ namespace CustomUtils.Runtime.Localization
 
                 var translation = columns[languageColumnIndex];
 
-                if (dictionary[language].ContainsKey(entry.Guid))
+                if (dictionary[language].ContainsKey(entry.GUID))
                 {
                     Debug.LogError("[LocalizationSheetProcessor::AddTranslationsForEntry] " +
-                                   $"Duplicated GUID '{entry.Guid}' in '{sheetName}' for language '{language}'.");
+                                   $"Duplicated GUID '{entry.GUID}' in '{sheetName}' for language '{language}'.");
                     continue;
                 }
 
-                dictionary[language][entry.Guid] = translation;
+                dictionary[language][entry.GUID] = translation;
                 entry.SetTranslation(language, translation);
             }
         }

@@ -11,15 +11,19 @@ namespace CustomUtils.Runtime.Localization
     internal sealed class LocalizationEntry
     {
         [field: SerializeField, InspectorReadOnly] internal string Key { get; private set; }
-        [field: SerializeField, InspectorReadOnly] internal string Guid { get; private set; }
+        [field: SerializeField, InspectorReadOnly] internal string GUID { get; private set; }
         [field: SerializeField, InspectorReadOnly] internal string TableName { get; private set; }
 
         [field: SerializeField, InspectorReadOnly]
         internal SerializedDictionary<SystemLanguage, string> Translations { get; private set; } = new();
 
+        internal bool IsValid => string.IsNullOrEmpty(Key) is false
+                                 && string.IsNullOrEmpty(GUID) is false
+                                 && string.IsNullOrEmpty(TableName) is false;
+
         internal LocalizationEntry(string guid, string key, string tableName)
         {
-            Guid = guid;
+            GUID = guid;
             Key = key;
             TableName = tableName;
         }

@@ -1,4 +1,4 @@
-.localization-key {
+.unity-inspector-field {
     flex-shrink: 1;
     flex-grow: 1;
 }

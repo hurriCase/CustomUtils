@@ -70,7 +70,7 @@ namespace CustomUtils.Runtime.Localization
                 foreach (var language in availableLanguages)
                 {
                     if (entry.TryGetTranslation(language, out var translation))
-                        _dictionary[language][entry.Guid] = translation;
+                        _dictionary[language][entry.GUID] = translation;
                 }
             }
         }
@@ -88,15 +88,9 @@ namespace CustomUtils.Runtime.Localization
         [UsedImplicitly]
         public static string Localize(LocalizationKey localizationKey, SystemLanguage language)
         {
-            if (localizationKey.IsValid is false)
-                return localizationKey.Key;
-
-            if (LocalizationRegistry.Instance.TryGetEntry(localizationKey.Guid, out var entry) is false)
-            {
-                Debug.LogWarning(
-                    $"[LocalizationController::Localize] Entry not found for GUID: {localizationKey.Guid}");
-                return localizationKey.Key;
-            }
+            if (localizationKey.IsValid is false
+                || LocalizationRegistry.Instance.TryGetEntry(localizationKey.GUID, out var entry) is false)
+                return string.Empty;
 
             if (entry.TryGetTranslation(language, out var translation) &&
                 string.IsNullOrEmpty(translation) is false)
@@ -106,16 +100,8 @@ namespace CustomUtils.Runtime.Localization
                 string.IsNullOrEmpty(fallback) is false)
                 return fallback;
 
-            return localizationKey.Key;
+            return entry.Key;
         }
-
-        /// <summary>
-        /// Checks if a localization key exists in the registry.
-        /// </summary>
-        [UsedImplicitly]
-        public static bool HasKey(LocalizationKey localizationKey) =>
-            localizationKey.IsValid &&
-            LocalizationRegistry.Instance.TryGetEntry(localizationKey.Guid, out _);
 
         /// <summary>
         /// Checks if localization data exists for the specified language.

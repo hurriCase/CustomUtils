@@ -1,6 +1,7 @@
 ﻿using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,12 +12,12 @@ namespace CustomUtils.Editor.Scripts.Localization
     {
         [SerializeField] private VisualTreeAsset _localizationKeyLayout;
 
-        private SerializedProperty _keyProperty;
-        private SerializedProperty _tableNameProperty;
         private SerializedProperty _guidProperty;
+        private SerializedProperty _translationsProperty;
 
         private DropdownField _keyLabel;
 
+        private LocalizationEntry _selectedEntry;
         private SerializedProperty _serializedProperty;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -25,43 +26,65 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             var container = _localizationKeyLayout.CloneTree();
 
-            SetProperties();
+            _guidProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.GUID));
+            _translationsProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Translations));
+
+            LocalizationRegistry.Instance.TryGetEntry(_guidProperty.stringValue, out _selectedEntry);
 
             _keyLabel = container.Q<DropdownField>("LocalizationKeyLabel");
             _keyLabel.RegisterCallback<MouseDownEvent>(ShowKeySelectionWindow, TrickleDown.TrickleDown);
 
-            UpdateKeyFieldDisplay(_keyProperty.stringValue);
+            UpdateKeyFieldDisplay(_selectedEntry?.Key);
+
+            DrawTranslationsDictionary(container);
 
             return container;
         }
 
-        private void SetProperties()
-        {
-            _keyProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Key));
-            _tableNameProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.TableName));
-            _guidProperty = _serializedProperty.FindFieldRelative(nameof(LocalizationKey.Guid));
-        }
-
         private void ShowKeySelectionWindow(MouseDownEvent _)
         {
-            var currentKey = new LocalizationKey(
-                _guidProperty.stringValue,
-                _keyProperty.stringValue,
-                _tableNameProperty.stringValue
-            );
-
-            LocalizationSelectorWindow.ShowWindow(currentKey, OnSelectionChanged);
+            LocalizationSelectorWindow.ShowWindow(_selectedEntry, OnSelectionChanged);
         }
 
         private void OnSelectionChanged(LocalizationEntry selectedEntry)
         {
-            _guidProperty.stringValue = selectedEntry.Guid;
-            _keyProperty.stringValue = selectedEntry.Key;
-            _tableNameProperty.stringValue = selectedEntry.TableName;
+            _guidProperty.stringValue = selectedEntry.GUID;
+
+            CopyTranslations(selectedEntry);
 
             _serializedProperty.serializedObject.ApplyModifiedProperties();
 
             UpdateKeyFieldDisplay(selectedEntry.Key);
+        }
+
+        private void DrawTranslationsDictionary(VisualElement container)
+        {
+            var dictionaryField = new PropertyField(_translationsProperty);
+            dictionaryField.BindProperty(_translationsProperty);
+
+            container.Add(dictionaryField);
+        }
+
+        private void CopyTranslations(LocalizationEntry entry)
+        {
+            var serializedList = _translationsProperty.FindPropertyRelative("_serializedList");
+
+            serializedList.ClearArray();
+
+            var index = 0;
+            foreach (var translation in entry.Translations)
+            {
+                serializedList.InsertArrayElementAtIndex(index);
+                var element = serializedList.GetArrayElementAtIndex(index);
+
+                var keyProperty = element.FindPropertyRelative("Key");
+                var valueProperty = element.FindPropertyRelative("Value");
+
+                keyProperty.intValue = (int)translation.Key;
+                valueProperty.stringValue = translation.Value;
+
+                index++;
+            }
         }
 
         private void UpdateKeyFieldDisplay(string key)
