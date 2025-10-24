@@ -1,26 +1,26 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/Styles/LocalizationGlobal.uss?fileID=7433441132597879392&amp;guid=e987d12d5143f894a9e9bf55048ee068&amp;type=3"/>
-    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/Styles/KeySelectorWindow.uss?fileID=7433441132597879392&amp;guid=3304efda1091a1e4492f8fb74e13f8c2&amp;type=3"/>
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/SelectorWindow/Styles/LocalizationGlobal.uss?fileID=7433441132597879392&amp;guid=e987d12d5143f894a9e9bf55048ee068&amp;type=3#LocalizationGlobal"/>
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/Localization/SelectorWindow/Styles/KeySelectorWindow.uss?fileID=7433441132597879392&amp;guid=3304efda1091a1e4492f8fb74e13f8c2&amp;type=3#KeySelectorWindow"/>
     <ui:VisualElement name="Root" class="window-root">
-        <ui:VisualElement class="filter-section localization-spacing__medium">
+        <ui:VisualElement name="Search" class="filter-section localization-spacing__medium">
             <ui:DropdownField label="Table" name="TableSelection" class="filter-dropdown localization-spacing__small"/>
             <ui:TextField label="Search" placeholder-text="Search by key..." name="LocalizationKeySearch"/>
         </ui:VisualElement>
-        <ui:VisualElement class="selection-display localization-spacing__medium localization-background__light">
+        <ui:VisualElement name="CurrentSelection" class="selection-display localization-spacing__medium localization-background__light">
             <ui:Label text="Current selection:" name="CurrentSelectionLabel" class="selection-display__title localization-spacing__small"/>
             <ui:Label text="None" name="NoneSelectedLabel"/>
             <ui:VisualElement name="CurrentSelectionInfo">
                 <ui:Label text="None selected" name="KeyLabel" class="selection-display__text localization-text"/>
                 <ui:Label text="None selected" name="TableNameLabel" class="selection-display__text localization-text"/>
                 <ui:Label text="None selected" name="GUIDLabel" class="selection-display__text localization-text"/>
+                <ui:Label text="None selected" name="LocalizationLabel" class="selection-display__text localization-text"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement class="column-headers localization-spacing__small localization-background__dark">
-            <ui:Label text="Key" class="column-headers__key localization-column__key"/>
-            <ui:Label text="Table" class="column-headers__table localization-column__table"/>
-            <ui:Label text="Translation" class="column-headers__text localization-column__text"/>
-            <ui:Label text="" class="column-headers__button localization-column__button"/>
+        <ui:VisualElement name="Headers" class="column-headers localization-spacing__small localization-background__dark">
+            <ui:Label text="Key" name="KeyLabel" class="column-headers__key localization-column__key"/>
+            <ui:Label text="Table" name="TableNameLabel" class="column-headers__table localization-column__table"/>
+            <ui:Label text="Translation" name="TranslationLabel" class="column-headers__text localization-column__text"/>
         </ui:VisualElement>
-        <ui:ListView name="EntriesList" fixed-item-height="50" item-template="project://database/Assets/CustomUtils/Editor/UI/Localization/Templates/LocalizationEntry.uxml?fileID=9197481963319205126&amp;guid=1be0ebe45eaa88b43a005dd804d7d750&amp;type=3#LocalizationEntry" class="entries-list"/>
+        <ui:ListView name="EntriesList" fixed-item-height="50" item-template="project://database/Assets/CustomUtils/Editor/UI/Localization/SelectorWindow/Templates/LocalizationEntry.uxml?fileID=9197481963319205126&amp;guid=1be0ebe45eaa88b43a005dd804d7d750&amp;type=3#LocalizationEntry" class="entries-list"/>
     </ui:VisualElement>
 </ui:UXML>

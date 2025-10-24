@@ -1,4 +1,5 @@
 ﻿using CustomUtils.Editor.Scripts.Extensions;
+using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -55,6 +56,8 @@ namespace CustomUtils.Editor.Scripts.Localization
             _serializedProperty.serializedObject.ApplyModifiedProperties();
 
             UpdateKeyFieldDisplay(selectedEntry.Key);
+
+            _selectedEntry = selectedEntry;
         }
 
         private void DrawTranslationsDictionary(VisualElement container)
