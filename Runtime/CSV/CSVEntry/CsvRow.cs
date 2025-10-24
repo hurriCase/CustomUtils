@@ -24,17 +24,22 @@ namespace CustomUtils.Runtime.CSV.CSVEntry
         }
 
         /// <summary>
-        /// Gets the value from the specified column by exact name match.
+        /// Attempts to retrieve the value associated with the specified column name in the current CSV row.
         /// </summary>
-        /// <param name="columnName">The name of the column to retrieve the value from.</param>
-        /// <returns>The value in the specified column, or empty string if column is not found or index is out of range.</returns>
+        /// <param name="columnName">The name of the column to retrieve the value from (case-insensitive).</param>
+        /// <param name="value">When this method returns,
+        /// contains the value associated with the specified column if the operation succeeds,
+        /// or an empty string if it fails.</param>
+        /// <returns>true if the value is successfully retrieved; otherwise, false.</returns>
         [UsedImplicitly]
-        public string GetValue(string columnName)
+        public bool TryGetValue(string columnName, out string value)
         {
-            if (_columnMap.TryGetValue(columnName, out var index) && index < _values.Length)
-                return _values[index] ?? string.Empty;
+            value = string.Empty;
+            if (_columnMap.TryGetValue(columnName, out var index) is false || index >= _values.Length)
+                return false;
 
-            return string.Empty;
+            value = _values[index];
+            return value != null;
         }
 
         /// <summary>

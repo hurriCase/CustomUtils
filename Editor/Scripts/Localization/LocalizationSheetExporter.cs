@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CustomUtils.Runtime.Localization;
+﻿using CustomUtils.Runtime.Localization;
 using Cysharp.Text;
 using UnityEngine;
 using ZLinq;
@@ -39,17 +38,14 @@ namespace CustomUtils.Editor.Scripts.Localization
         internal static string ExportSheet(string sheetName)
         {
             var entries = LocalizationRegistry.Instance.Entries.Values
-                .Where(e => e.TableName == sheetName)
-                .OrderBy(static e => e.Key)
-                .ToArray();
+                .Where(localizationEntry => localizationEntry.TableName == sheetName)
+                .OrderBy(static localizationEntry => localizationEntry.Key);
 
-            if (entries.Length == 0)
+            if (entries.Count() == 0)
             {
                 Debug.LogError($"[LocalizationSheetExporter::ExportSheet] No entries found for sheet '{sheetName}'.");
                 return string.Empty;
             }
-
-            var languages = GetLanguagesFromEntries(entries);
 
             using var tsvBuilder = ZString.CreateStringBuilder();
 
@@ -57,7 +53,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             tsvBuilder.Append(Separator);
             tsvBuilder.Append("Key");
 
-            foreach (var language in languages)
+            foreach (var language in entries.First().Translations.Keys)
             {
                 tsvBuilder.Append(Separator);
                 tsvBuilder.Append(language.ToString());
@@ -71,7 +67,7 @@ namespace CustomUtils.Editor.Scripts.Localization
                 tsvBuilder.Append(Separator);
                 tsvBuilder.Append(EscapeField(entry.Key));
 
-                foreach (var language in languages)
+                foreach (var language in entries.First().Translations.Keys)
                 {
                     tsvBuilder.Append(Separator);
 
@@ -85,19 +81,6 @@ namespace CustomUtils.Editor.Scripts.Localization
             return tsvBuilder.ToString();
         }
 
-        private static List<SystemLanguage> GetLanguagesFromEntries(LocalizationEntry[] entries)
-        {
-            var languages = new HashSet<SystemLanguage>();
-
-            foreach (var entry in entries)
-            {
-                foreach (var kvp in entry.Translations)
-                    languages.Add(kvp.Key);
-            }
-
-            return languages.OrderBy(static l => l.ToString()).ToList();
-        }
-
         private static string EscapeField(string field)
         {
             if (string.IsNullOrEmpty(field))
@@ -109,12 +92,12 @@ namespace CustomUtils.Editor.Scripts.Localization
             using var escaped = ZString.CreateStringBuilder();
             escaped.Append('"');
 
-            foreach (var c in field)
+            foreach (var character in field)
             {
-                if (c == '"')
+                if (character == '"')
                     escaped.Append("\"\"");
                 else
-                    escaped.Append(c);
+                    escaped.Append(character);
             }
 
             escaped.Append('"');

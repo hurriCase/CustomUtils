@@ -38,41 +38,36 @@ namespace CustomUtils.Runtime.Localization
         {
             foreach (var row in csvTable.Rows)
             {
-                var entry = CreateEntryFromRow(row, sheetName);
-
-                if (entry is null)
+                if (TryCreateEntryFromRow(row, sheetName, out var entry) is false)
                     continue;
 
                 LocalizationRegistry.Instance.AddOrUpdateEntry(entry);
             }
         }
 
-        private static LocalizationEntry CreateEntryFromRow(CsvRow row, string sheetName)
+        private static bool TryCreateEntryFromRow(CsvRow row, string sheetName, out LocalizationEntry localizationEntry)
         {
-            var guid = row.GetValue(GuidColumnName);
-            var key = row.GetValue(KeyColumnName);
-
-            if (string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(key))
-                return null;
+            localizationEntry = null;
+            if (row.TryGetValue(GuidColumnName, out var guid) is false
+                || row.TryGetValue(KeyColumnName, out var key) is false)
+                return false;
 
             if (_processedGuids.Add(guid) is false)
             {
                 Debug.LogError("[LocalizationSheetProcessor::CreateEntryFromRow]" +
                                $" Duplicate GUID '{guid}' in sheet '{sheetName}'");
-                return null;
+                return false;
             }
 
-            var entry = new LocalizationEntry(guid, key, sheetName);
+            localizationEntry = new LocalizationEntry(guid, key, sheetName);
 
             foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
             {
-                var translation = row.GetValue(language.ToString());
-
-                if (string.IsNullOrEmpty(translation) is false)
-                    entry.SetTranslation(language, translation);
+                if (row.TryGetValue(language.ToString(), out var translation))
+                    localizationEntry.SetTranslation(language, translation);
             }
 
-            return entry;
+            return true;
         }
     }
 }
