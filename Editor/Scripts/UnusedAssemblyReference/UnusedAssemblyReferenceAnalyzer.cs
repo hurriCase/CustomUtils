@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using UnityEditor;
@@ -365,7 +364,7 @@ namespace CustomUtils.Editor.Scripts.UnusedAssemblyReference
                     }
                 }
 
-                return potentiallyUnused.AsValueEnumerable().Where(r => !usedReferences.Contains(r)).ToList();
+                return potentiallyUnused.Where(r => !usedReferences.Contains(r)).ToList();
             }
             catch (Exception ex)
             {

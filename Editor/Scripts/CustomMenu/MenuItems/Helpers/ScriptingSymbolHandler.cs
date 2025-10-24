@@ -102,7 +102,7 @@ namespace CustomUtils.Editor.Scripts.CustomMenu.MenuItems.Helpers
 
             var definesList = currentDefines.Split(';');
 
-            var updatedDefines = string.Join(";", definesList.AsValueEnumerable()
+            var updatedDefines = string.Join(";", definesList
                 .Where(defineSymbol => defineSymbol != symbolToRemove)
                 .ToArray());
 

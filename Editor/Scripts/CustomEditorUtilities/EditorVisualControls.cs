@@ -6,7 +6,6 @@ using Cysharp.Text;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
-using ZLinq;
 using Object = UnityEngine.Object;
 
 // ReSharper disable MemberCanBeInternal
@@ -829,7 +828,7 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
                         {
                             foreach (var draggedObject in DragAndDrop.objectReferences)
                             {
-                                if (draggedObject && droppedObject.AsValueEnumerable().Contains(draggedObject) is false)
+                                if (draggedObject && droppedObject.Contains(draggedObject) is false)
                                     droppedObject.Add(draggedObject);
                             }
 

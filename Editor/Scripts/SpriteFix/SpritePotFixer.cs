@@ -5,7 +5,6 @@ using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Runtime.Extensions;
 using UnityEditor;
 using UnityEngine;
-using ZLinq;
 using static UnityEngine.RenderTexture;
 
 namespace CustomUtils.Editor.Scripts.SpriteFix
@@ -194,7 +193,7 @@ namespace CustomUtils.Editor.Scripts.SpriteFix
         private void ProcessSprites(List<SpriteResizeInfo> spriteInfos)
         {
             var processedCount = 0;
-            var totalToProcess = spriteInfos.AsValueEnumerable().Count(static s => s.ShouldResize);
+            var totalToProcess = spriteInfos.Count(static spriteResizeInfo => spriteResizeInfo.ShouldResize);
 
             foreach (var spriteInfo in spriteInfos)
             {

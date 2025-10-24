@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using AYellowpaper.SerializedCollections;
 using CustomUtils.Runtime.AssetLoader;
 using CustomUtils.Runtime.CustomTypes.Singletons;
@@ -45,7 +44,7 @@ namespace CustomUtils.Runtime.Localization
                 ? Entries.Values
                 : GetEntriesForTable(tableName);
 
-            return entriesToSearch.AsValueEnumerable()
+            return entriesToSearch
                 .Where(entry => entry.Key.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
         }

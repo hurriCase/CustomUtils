@@ -19,7 +19,6 @@ namespace CustomUtils.Runtime.Extensions
         public static (int startIndex, int endIndex)? GetNonZeroRange(this IReadOnlyList<int> data)
         {
             using var nonZeroIndices = data
-                .AsValueEnumerable()
                 .Select(static (value, index) => (value, index))
                 .Where(static tuple => tuple.value > 0)
                 .Select(static tuple => tuple.index)

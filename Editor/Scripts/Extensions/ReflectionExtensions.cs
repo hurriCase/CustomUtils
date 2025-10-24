@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using ZLinq;
 
 namespace CustomUtils.Editor.Scripts.Extensions
 {
@@ -31,7 +29,6 @@ namespace CustomUtils.Editor.Scripts.Extensions
             where TClass : class =>
             typeof(TClass)
                 .GetFields(bindingFlags)
-                .AsValueEnumerable()
                 .First(static fieldInfo => fieldInfo.FieldType == typeof(TField))
                 .Name;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Unsafe.CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using MemoryPack;
@@ -40,7 +39,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 
         [MemoryPackIgnore]
         private static int GetValuesCount =>
-            Enum.GetValues(typeof(TEnum)).Cast<TEnum>().AsValueEnumerable()
+            Enum.GetValues(typeof(TEnum)).Cast<TEnum>()
                 .Distinct()
                 .Count();
 

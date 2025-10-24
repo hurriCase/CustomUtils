@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using CustomUtils.Editor.Scripts.Extensions;
 using JetBrains.Annotations;
@@ -149,7 +148,7 @@ namespace CustomUtils.Editor.Scripts
                 _selectedEnumValue = _unusedValues[0];
             }
 
-            var displayOptions = _unusedValues.AsValueEnumerable().Select(static @enum => @enum.ToString())
+            var displayOptions = _unusedValues.Select(static @enum => @enum.ToString())
                 .ToArray();
             var newSelectedIndex = EditorGUILayout.Popup("Add Specific Type", selectedIndex, displayOptions);
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CustomUtils.Runtime.Downloader;
 using UnityEngine;
+using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {

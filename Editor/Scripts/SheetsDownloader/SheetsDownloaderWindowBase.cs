@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Editor.Scripts.SheetsDownloader
 {
@@ -184,7 +183,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                 EditorVisualControls.WarningBox("Table Id is empty.");
             else if (Database.Sheets.Count == 0)
                 EditorVisualControls.WarningBox("Sheets are empty. Add manually or click 'Resolve from Google'.");
-            else if (Database.Sheets.AsValueEnumerable().Any(static sheet => !sheet.TextAsset))
+            else if (Database.Sheets.Any(static sheet => !sheet.TextAsset))
                 EditorVisualControls.WarningBox("Some sheets are not downloaded.");
         }
 

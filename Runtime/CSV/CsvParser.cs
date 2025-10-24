@@ -31,7 +31,6 @@ namespace CustomUtils.Runtime.CSV
                 return false;
 
             lines = csvContent.Split('\n')
-                .AsValueEnumerable()
                 .Where(static line => string.IsNullOrWhiteSpace(line) is false)
                 .Select(static line => line.Trim())
                 .ToArray();

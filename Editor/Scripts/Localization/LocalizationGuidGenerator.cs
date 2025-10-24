@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using CustomUtils.Runtime.Localization;
 using UnityEngine;
@@ -96,7 +95,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             var csvBuilder = new StringBuilder();
             csvBuilder.AppendLine("GUID,Key");
 
-            foreach (var kvp in guidMapping.AsValueEnumerable().OrderBy(static x => x.Key))
+            foreach (var kvp in guidMapping.OrderBy(static x => x.Key))
                 csvBuilder.AppendLine($"{kvp.Value},{EscapeCsvField(kvp.Key)}");
 
             return csvBuilder.ToString();

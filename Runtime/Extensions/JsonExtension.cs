@@ -1,7 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using ZLinq;
 
 namespace CustomUtils.Runtime.Extensions
 {
@@ -22,7 +21,6 @@ namespace CustomUtils.Runtime.Extensions
             var attribute = enumValue
                 .GetField(enumValue.ToString())
                 ?.GetCustomAttributes(typeof(JsonPropertyAttribute), false)
-                .AsValueEnumerable()
                 .FirstOrDefault() as JsonPropertyAttribute;
 
             return attribute?.PropertyName ?? enumValue.ToString();

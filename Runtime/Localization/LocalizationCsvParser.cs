@@ -17,14 +17,12 @@ namespace CustomUtils.Runtime.Localization
             csvText = ProcessAsianTextSpacing(csvText);
 
             return csvText.Split('\n')
-                .AsValueEnumerable()
                 .Where(static line => string.IsNullOrEmpty(line) is false)
                 .ToList();
         }
 
         internal static List<string> ParseColumns(string line) =>
             line.Split(',')
-                .AsValueEnumerable()
                 .Select(static column => column.Trim()
                     .Replace(QuotePlaceholder, "\"")
                     .Replace(CommaPlaceholder, ",")
