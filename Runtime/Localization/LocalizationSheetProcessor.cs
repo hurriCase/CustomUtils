@@ -26,7 +26,8 @@ namespace CustomUtils.Runtime.Localization
 
             if (guidColumnIndex == -1 || keyColumnIndex == -1)
             {
-                Debug.LogError($"[LocalizationSheetProcessor] Sheet '{sheet.Name}' must have 'GUID' and 'Key' columns");
+                Debug.LogError("[LocalizationSheetProcessor::ProcessSheet]" +
+                               $" Sheet '{sheet.Name}' must have 'GUID' and 'Key' columns");
                 return;
             }
 
