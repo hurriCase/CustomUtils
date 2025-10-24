@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomUtils.Runtime.CSV;
+using CustomUtils.Runtime.CSV.CSVEntry;
 using CustomUtils.Runtime.Downloader;
 using UnityEngine;
-using ZLinq;
 
 namespace CustomUtils.Runtime.Localization
 {
@@ -11,158 +12,67 @@ namespace CustomUtils.Runtime.Localization
         private const string GuidColumnName = "GUID";
         private const string KeyColumnName = "Key";
 
-        internal static void ProcessSheet(
-            Sheet sheet,
-            Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
-            HashSet<string> processedKeys)
+        private static readonly HashSet<string> _processedGuids = new();
+
+        internal static void ProcessSheets(List<Sheet> sheets)
         {
-            var lines = LocalizationCsvParser.ParseLines(sheet.TextAsset.text);
-            if (lines.Count == 0)
-                return;
+            LocalizationRegistry.Instance.Clear();
 
-            var headerColumns = LocalizationCsvParser.ParseColumns(lines[0]);
-            var guidColumnIndex = FindColumnIndex(headerColumns, GuidColumnName);
-            var keyColumnIndex = FindColumnIndex(headerColumns, KeyColumnName);
+            _processedGuids.Clear();
 
-            if (guidColumnIndex == -1 || keyColumnIndex == -1)
+            foreach (var sheet in sheets)
             {
-                Debug.LogError("[LocalizationSheetProcessor::ProcessSheet]" +
-                               $" Sheet '{sheet.Name}' must have 'GUID' and 'Key' columns");
-                return;
-            }
-
-            var languages = ParseLanguageHeader(headerColumns, guidColumnIndex, keyColumnIndex);
-            if (ValidateLanguages(languages, sheet.Name) is false)
-                return;
-
-            InitializeLanguageDictionaries(dictionary, languages);
-            ProcessDataRows(lines, headerColumns, guidColumnIndex, keyColumnIndex, languages,
-                dictionary, processedKeys, sheet.Name);
-        }
-
-        private static int FindColumnIndex(List<string> columns, string columnName)
-        {
-            for (var i = 0; i < columns.Count; i++)
-            {
-                if (columns[i].Equals(columnName, StringComparison.OrdinalIgnoreCase))
-                    return i;
-            }
-
-            return -1;
-        }
-
-        private static List<SystemLanguage> ParseLanguageHeader(
-            List<string> headerColumns,
-            int guidColumnIndex,
-            int keyColumnIndex)
-        {
-            var systemLanguages = new List<SystemLanguage>();
-
-            for (var i = 0; i < headerColumns.Count; i++)
-            {
-                if (i == guidColumnIndex || i == keyColumnIndex)
-                    continue;
-
-                if (TryParseSystemLanguage(headerColumns[i], out var systemLang))
+                if (!sheet?.TextAsset)
                 {
-                    systemLanguages.Add(systemLang);
+                    Debug.LogWarning("[LocalizationSheetProcessor::ProcessSheets]" +
+                                     $" Sheet '{sheet?.Name}' has no TextAsset");
                     continue;
                 }
 
-                Debug.LogWarning($"[LocalizationSheetProcessor::ParseLanguageHeader] " +
-                                 $"Unknown language '{headerColumns[i]}' - skipping");
-            }
-
-            return systemLanguages;
-        }
-
-        private static bool TryParseSystemLanguage(string languageName, out SystemLanguage systemLanguage) =>
-            Enum.TryParse(languageName, true, out systemLanguage);
-
-        private static bool ValidateLanguages(List<SystemLanguage> languages, string sheetName)
-        {
-            if (languages.Count == languages.Distinct().Count())
-                return true;
-
-            Debug.LogError("[LocalizationSheetProcessor::ValidateLanguages] " +
-                           $"Duplicated languages found in '{sheetName}'. Sheet not loaded.");
-            return false;
-        }
-
-        private static void InitializeLanguageDictionaries(
-            Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
-            List<SystemLanguage> languages)
-        {
-            foreach (var language in languages)
-            {
-                if (dictionary.ContainsKey(language) is false)
-                    dictionary[language] = new Dictionary<string, string>();
+                var csvTable = CsvParser.Parse(sheet.TextAsset.text);
+                ProcessSheet(csvTable, sheet.Name);
             }
         }
 
-        private static void ProcessDataRows(
-            List<string> lines,
-            List<string> headerColumns,
-            int guidColumnIndex,
-            int keyColumnIndex,
-            List<SystemLanguage> languages,
-            Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
-            HashSet<string> processedKeys,
-            string sheetName)
+        private static void ProcessSheet(CsvTable csvTable, string sheetName)
         {
-            for (var i = 1; i < lines.Count; i++)
+            foreach (var row in csvTable.Rows)
             {
-                var columns = LocalizationCsvParser.ParseColumns(lines[i]);
+                var entry = CreateEntryFromRow(row, sheetName);
 
-                if (columns.Count <= guidColumnIndex || columns.Count <= keyColumnIndex)
+                if (entry is null)
                     continue;
-
-                var guid = columns[guidColumnIndex];
-                var key = columns[keyColumnIndex];
-
-                if (string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(key))
-                    continue;
-
-                if (processedKeys.Add(guid) is false)
-                {
-                    Debug.LogError("[LocalizationSheetProcessor::ProcessDataRows] " +
-                                   $"Duplicated GUID '{guid}' found in '{sheetName}'. Entry not loaded.");
-                    continue;
-                }
-
-                var entry = new LocalizationEntry(guid, key, sheetName);
-                AddTranslationsForEntry(entry, columns, headerColumns, languages, dictionary, sheetName);
 
                 LocalizationRegistry.Instance.AddOrUpdateEntry(entry);
             }
         }
 
-        private static void AddTranslationsForEntry(
-            LocalizationEntry entry,
-            List<string> columns,
-            List<string> headerColumns,
-            List<SystemLanguage> languages,
-            Dictionary<SystemLanguage, Dictionary<string, string>> dictionary,
-            string sheetName)
+        private static LocalizationEntry CreateEntryFromRow(CsvRow row, string sheetName)
         {
-            foreach (var language in languages)
+            var guid = row.GetValue(GuidColumnName);
+            var key = row.GetValue(KeyColumnName);
+
+            if (string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(key))
+                return null;
+
+            if (_processedGuids.Add(guid) is false)
             {
-                var languageColumnIndex = FindColumnIndex(headerColumns, language.ToString());
-                if (languageColumnIndex == -1 || languageColumnIndex >= columns.Count)
-                    continue;
-
-                var translation = columns[languageColumnIndex];
-
-                if (dictionary[language].ContainsKey(entry.GUID))
-                {
-                    Debug.LogError("[LocalizationSheetProcessor::AddTranslationsForEntry] " +
-                                   $"Duplicated GUID '{entry.GUID}' in '{sheetName}' for language '{language}'.");
-                    continue;
-                }
-
-                dictionary[language][entry.GUID] = translation;
-                entry.SetTranslation(language, translation);
+                Debug.LogError("[LocalizationSheetProcessor::CreateEntryFromRow]" +
+                               $" Duplicate GUID '{guid}' in sheet '{sheetName}'");
+                return null;
             }
+
+            var entry = new LocalizationEntry(guid, key, sheetName);
+
+            foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
+            {
+                var translation = row.GetValue(language.ToString());
+
+                if (string.IsNullOrEmpty(translation) is false)
+                    entry.SetTranslation(language, translation);
+            }
+
+            return entry;
         }
     }
 }

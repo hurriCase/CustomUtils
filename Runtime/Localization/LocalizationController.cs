@@ -105,34 +105,14 @@ namespace CustomUtils.Runtime.Localization
         internal static void ReadLocalizationData()
         {
             var settings = LocalizationDatabase.Instance;
-            if (settings.Sheets == null)
+
+            if (settings.Sheets is null || settings.Sheets.Count == 0)
             {
-                Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
-                                 "No localization settings or sheets found");
+                Debug.LogWarning("[LocalizationController] No localization sheets found");
                 return;
             }
 
-            LocalizationRegistry.Instance.Clear();
-
-            var dictionary = new Dictionary<SystemLanguage, Dictionary<string, string>>();
-            var processedKeys = new HashSet<string>();
-
-            foreach (var sheet in settings.Sheets)
-            {
-                if (!sheet?.TextAsset)
-                {
-                    Debug.LogWarning("[LocalizationController::ReadLocalizationData] " +
-                                     $"Sheet '{sheet?.Name}' has no TextAsset");
-                    continue;
-                }
-
-                LocalizationSheetProcessor.ProcessSheet(sheet, dictionary, processedKeys);
-            }
-
-            var entriesCount = LocalizationRegistry.Instance.Entries.Count;
-
-            Debug.Log("[LocalizationController::ReadLocalizationData] " +
-                      $"Loaded {entriesCount} localization entries from {settings.Sheets.Count} sheets");
+            LocalizationSheetProcessor.ProcessSheets(settings.Sheets);
         }
     }
 }

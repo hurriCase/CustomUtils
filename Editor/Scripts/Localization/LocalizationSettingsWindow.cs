@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Text;
 using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.SheetsDownloader;
 using CustomUtils.Runtime.Downloader;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
+using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
 using ZLinq;
@@ -15,7 +15,7 @@ namespace CustomUtils.Editor.Scripts.Localization
     {
         private Vector2 _scrollPosition;
         private SystemLanguage _selectedLanguage = SystemLanguage.English;
-        private string _selectedSheetForGuidGeneration = string.Empty;
+        private string _selectedSheetForExport = string.Empty;
 
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
 
@@ -38,31 +38,31 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             DrawCommonSheetsSection();
 
-            DisplayGuidGenerationSection();
+            DisplaySheetExportSection();
 
             DisplayCopyAllTextSection();
         }
 
-        private void DisplayGuidGenerationSection()
+        private void DisplaySheetExportSection()
         {
             EditorGUILayout.Space();
-            EditorVisualControls.LabelField("GUID Generation");
+            EditorVisualControls.LabelField("Sheet Export");
 
             DrawSheetSelection();
 
             EditorGUILayout.Space();
 
-            if (EditorVisualControls.Button("Generate GUIDs for Selected Sheet"))
-                GenerateGuidsForSheet();
+            if (EditorVisualControls.Button("Export Selected Sheet to CSV"))
+                ExportSheet();
 
-            if (EditorVisualControls.Button("Generate GUIDs for All Keys"))
-                GenerateGuidsForAllKeys();
+            if (EditorVisualControls.Button("Export All Keys to CSV"))
+                ExportAllKeys();
         }
 
         private void DrawSheetSelection()
         {
             var sheets = Database.Sheets;
-            if (sheets == null || sheets.Count == 0)
+            if (sheets is null || sheets.Count == 0)
             {
                 EditorGUILayout.LabelField("No sheets available. Add sheets first.");
                 return;
@@ -70,53 +70,53 @@ namespace CustomUtils.Editor.Scripts.Localization
 
             var sheetNames = sheets.Select(static sheet => sheet.Name).ToArray();
 
-            var currentIndex = Array.IndexOf(sheetNames, _selectedSheetForGuidGeneration);
+            var currentIndex = Array.IndexOf(sheetNames, _selectedSheetForExport);
             if (currentIndex == -1 && sheetNames.Length > 0)
                 currentIndex = 0;
 
             var newIndex = EditorGUILayout.Popup("Sheet", currentIndex, sheetNames);
-            _selectedSheetForGuidGeneration = sheetNames[newIndex];
+            _selectedSheetForExport = sheetNames[newIndex];
         }
 
-        private void GenerateGuidsForSheet()
+        private void ExportSheet()
         {
-            if (string.IsNullOrEmpty(_selectedSheetForGuidGeneration))
+            if (string.IsNullOrEmpty(_selectedSheetForExport))
             {
                 EditorUtility.DisplayDialog("Error", "Please select a sheet first.", "OK");
                 return;
             }
 
-            var csvContent = LocalizationGuidGenerator.GenerateGuidsForSheet(_selectedSheetForGuidGeneration);
+            var csvContent = LocalizationSheetExporter.ExportSheet(_selectedSheetForExport);
 
             if (string.IsNullOrEmpty(csvContent))
             {
                 EditorUtility.DisplayDialog("Error",
-                    $"Failed to generate GUIDs for sheet '{_selectedSheetForGuidGeneration}'.", "OK");
+                    $"Failed to export sheet '{_selectedSheetForExport}'. Make sure the sheet is loaded.", "OK");
                 return;
             }
 
             EditorGUIUtility.systemCopyBuffer = csvContent;
 
             EditorUtility.DisplayDialog("Success",
-                $"Generated GUIDs for sheet '{_selectedSheetForGuidGeneration}' and copied to clipboard.\n\n" +
+                $"Exported sheet '{_selectedSheetForExport}' to CSV and copied to clipboard.\n\n" +
                 "You can now paste this into your Google Sheet.", "OK");
         }
 
-        private void GenerateGuidsForAllKeys()
+        private void ExportAllKeys()
         {
-            var csvContent = LocalizationGuidGenerator.GenerateGuidsForExistingKeys();
+            var csvContent = LocalizationSheetExporter.ExportAllKeysWithGuids();
 
             if (string.IsNullOrEmpty(csvContent))
             {
-                EditorUtility.DisplayDialog("Error", "No localization keys found.", "OK");
+                EditorUtility.DisplayDialog("Error", "No localization entries found. Load sheets first.", "OK");
                 return;
             }
 
             EditorGUIUtility.systemCopyBuffer = csvContent;
 
             EditorUtility.DisplayDialog("Success",
-                "Generated GUIDs for all localization keys and copied to clipboard.\n\n" +
-                "This is a simple GUID-Key mapping. For full sheet export, use 'Generate GUIDs for Selected Sheet'.",
+                "Exported all keys with GUIDs to CSV and copied to clipboard.\n\n" +
+                "This is a simple GUID-Key mapping. For full sheet export with translations, use 'Export Selected Sheet to CSV'.",
                 "OK");
         }
 
@@ -168,7 +168,7 @@ namespace CustomUtils.Editor.Scripts.Localization
                 return;
             }
 
-            var textBuilder = new StringBuilder();
+            using var textBuilder = ZString.CreateStringBuilder();
             var copiedCount = 0;
 
             foreach (var entry in allEntries)
@@ -177,8 +177,14 @@ namespace CustomUtils.Editor.Scripts.Localization
                     string.IsNullOrEmpty(localizedText))
                     continue;
 
-                var line = includeKeys ? $"{entry.Key}: {localizedText}" : localizedText;
-                textBuilder.AppendLine(line);
+                if (includeKeys)
+                {
+                    textBuilder.Append(entry.Key);
+                    textBuilder.Append(": ");
+                }
+
+                textBuilder.AppendLine(localizedText);
+
                 copiedCount++;
             }
 

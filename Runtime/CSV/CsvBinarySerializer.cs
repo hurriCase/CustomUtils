@@ -13,8 +13,6 @@ namespace CustomUtils.Runtime.CSV
     [UsedImplicitly]
     public sealed class CsvBinarySerializer
     {
-        private readonly CsvParser _csvParser = new();
-
         /// <summary>
         /// Converts a CSV file to binary format by parsing it with the specified converter and serializing the result.
         /// </summary>
@@ -27,7 +25,7 @@ namespace CustomUtils.Runtime.CSV
             where T : new()
         {
             var csvContent = File.ReadAllText(csvFilePath);
-            var csvTable = _csvParser.Parse(csvContent);
+            var csvTable = CsvParser.Parse(csvContent);
             var objects = csvConverter.ConvertToObjects(csvTable);
 
             var binaryData = MemoryPackSerializer.Serialize(objects);

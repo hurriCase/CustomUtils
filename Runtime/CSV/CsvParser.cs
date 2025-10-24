@@ -2,84 +2,109 @@
 using System.Collections.Generic;
 using CustomUtils.Runtime.CSV.CSVEntry;
 using Cysharp.Text;
-using ZLinq;
 
 namespace CustomUtils.Runtime.CSV
 {
-    internal sealed class CsvParser
+    internal static class CsvParser
     {
         private const char Quote = '"';
         private const char Comma = ',';
 
-        internal CsvTable Parse(string csvContent)
+        internal static CsvTable Parse(string csvContent)
         {
-            if (TryGetLines(csvContent, out var lines) is false)
+            if (string.IsNullOrWhiteSpace(csvContent))
                 return new CsvTable(Array.Empty<CsvRow>());
 
-            // Parse header
-            var headerValues = ParseLine(lines[0]);
+            csvContent = csvContent.Replace("\r\n", "\n");
 
-            var rows = ParseRows(lines, headerValues);
+            var lines = SplitIntoLines(csvContent);
+
+            if (lines.Count < 2)
+                return new CsvTable(Array.Empty<CsvRow>());
+
+            var header = ParseLine(lines[0]);
+            var rows = new CsvRow[lines.Count - 1];
+
+            for (var i = 1; i < lines.Count; i++)
+            {
+                var fields = ParseLine(lines[i]);
+                rows[i - 1] = new CsvRow(fields, header);
+            }
 
             return new CsvTable(rows);
         }
 
-        private bool TryGetLines(string csvContent, out string[] lines)
+        private static List<string> SplitIntoLines(string content)
         {
-            lines = null;
-            if (string.IsNullOrWhiteSpace(csvContent))
-                return false;
+            var lines = new List<string>();
+            var inQuotes = false;
+            var lineStart = 0;
 
-            lines = csvContent.Split('\n')
-                .Where(static line => string.IsNullOrWhiteSpace(line) is false)
-                .Select(static line => line.Trim())
-                .ToArray();
-
-            return lines.Length > 1;
-        }
-
-        private CsvRow[] ParseRows(IReadOnlyList<string> lines, IReadOnlyList<string> header)
-        {
-            // skip the first header row
-            var rows = new CsvRow[lines.Count - 1];
-            for (var i = 1; i < lines.Count; i++)
+            for (var i = 0; i < content.Length; i++)
             {
-                var rowValues = ParseLine(lines[i]);
-                rows[i - 1] = new CsvRow(rowValues, header);
+                if (content[i] == Quote)
+                    inQuotes = !inQuotes;
+
+                if (content[i] != '\n' || inQuotes is true)
+                    continue;
+
+                var line = content.Substring(lineStart, i - lineStart).Trim();
+                if (string.IsNullOrWhiteSpace(line) is false)
+                    lines.Add(line);
+
+                lineStart = i + 1;
             }
 
-            return rows;
+            if (lineStart >= content.Length)
+                return lines;
+
+            var lastLine = content[lineStart..].Trim();
+            if (string.IsNullOrWhiteSpace(lastLine) is false)
+                lines.Add(lastLine);
+
+            return lines;
         }
 
-        private string[] ParseLine(string line)
+        private static string[] ParseLine(string line)
         {
-            var values = new List<string>();
+            var fields = new List<string>();
             var inQuotes = false;
 
-            using var valueBuilder = ZString.CreateStringBuilder(false);
+            using var fieldBuilder = ZString.CreateStringBuilder(false);
 
-            foreach (var character in line)
+            for (var i = 0; i < line.Length; i++)
             {
-                switch (character)
+                var current = line[i];
+
+                switch (current)
                 {
                     case Quote:
-                        inQuotes = inQuotes is false;
-                        break;
+                    {
+                        var next = i + 1 < line.Length ? line[i + 1] : '\0';
 
+                        if (inQuotes && next == Quote)
+                        {
+                            fieldBuilder.Append(Quote);
+                            i++; // Skip escaped quote
+                        }
+                        else
+                            inQuotes = !inQuotes;
+
+                        break;
+                    }
                     case Comma when inQuotes is false:
-                        values.Add(valueBuilder.ToString().Trim());
-                        valueBuilder.Clear();
+                        fields.Add(fieldBuilder.ToString().Trim());
+                        fieldBuilder.Clear();
                         break;
-
                     default:
-                        valueBuilder.Append(character);
+                        fieldBuilder.Append(current);
                         break;
                 }
             }
 
-            values.Add(valueBuilder.ToString().Trim());
+            fields.Add(fieldBuilder.ToString().Trim());
 
-            return values.ToArray();
+            return fields.ToArray();
         }
     }
 }
