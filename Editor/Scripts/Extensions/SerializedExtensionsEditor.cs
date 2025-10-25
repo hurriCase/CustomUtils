@@ -157,6 +157,27 @@ namespace CustomUtils.Editor.Scripts.Extensions
             return targetProperty != null ? (T)(object)targetProperty.enumValueIndex : default;
         }
 
+        /// <summary>
+        /// Creates a UI property field associated with the specified property name in the serialized object
+        /// and adds it to the provided container.
+        /// </summary>
+        /// <param name="serializedObject">The serialized object containing the property to be displayed.</param>
+        /// <param name="propertyName">The name of the property within the serialized object to create the field for.</param>
+        /// <param name="container">The container to which the UI property field will be added.</param>
+        [UsedImplicitly]
+        public static void CreateProperty(
+            this SerializedObject serializedObject,
+            string propertyName,
+            VisualElement container)
+        {
+            var tableIdProperty = serializedObject.FindField(propertyName);
+
+            var propertyField = new PropertyField(tableIdProperty);
+            propertyField.BindProperty(tableIdProperty);
+
+            container.Add(propertyField);
+        }
+
         private static void TriggerReactivePropertyNotification(
             SerializedObject serializedObject,
             SerializedProperty reactivePropertyField)
