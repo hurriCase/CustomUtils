@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="CustomContent" class="custom-container">
+        <ui:VisualElement class="section">
+            <ui:Label text="Default Language" class="subsection-header"/>
+            <uie:EnumField name="DefaultLanguage" class="language-field"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="Sheet Export" class="subsection-header"/>
+            <ui:DropdownField name="SheetSelection" label="Sheet" class="sheet-dropdown"/>
+            <ui:VisualElement class="button-column">
+                <ui:Button name="ExportSheetButton" text="Export Selected Sheet to CSV" class="action-button"/>
+                <ui:Button name="ExportAllKeysButton" text="Export All Keys to CSV" class="action-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="Copy All Text" class="subsection-header"/>
+            <ui:DropdownField name="LanguageSelection" label="Language" class="language-dropdown"/>
+            <ui:VisualElement class="button-column">
+                <ui:Button name="CopyAllTextButton" text="Copy All Text" class="action-button"/>
+                <ui:Button name="CopyWithKeysButton" text="Copy with Keys" class="action-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

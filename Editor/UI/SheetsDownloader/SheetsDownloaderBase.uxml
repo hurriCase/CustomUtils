@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/SheetsDownloader/Styles/SheetsDownloaderBase.uss?fileID=7433441132597879392&amp;guid=b435bfa88c7e4d6f85cc118dc9316502&amp;type=3#SheetsDownloaderBase"/>
+    <ui:VisualElement name="Root" class="root-container">
+        <ui:Label text="Sheets Configuration" class="section-header"/>
+        <ui:VisualElement class="section">
+            <ui:TextField name="TableId" label="Table ID" class="table-id-field"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="DownloadButtons" class="button-row">
+            <ui:Button name="DownloadAllButton" text="Download All Sheets" class="download-button"/>
+            <ui:Button name="ResolveButton" text="Resolve from Google" class="download-button" style="flex-shrink: 1;"/>
+            <ui:Button name="OpenGoogleButton" text="Open Google Sheets" class="download-button" style="flex-shrink: 1;"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="section">
+            <ui:Label text="Sheets" class="subsection-header"/>
+            <ui:ListView name="SheetsList" show-border="true" fixed-item-height="100" class="sheets-list"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="WarningBox" class="warning-box hidden">
+            <ui:Label name="WarningText" class="warning-text"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="CustomContentSlot" class="custom-content-slot"/>
+    </ui:VisualElement>
+</ui:UXML>

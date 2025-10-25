@@ -1,0 +1,35 @@
+.custom-container {
+    flex-grow: 1;
+}
+
+.section {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
+
+.subsection-header {
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-bottom: 5px;
+}
+
+.language-field {
+    flex-grow: 1;
+}
+
+.sheet-dropdown,
+.language-dropdown {
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.button-column {
+    flex-direction: column;
+}
+
+.action-button {
+    height: 25px;
+    margin-top: 5px;
+}

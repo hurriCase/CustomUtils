@@ -1,102 +1,117 @@
 ﻿using System;
-using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Runtime.Downloader;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace CustomUtils.Editor.Scripts.SheetsDownloader
 {
-    /// <inheritdoc cref="WindowBase" />
-    /// <summary>
-    /// Abstract base class for Unity Editor windows that provide Google Sheets downloading functionality.
-    /// Provides common UI elements and download operations for sheets database management with standard Unity array editor.
-    /// </summary>
-    /// <typeparam name="TDatabase">The type of sheets database that inherits
-    /// from <see cref="T:CustomUtils.Runtime.Downloader.SheetsDatabase`1" />.</typeparam>
-    /// <typeparam name="TSheet">The type of sheets to use it for a database</typeparam>
     [UsedImplicitly]
-    public abstract class SheetsDownloaderWindowBase<TDatabase, TSheet> : WindowBase, ISheetsDownloaderWindow
+    public abstract class SheetsDownloaderWindowBase<TDatabase, TSheet> : EditorWindow, ISheetsDownloaderWindow
         where TDatabase : SheetsDatabase<TDatabase, TSheet>
         where TSheet : Sheet, new()
     {
+        [SerializeField] private VisualTreeAsset _baseLayout;
+        [SerializeField] private VisualTreeAsset _sheetItemLayout;
+
         private const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
 
         private SheetsDownloader<TDatabase, TSheet> _sheetsDownloader;
+        private TextField _tableIdField;
+        private ListView _sheetsList;
+        private VisualElement _warningBox;
+        private Label _warningText;
 
-        /// <summary>
-        /// Gets the database instance that contains sheet configuration and downloaded data.
-        /// This property must be implemented by derived classes to provide the specific database instance.
-        /// </summary>
-        /// <value>The sheets database instance of type <typeparamref name="TDatabase"/>.</value>
+        protected VisualElement CustomContentSlot { get; private set; }
         protected abstract TDatabase Database { get; }
 
-        /// <inheritdoc />
-        /// <summary>
-        /// Initializes the window by setting up the serialized object and creating the sheets downloader instance.
-        /// This method is called during window initialization and sets up the necessary components for operation.
-        /// </summary>
-        protected override void InitializeWindow()
+        protected void CreateGUI()
         {
-            serializedObject = new SerializedObject(Database);
+            _baseLayout.CloneTree(rootVisualElement);
+
             _sheetsDownloader = new SheetsDownloader<TDatabase, TSheet>(Database);
+
+            SetupBaseElements();
+            SetupSheetsList();
+            SetupButtons();
+
+            CustomContentSlot = rootVisualElement.Q<VisualElement>("CustomContentSlot");
+
+            CreateCustomContent();
+            UpdateWarnings();
         }
 
-        /// <summary>
-        /// Draws the custom content specific to the derived window.
-        /// This method must be implemented by derived classes to provide their specific UI elements
-        /// and should typically call <see cref="DrawCommonSheetsSection"/> to include the standard sheets functionality.
-        /// </summary>
-        protected abstract void DrawCustomContent();
-
-        /// <summary>
-        /// Called after sheets have been successfully downloaded.
-        /// </summary>
+        protected abstract void CreateCustomContent();
         protected virtual void OnSheetsDownloaded() { }
 
-        /// <summary>
-        /// Draws the common sheets management UI section including table ID field, download buttons,
-        /// sheets list, and warning messages. This method should be called from derived classes
-        /// in their custom content drawing methods.
-        /// </summary>
-        protected void DrawCommonSheetsSection()
+        private void SetupBaseElements()
         {
-            PropertyField(nameof(Database.TableId));
-
-            DrawDownloadButtons();
-
-            EditorGUILayout.Space();
-
-            PropertyField(nameof(Database.Sheets));
-
-            DrawWarnings();
-        }
-
-        public void DownloadSheet(int sheetId)
-        {
-            foreach (var sheet in Database.Sheets)
+            _tableIdField = rootVisualElement.Q<TextField>("TableId");
+            _tableIdField.value = Database.TableId;
+            _tableIdField.RegisterValueChangedCallback(evt =>
             {
-                if (sheet.Id != sheetId)
-                    continue;
+                Database.TableId = evt.newValue;
+                EditorUtility.SetDirty(Database);
+                UpdateWarnings();
+            });
 
-                ProcessDownloadSingleSheetAsync(sheet).Forget();
-                return;
-            }
+            _warningBox = rootVisualElement.Q<VisualElement>("WarningBox");
+            _warningText = rootVisualElement.Q<Label>("WarningText");
         }
 
-        private void DrawDownloadButtons()
+        private void SetupSheetsList()
         {
-            using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
+            _sheetsList = rootVisualElement.Q<ListView>("SheetsList");
+            _sheetsList.itemsSource = Database.Sheets;
 
-            if (EditorVisualControls.Button("▼ Download All Sheets"))
-                ProcessDownloadSheetsAsync().Forget();
+            _sheetsList.makeItem = () => _sheetItemLayout.CloneTree();
+            _sheetsList.bindItem = BindSheetItem;
 
-            if (EditorVisualControls.Button("🔄 Resolve from Google"))
-                ProcessResolveGoogleSheetsAsync().Forget();
+            _sheetsList.Rebuild();
+        }
 
-            if (EditorVisualControls.Button("❖ Open Google Sheets"))
-                OpenGoogleSheet();
+        private void BindSheetItem(VisualElement element, int index)
+        {
+            if (index < 0 || index >= Database.Sheets.Count)
+                return;
+
+            var sheet = Database.Sheets[index];
+
+            var nameLabel = element.Q<Label>("SheetName");
+            var idLabel = element.Q<Label>("SheetId");
+            var textAssetField = element.Q<ObjectField>("TextAssetField");
+            var downloadButton = element.Q<Button>("DownloadButton");
+
+            nameLabel.text = sheet.Name;
+            idLabel.text = $"ID: {sheet.Id}";
+
+            textAssetField.objectType = typeof(TextAsset);
+            textAssetField.value = sheet.TextAsset;
+            textAssetField.SetEnabled(false);
+
+            downloadButton.clicked += () => DownloadSheet(sheet.Id);
+        }
+
+        private void SetupButtons()
+        {
+            var downloadAllButton = rootVisualElement.Q<Button>("DownloadAllButton");
+            downloadAllButton.clicked += () => ProcessDownloadSheetsAsync().Forget();
+
+            var resolveButton = rootVisualElement.Q<Button>("ResolveButton");
+            resolveButton.clicked += () => ProcessResolveGoogleSheetsAsync().Forget();
+
+            var openGoogleButton = rootVisualElement.Q<Button>("OpenGoogleButton");
+            openGoogleButton.clicked += OpenGoogleSheet;
+        }
+
+        public void DownloadSheet(long sheetId)
+        {
+            var sheet = Database.Sheets.FirstOrDefault(sheet => sheet.Id == sheetId);
+            if (sheet != null)
+                ProcessDownloadSingleSheetAsync(sheet).Forget();
         }
 
         private async UniTaskVoid ProcessResolveGoogleSheetsAsync()
@@ -105,8 +120,9 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             {
                 await _sheetsDownloader.ResolveGoogleSheetsAsync();
 
-                Debug.Log("[SheetsDownloaderWindowBase::ProcessResolveGoogleSheetsAsync] " +
-                          $"Resolved {Database.Sheets.Count} sheets from Google Sheets");
+                _sheetsList.itemsSource = Database.Sheets;
+                _sheetsList.Rebuild();
+                UpdateWarnings();
 
                 EditorUtility.DisplayDialog("Success",
                     $"Successfully resolved {Database.Sheets.Count} sheets from Google Sheets", "OK");
@@ -117,14 +133,16 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         {
             await ExecuteWithErrorHandling(async () =>
             {
-                Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] Downloading {sheet.Name}...");
+                Debug.Log($"[{GetType().Name}] Downloading {sheet.Name}...");
 
                 var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
 
                 if (result.HasDownloads)
                 {
                     OnSheetsDownloaded();
-                    Debug.Log($"[SheetsDownloaderWindowBase::ProcessDownloadSingleSheetAsync] {result.Message}");
+                    Debug.Log($"[{GetType().Name}] {result.Message}");
+                    _sheetsList.Rebuild();
+                    UpdateWarnings();
                 }
             });
         }
@@ -141,6 +159,8 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                 if (result.HasDownloads)
                 {
                     OnSheetsDownloaded();
+                    _sheetsList.Rebuild();
+                    UpdateWarnings();
                     EditorUtility.DisplayDialog("Success", result.Message, "OK");
                 }
             });
@@ -177,29 +197,24 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             EditorUtility.DisplayDialog("Error", "Table Id is empty.", "OK");
         }
 
-        private void DrawWarnings()
+        private void UpdateWarnings()
         {
+            string warningMessage = null;
+
             if (string.IsNullOrEmpty(Database.TableId))
-                EditorVisualControls.WarningBox("Table Id is empty.");
+                warningMessage = "Table Id is empty.";
             else if (Database.Sheets.Count == 0)
-                EditorVisualControls.WarningBox("Sheets are empty. Add manually or click 'Resolve from Google'.");
+                warningMessage = "Sheets are empty. Add manually or click 'Resolve from Google'.";
             else if (Database.Sheets.Any(static sheet => !sheet.TextAsset))
-                EditorVisualControls.WarningBox("Some sheets are not downloaded.");
-        }
+                warningMessage = "Some sheets are not downloaded.";
 
-        /// <inheritdoc />
-        /// <summary>
-        /// Draws the main window content by updating the serialized object, calling the custom content drawing method,
-        /// and applying any property modifications. This method handles the standard Unity Editor window update cycle.
-        /// </summary>
-        protected override void DrawWindowContent()
-        {
-            serializedObject.Update();
-
-            DrawCustomContent();
-
-            if (serializedObject.ApplyModifiedProperties())
-                EditorUtility.SetDirty(Database);
+            if (string.IsNullOrEmpty(warningMessage))
+                _warningBox.AddToClassList("hidden");
+            else
+            {
+                _warningBox.RemoveFromClassList("hidden");
+                _warningText.text = warningMessage;
+            }
         }
     }
 }

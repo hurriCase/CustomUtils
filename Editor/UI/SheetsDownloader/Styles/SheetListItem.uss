@@ -1,0 +1,43 @@
+.sheet-item {
+    padding: 8px;
+    margin-bottom: 4px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.sheet-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.sheet-name {
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.sheet-details {
+    flex-direction: column;
+    padding-left: 4px;
+}
+
+.sheet-id {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+
+.sheet-text-asset {
+    margin-top: 4px;
+}
+
+.sheet-text-asset .unity-object-field__selector {
+    display: none;
+}
+
+.sheet-text-asset .unity-base-field__input {
+    background-color: rgba(0, 0, 0, 0.1);
+}

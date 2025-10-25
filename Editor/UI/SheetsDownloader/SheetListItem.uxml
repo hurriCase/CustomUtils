@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/CustomUtils/Editor/UI/SheetsDownloader/Styles/SheetListItem.uss?fileID=7433441132597879392&amp;guid=2281431ef2af41ac8f05b33f5504a4e6&amp;type=3#SheetListItem"/>
+    <ui:VisualElement name="SheetItem" class="sheet-item">
+        <ui:VisualElement class="sheet-header">
+            <ui:Label name="SheetName" class="sheet-name"/>
+            <ui:Button name="DownloadButton" text="&#9660; Download"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="sheet-details">
+            <ui:Label name="SheetId" class="sheet-id"/>
+            <uie:ObjectField name="TextAssetField" label="CSV" class="sheet-text-asset"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

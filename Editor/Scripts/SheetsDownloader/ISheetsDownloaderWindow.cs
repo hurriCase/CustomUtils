@@ -2,6 +2,6 @@
 {
     internal interface ISheetsDownloaderWindow
     {
-        void DownloadSheet(int sheetId);
+        void DownloadSheet(long sheetId);
     }
 }

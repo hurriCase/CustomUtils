@@ -1,2 +1,15 @@
 fileFormatVersion: 2
 guid: 10570c18cc637f145afc8bbae34b4131
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_ViewDataDictionary: {instanceID: 0}
+  - _baseLayout: {fileID: 9197481963319205126, guid: e5ab2f2ffe45aab418610159b81d522e, type: 3}
+  - _sheetItemLayout: {fileID: 9197481963319205126, guid: 49547389d22f449cb5f623c2758da532, type: 3}
+  - _customLayout: {fileID: 9197481963319205126, guid: 0e0f13dedad44933bf9c98a6fae581ce, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

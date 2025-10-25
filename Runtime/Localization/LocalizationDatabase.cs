@@ -11,7 +11,7 @@ namespace CustomUtils.Runtime.Localization
     )]
     internal sealed class LocalizationDatabase : SheetsDatabase<LocalizationDatabase, Sheet>
     {
-        [field: SerializeField] internal SystemLanguage DefaultLanguage { get; private set; }
+        [field: SerializeField] internal SystemLanguage DefaultLanguage { get; set; }
             = SystemLanguage.English;
 
         public override string GetDownloadPath() => ResourcePaths.LocalizationSheetsPath;

@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.SheetsDownloader;
 using CustomUtils.Runtime.Downloader;
 using CustomUtils.Runtime.Extensions;
@@ -7,98 +6,161 @@ using CustomUtils.Runtime.Localization;
 using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using ZLinq;
 
 namespace CustomUtils.Editor.Scripts.Localization
 {
     internal sealed class LocalizationSettingsWindow : SheetsDownloaderWindowBase<LocalizationDatabase, Sheet>
     {
-        private Vector2 _scrollPosition;
-        private SystemLanguage _selectedLanguage = SystemLanguage.English;
-        private string _selectedSheetForExport = string.Empty;
+        [SerializeField] private VisualTreeAsset _customLayout;
+
+        private EnumField _defaultLanguageField;
+        private DropdownField _sheetSelectionDropdown;
+        private DropdownField _languageSelectionDropdown;
 
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
 
         [MenuItem(MenuItemNames.LocalizationMenuName)]
         internal static void ShowWindow()
         {
-            GetWindow<LocalizationSettingsWindow>(nameof(LocalizationSettingsWindow).ToSpacedWords());
+            var window = GetWindow<LocalizationSettingsWindow>(nameof(LocalizationSettingsWindow).ToSpacedWords());
+            window.minSize = new Vector2(400, 600);
         }
 
         protected override void OnSheetsDownloaded()
         {
             LocalizationController.ReadLocalizationData();
+            UpdateLanguageChoices();
+            UpdateSheetChoices();
         }
 
-        protected override void DrawCustomContent()
+        protected override void CreateCustomContent()
         {
-            using var scrollScope = EditorVisualControls.CreateScrollView(ref _scrollPosition);
-
-            PropertyField(nameof(LocalizationDatabase.DefaultLanguage));
-
-            DrawCommonSheetsSection();
-
-            DisplaySheetExportSection();
-
-            DisplayCopyAllTextSection();
-        }
-
-        private void DisplaySheetExportSection()
-        {
-            EditorGUILayout.Space();
-            EditorVisualControls.LabelField("Sheet Export");
-
-            DrawSheetSelection();
-
-            EditorGUILayout.Space();
-
-            if (EditorVisualControls.Button("Export Selected Sheet to CSV"))
-                ExportSheet();
-
-            if (EditorVisualControls.Button("Export All Keys to CSV"))
-                ExportAllKeys();
-        }
-
-        private void DrawSheetSelection()
-        {
-            var sheets = Database.Sheets;
-            if (sheets is null || sheets.Count == 0)
+            if (_customLayout is null)
             {
-                EditorGUILayout.LabelField("No sheets available. Add sheets first.");
+                Debug.LogError("[LocalizationSettingsWindow] Custom layout is not assigned!");
                 return;
             }
 
-            var sheetNames = sheets.Select(static sheet => sheet.Name).ToArray();
+            _customLayout.CloneTree(CustomContentSlot);
 
-            var currentIndex = Array.IndexOf(sheetNames, _selectedSheetForExport);
-            if (currentIndex == -1 && sheetNames.Length > 0)
-                currentIndex = 0;
+            SetupDefaultLanguageField();
+            SetupSheetExportSection();
+            SetupCopyAllTextSection();
+        }
 
-            var newIndex = EditorGUILayout.Popup("Sheet", currentIndex, sheetNames);
-            _selectedSheetForExport = sheetNames[newIndex];
+        private void SetupDefaultLanguageField()
+        {
+            _defaultLanguageField = CustomContentSlot.Q<EnumField>("DefaultLanguage");
+            _defaultLanguageField.Init(Database.DefaultLanguage);
+            _defaultLanguageField.value = Database.DefaultLanguage;
+
+            _defaultLanguageField.RegisterValueChangedCallback(evt =>
+            {
+                Database.DefaultLanguage = (SystemLanguage)evt.newValue;
+                EditorUtility.SetDirty(Database);
+            });
+        }
+
+        private void SetupSheetExportSection()
+        {
+            _sheetSelectionDropdown = CustomContentSlot.Q<DropdownField>("SheetSelection");
+            UpdateSheetChoices();
+
+            var exportSheetButton = CustomContentSlot.Q<Button>("ExportSheetButton");
+            exportSheetButton.clicked += ExportSheet;
+
+            var exportAllKeysButton = CustomContentSlot.Q<Button>("ExportAllKeysButton");
+            exportAllKeysButton.clicked += ExportAllKeys;
+        }
+
+        private void SetupCopyAllTextSection()
+        {
+            _languageSelectionDropdown = CustomContentSlot.Q<DropdownField>("LanguageSelection");
+            UpdateLanguageChoices();
+
+            var copyAllTextButton = CustomContentSlot.Q<Button>("CopyAllTextButton");
+            copyAllTextButton.clicked += () => CopyAllTextForLanguage(includeKeys: false);
+
+            var copyWithKeysButton = CustomContentSlot.Q<Button>("CopyWithKeysButton");
+            copyWithKeysButton.clicked += () => CopyAllTextForLanguage(includeKeys: true);
+        }
+
+        private void UpdateSheetChoices()
+        {
+            if (_sheetSelectionDropdown is null || Database.Sheets is null || Database.Sheets.Count == 0)
+            {
+                if (_sheetSelectionDropdown != null)
+                {
+                    _sheetSelectionDropdown.choices = new System.Collections.Generic.List<string>
+                        { "No sheets available" };
+                    _sheetSelectionDropdown.value = "No sheets available";
+                    _sheetSelectionDropdown.SetEnabled(false);
+                }
+
+                return;
+            }
+
+            var sheetNames = Database.Sheets.Select(sheet => sheet.Name).ToList();
+            _sheetSelectionDropdown.choices = sheetNames;
+
+            if (sheetNames.Count > 0)
+            {
+                _sheetSelectionDropdown.value = sheetNames[0];
+                _sheetSelectionDropdown.SetEnabled(true);
+            }
+        }
+
+        private void UpdateLanguageChoices()
+        {
+            if (_languageSelectionDropdown is null)
+                return;
+
+            var availableLanguages = LocalizationController.GetAllLanguages();
+
+            if (availableLanguages is null || availableLanguages.Length == 0)
+            {
+                _languageSelectionDropdown.choices = new System.Collections.Generic.List<string>
+                    { "No languages available" };
+                _languageSelectionDropdown.value = "No languages available";
+                _languageSelectionDropdown.SetEnabled(false);
+                return;
+            }
+
+            var languageStrings = availableLanguages.Select(lang => lang.ToString()).ToList();
+            _languageSelectionDropdown.choices = languageStrings;
+
+            if (languageStrings.Count > 0)
+            {
+                _languageSelectionDropdown.value = languageStrings[0];
+                _languageSelectionDropdown.SetEnabled(true);
+            }
         }
 
         private void ExportSheet()
         {
-            if (string.IsNullOrEmpty(_selectedSheetForExport))
+            var selectedSheet = _sheetSelectionDropdown.value;
+
+            if (string.IsNullOrEmpty(selectedSheet) || selectedSheet == "No sheets available")
             {
                 EditorUtility.DisplayDialog("Error", "Please select a sheet first.", "OK");
                 return;
             }
 
-            var csvContent = LocalizationSheetExporter.ExportSheet(_selectedSheetForExport);
+            var csvContent = LocalizationSheetExporter.ExportSheet(selectedSheet);
 
             if (string.IsNullOrEmpty(csvContent))
             {
                 EditorUtility.DisplayDialog("Error",
-                    $"Failed to export sheet '{_selectedSheetForExport}'. Make sure the sheet is loaded.", "OK");
+                    $"Failed to export sheet '{selectedSheet}'. Make sure the sheet is loaded.", "OK");
                 return;
             }
 
             EditorGUIUtility.systemCopyBuffer = csvContent;
 
             EditorUtility.DisplayDialog("Success",
-                $"Exported sheet '{_selectedSheetForExport}' to CSV and copied to clipboard.\n\n" +
+                $"Exported sheet '{selectedSheet}' to CSV and copied to clipboard.\n\n" +
                 "You can now paste this into your Google Sheet.", "OK");
         }
 
@@ -120,48 +182,24 @@ namespace CustomUtils.Editor.Scripts.Localization
                 "OK");
         }
 
-        private void DisplayCopyAllTextSection()
+        private void CopyAllTextForLanguage(bool includeKeys)
         {
-            EditorGUILayout.Space();
+            var selectedLanguageString = _languageSelectionDropdown.value;
 
-            DrawCopyAllSection();
-
-            EditorGUILayout.Space();
-
-            if (EditorVisualControls.Button("Copy All Text"))
-                CopyAllTextForLanguage(_selectedLanguage, includeKeys: false);
-
-            if (EditorVisualControls.Button("Copy with Keys"))
-                CopyAllTextForLanguage(_selectedLanguage, includeKeys: true);
-        }
-
-        private void DrawCopyAllSection()
-        {
-            EditorVisualControls.LabelField("Copy All Text");
-
-            using var horizontalScope = EditorVisualControls.CreateHorizontalGroup();
-
-            var availableLanguages = LocalizationController.GetAllLanguages();
-            if (availableLanguages is null || availableLanguages.Length == 0)
+            if (string.IsNullOrEmpty(selectedLanguageString) || selectedLanguageString == "No languages available")
             {
-                EditorGUILayout.LabelField("No languages available. Download sheets first.");
+                EditorUtility.DisplayDialog("Error", "Please select a language first.", "OK");
                 return;
             }
 
-            var languageStrings = availableLanguages.Select(static lang => lang.ToString()).ToArray();
+            if (Enum.TryParse<SystemLanguage>(selectedLanguageString, out var language) is false)
+            {
+                EditorUtility.DisplayDialog("Error", "Invalid language selection.", "OK");
+                return;
+            }
 
-            var currentIndex = Array.IndexOf(languageStrings, _selectedLanguage.ToString());
-
-            if (currentIndex == -1)
-                currentIndex = 0;
-
-            var newIndex = EditorGUILayout.Popup("Language", currentIndex, languageStrings);
-            _selectedLanguage = availableLanguages[newIndex];
-        }
-
-        private void CopyAllTextForLanguage(SystemLanguage language, bool includeKeys)
-        {
             var allEntries = LocalizationRegistry.Instance.Entries.Values;
+
             if (allEntries.Count == 0)
             {
                 EditorUtility.DisplayDialog("Warning", "No localization entries found.", "OK");
