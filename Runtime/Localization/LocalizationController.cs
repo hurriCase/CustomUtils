@@ -65,7 +65,7 @@ namespace CustomUtils.Runtime.Localization
         {
             foreach (var localizationEntry in LocalizationRegistry.Instance.Entries.Values)
             {
-                if (localizationEntry.HasTranslation(language))
+                if (localizationEntry.Translations.ContainsKey(language))
                     return true;
             }
 
@@ -90,11 +90,11 @@ namespace CustomUtils.Runtime.Localization
         {
             var languages = new HashSet<SystemLanguage>();
 
-            foreach (var entry in LocalizationRegistry.Instance.Entries.Values)
+            foreach (var localizationEntry in LocalizationRegistry.Instance.Entries.Values)
             {
                 foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
                 {
-                    if (entry.HasTranslation(language))
+                    if (localizationEntry.Translations.ContainsKey(language))
                         languages.Add(language);
                 }
             }

@@ -33,7 +33,5 @@ namespace CustomUtils.Runtime.Localization
 
         internal bool TryGetTranslation(SystemLanguage language, out string translation)
             => Translations.TryGetValue(language, out translation);
-
-        internal bool HasTranslation(SystemLanguage language) => Translations.ContainsKey(language);
     }
 }
