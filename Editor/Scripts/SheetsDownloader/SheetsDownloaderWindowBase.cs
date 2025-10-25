@@ -65,8 +65,9 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
         {
             var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
+            result.DisplayMessage();
 
-            if (result.HasDownloads)
+            if (result.IsValid)
                 OnSheetsDownloaded();
         }
 
@@ -75,17 +76,16 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             if (Database.Sheets.Count == 0)
             {
                 var resolveResult = await _sheetsDownloader.TryResolveGoogleSheetsAsync();
-                if (resolveResult.IsValid is false)
-                    EditorUtility.DisplayDialog("Success", resolveResult.ErrorMessage, "OK");
+                resolveResult.DisplayMessage();
             }
 
             var downloadResult = await _sheetsDownloader.DownloadSheetsAsync();
 
-            if (downloadResult.HasDownloads is false)
+            if (downloadResult.IsValid is false)
                 return;
 
             OnSheetsDownloaded();
-            EditorUtility.DisplayDialog("Success", downloadResult.Message, "OK");
+            downloadResult.DisplayMessage();
         }
 
         private void OpenGoogleSheet()

@@ -20,7 +20,7 @@ namespace CustomUtils.Editor.Scripts.AttributeDrawers
 
             if (validationResult.IsValid is false)
             {
-                EditorVisualControls.WarningBox(position, validationResult.ErrorMessage);
+                EditorVisualControls.WarningBox(position, validationResult.Message);
                 return;
             }
 
