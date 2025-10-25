@@ -1,5 +1,4 @@
-﻿using System;
-using CustomUtils.Editor.Scripts.Extensions;
+﻿using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.Downloader;
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
@@ -65,45 +64,28 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
         private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
         {
-            await ExecuteWithErrorHandling(async () =>
-            {
-                var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
+            var result = await _sheetsDownloader.DownloadSingleSheetAsync(sheet);
 
-                if (result.HasDownloads)
-                    OnSheetsDownloaded();
-            });
+            if (result.HasDownloads)
+                OnSheetsDownloaded();
         }
 
         private async UniTaskVoid ProcessDownloadSheetsAsync()
         {
-            await ExecuteWithErrorHandling(async () =>
+            if (Database.Sheets.Count == 0)
             {
-                if (Database.Sheets.Count == 0)
-                    await _sheetsDownloader.ResolveGoogleSheetsAsync();
-
-                var result = await _sheetsDownloader.DownloadSheetsAsync();
-
-                if (result.HasDownloads)
-                {
-                    OnSheetsDownloaded();
-
-                    EditorUtility.DisplayDialog("Success", result.Message, "OK");
-                }
-            });
-        }
-
-        private async UniTask ExecuteWithErrorHandling(Func<UniTask> operation)
-        {
-            try
-            {
-                await operation();
-                EditorUtility.SetDirty(Database);
+                var resolveResult = await _sheetsDownloader.TryResolveGoogleSheetsAsync();
+                if (resolveResult.IsValid is false)
+                    EditorUtility.DisplayDialog("Success", resolveResult.ErrorMessage, "OK");
             }
-            catch (Exception ex)
-            {
-                EditorUtility.DisplayDialog("Error", $"Download failed: {ex.Message}", "OK");
-                Debug.LogException(ex);
-            }
+
+            var downloadResult = await _sheetsDownloader.DownloadSheetsAsync();
+
+            if (downloadResult.HasDownloads is false)
+                return;
+
+            OnSheetsDownloaded();
+            EditorUtility.DisplayDialog("Success", downloadResult.Message, "OK");
         }
 
         private void OpenGoogleSheet()
