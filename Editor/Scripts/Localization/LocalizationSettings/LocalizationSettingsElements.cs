@@ -10,7 +10,6 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         internal Button ExportAllKeysButton { get; }
         internal DropdownField LanguageSelectionDropdown { get; }
         internal Button CopyAllTextButton { get; }
-        internal Button CopyWithKeysButton { get; }
 
         internal LocalizationSettingsElements(VisualElement root)
         {
@@ -20,7 +19,6 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
             ExportAllKeysButton = root.Q<Button>("ExportAllKeysButton");
             LanguageSelectionDropdown = root.Q<DropdownField>("LanguageSelection");
             CopyAllTextButton = root.Q<Button>("CopyAllTextButton");
-            CopyWithKeysButton = root.Q<Button>("CopyWithKeysButton");
         }
     }
 }

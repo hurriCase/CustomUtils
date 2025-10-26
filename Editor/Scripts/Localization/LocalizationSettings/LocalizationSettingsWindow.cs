@@ -4,6 +4,7 @@ using CustomUtils.Editor.Scripts.SheetsDownloader;
 using CustomUtils.Runtime.Downloader;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
+using CustomUtils.Runtime.ResponseTypes;
 using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
@@ -30,15 +31,16 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         {
             LocalizationController.ReadLocalizationData();
 
-            UpdateLanguageChoices();
-            UpdateSheetChoices();
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, "sheets");
+
+            var availableLanguages = LocalizationController.GetAllLanguages();
+            UpdateChoices(_elements.LanguageSelectionDropdown, availableLanguages, "languages");
         }
 
         protected override void CreateCustomContent()
         {
-            _elements = new LocalizationSettingsElements(CustomContentSlot);
-
             _customLayout.CloneTree(CustomContentSlot);
+            _elements = new LocalizationSettingsElements(CustomContentSlot);
 
             SetupDefaultLanguageField();
             SetupSheetExportSection();
@@ -59,7 +61,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupSheetExportSection()
         {
-            UpdateSheetChoices();
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, "sheets");
 
             _elements.ExportSheetButton.clicked += ExportSheet;
             _elements.ExportAllKeysButton.clicked += ExportAllKeys;
@@ -67,53 +69,31 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupCopyAllTextSection()
         {
-            UpdateLanguageChoices();
-
-            _elements.CopyAllTextButton.clicked += () => CopyAllTextForLanguage(includeKeys: false);
-            _elements.CopyWithKeysButton.clicked += () => CopyAllTextForLanguage(includeKeys: true);
-        }
-
-        private void UpdateSheetChoices()
-        {
-            if (Database.Sheets is null || Database.Sheets.Count == 0)
-            {
-                _elements.SheetSelectionDropdown.choices = new List<string> { "No sheets available" };
-                _elements.SheetSelectionDropdown.value = "No sheets available";
-                _elements.SheetSelectionDropdown.SetEnabled(false);
-
-                return;
-            }
-
-            var sheetNames = Database.Sheets.Select(static sheet => sheet.Name).ToList();
-            _elements.SheetSelectionDropdown.choices = sheetNames;
-
-            if (sheetNames.Count <= 0)
-                return;
-
-            _elements.SheetSelectionDropdown.value = sheetNames[0];
-            _elements.SheetSelectionDropdown.SetEnabled(true);
-        }
-
-        private void UpdateLanguageChoices()
-        {
             var availableLanguages = LocalizationController.GetAllLanguages();
+            UpdateChoices(_elements.LanguageSelectionDropdown, availableLanguages, "languages");
 
-            if (availableLanguages is null || availableLanguages.Length == 0)
+            _elements.CopyAllTextButton.clicked += () =>
             {
-                _elements.LanguageSelectionDropdown.choices = new List<string> { "No languages available" };
-                _elements.LanguageSelectionDropdown.value = "No languages available";
-                _elements.LanguageSelectionDropdown.SetEnabled(false);
+                var result = CopyAllTextForLanguage();
+                result.DisplayMessage();
+            };
+        }
+
+        private void UpdateChoices<T>(DropdownField dropdownField, List<T> choices, string valueName)
+        {
+            if (choices.Count == 0)
+            {
+                var noChoiceMessage = ZString.Format("No {0} available", valueName);
+                dropdownField.choices = new List<string> { noChoiceMessage };
+                dropdownField.value = noChoiceMessage;
                 return;
             }
 
-            var languageStrings = availableLanguages.Select(lang => lang.ToString()).ToList();
-            _elements.LanguageSelectionDropdown.choices = languageStrings;
+            var choiceNames = choices.Select(static choice => choice.ToString()).ToList();
+            dropdownField.choices = choiceNames;
 
-            if (languageStrings.Count <= 0)
-                return;
-
-            _elements.LanguageSelectionDropdown.value = languageStrings[0];
-            _elements.LanguageSelectionDropdown.SetEnabled(true);
+            if (choiceNames.Count > 0)
+                dropdownField.value = choiceNames[0];
         }
 
         private void ExportSheet()
@@ -160,29 +140,20 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
                 "OK");
         }
 
-        private void CopyAllTextForLanguage(bool includeKeys)
+        private Result CopyAllTextForLanguage()
         {
             var selectedLanguageString = _elements.LanguageSelectionDropdown.value;
 
             if (string.IsNullOrEmpty(selectedLanguageString) || selectedLanguageString == "No languages available")
-            {
-                EditorUtility.DisplayDialog("Error", "Please select a language first.", "OK");
-                return;
-            }
+                return Result.Invalid("Please select a language first.");
 
             if (Enum.TryParse<SystemLanguage>(selectedLanguageString, out var language) is false)
-            {
-                EditorUtility.DisplayDialog("Error", "Invalid language selection.", "OK");
-                return;
-            }
+                return Result.Invalid("Invalid language selection.");
 
             var allEntries = LocalizationRegistry.Instance.Entries.Values;
 
             if (allEntries.Count == 0)
-            {
-                EditorUtility.DisplayDialog("Warning", "No localization entries found.", "OK");
-                return;
-            }
+                return Result.Invalid("No localization entries found.");
 
             using var textBuilder = ZString.CreateStringBuilder();
             var copiedCount = 0;
@@ -193,29 +164,16 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
                     string.IsNullOrEmpty(localizedText))
                     continue;
 
-                if (includeKeys)
-                {
-                    textBuilder.Append(entry.Key);
-                    textBuilder.Append(": ");
-                }
-
                 textBuilder.AppendLine(localizedText);
 
                 copiedCount++;
             }
 
             if (copiedCount == 0)
-            {
-                EditorUtility.DisplayDialog("Warning",
-                    $"No translations found for {language}.", "OK");
-                return;
-            }
+                return Result.Invalid($"No translations found for {language}.");
 
             EditorGUIUtility.systemCopyBuffer = textBuilder.ToString();
-
-            var contentType = includeKeys ? "key-value pairs" : "text entries";
-            EditorUtility.DisplayDialog("Success",
-                $"Copied {copiedCount} {contentType} for {language} to clipboard.", "OK");
+            return Result.Valid($"Copied {copiedCount} text entries for {language} to clipboard.");
         }
     }
 }

@@ -86,7 +86,7 @@ namespace CustomUtils.Runtime.Localization
         /// Retrieves all supported languages available in the localization dictionary.
         /// </summary>
         [UsedImplicitly]
-        public static SystemLanguage[] GetAllLanguages()
+        public static List<SystemLanguage> GetAllLanguages()
         {
             var languages = new HashSet<SystemLanguage>();
 
@@ -99,7 +99,7 @@ namespace CustomUtils.Runtime.Localization
                 }
             }
 
-            return languages.ToArray();
+            return languages.ToList();
         }
 
         internal static void ReadLocalizationData()
