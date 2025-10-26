@@ -32,9 +32,8 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         {
             LocalizationController.ReadLocalizationData();
 
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, LocalizationConstants.SheetsValueName);
-            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages,
-                LocalizationConstants.LanguagesValueName);
+            UpdateSheetsDisplay();
+            UpdateLanguagesDisplay();
         }
 
         protected override void CreateCustomContent()
@@ -61,8 +60,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupSheetExportSection()
         {
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets,
-                LocalizationConstants.SheetsValueName);
+            UpdateSheetsDisplay();
 
             _elements.ExportSheetButton.clicked += () =>
             {
@@ -73,8 +71,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupCopyAllTextSection()
         {
-            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages,
-                LocalizationConstants.LanguagesValueName);
+            UpdateLanguagesDisplay();
 
             _elements.CopyAllTextButton.clicked += () =>
             {
@@ -83,9 +80,21 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
             };
         }
 
-        private void UpdateChoices<T>(DropdownField dropdownField, List<T> choices, string valueName)
+        private void UpdateSheetsDisplay()
         {
-            if (choices.Count == 0)
+            var choiceNames = Database.Sheets.Select(static choice => choice.Name.ToString()).ToList();
+            UpdateChoices(_elements.SheetSelectionDropdown, choiceNames, LocalizationConstants.SheetsValueName);
+        }
+
+        private void UpdateLanguagesDisplay()
+        {
+            var choiceNames = Registry.SupportedLanguages.Select(static choice => choice.ToString()).ToList();
+            UpdateChoices(_elements.LanguageSelectionDropdown, choiceNames, LocalizationConstants.LanguagesValueName);
+        }
+
+        private void UpdateChoices(DropdownField dropdownField, List<string> choiceNames, string valueName)
+        {
+            if (choiceNames.Count == 0)
             {
                 var noChoiceMessage = ZString.Format(LocalizationConstants.NoChoiceMessageFormat, valueName);
                 dropdownField.choices = new List<string> { noChoiceMessage };
@@ -93,7 +102,6 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
                 return;
             }
 
-            var choiceNames = choices.Select(static choice => choice.ToString()).ToList();
             dropdownField.choices = choiceNames;
 
             if (choiceNames.Count > 0)

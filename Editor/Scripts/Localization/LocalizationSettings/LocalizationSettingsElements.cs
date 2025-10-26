@@ -12,7 +12,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         internal LocalizationSettingsElements(VisualElement root)
         {
-            DefaultLanguageField = root.Q<EnumField>("DefaultLanguage");
+            DefaultLanguageField = root.Q<EnumField>("DefaultLanguageField");
             SheetSelectionDropdown = root.Q<DropdownField>("SheetSelection");
             ExportSheetButton = root.Q<Button>("ExportSheetButton");
             LanguageSelectionDropdown = root.Q<DropdownField>("LanguageSelection");

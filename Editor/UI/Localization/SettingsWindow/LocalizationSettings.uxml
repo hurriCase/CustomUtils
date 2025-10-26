@@ -1,16 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="CustomContent" class="custom-container">
-        <ui:VisualElement class="section">
-            <ui:Label text="Default Language" class="subsection-header"/>
-            <uie:EnumField name="DefaultLanguage" class="language-field"/>
+        <ui:VisualElement name="DefaultLanguage" class="section">
+            <ui:Label text="Default Language" name="DefaultLanguageLabel" class="subsection-header"/>
+            <uie:EnumField name="DefaultLanguageField" class="language-field"/>
         </ui:VisualElement>
-        <ui:VisualElement class="section">
-            <ui:Label text="Sheet Export" class="subsection-header"/>
+        <ui:VisualElement name="SheetExport" class="section">
+            <ui:Label text="Sheet Export" name="SheetExportLabel" class="subsection-header"/>
             <ui:DropdownField name="SheetSelection" label="Sheet" class="sheet-dropdown"/>
-            <ui:VisualElement class="button-column">
-                <ui:Button name="ExportSheetButton" text="Export Selected Sheet to CSV" class="action-button"/>
-                <ui:Button name="ExportAllKeysButton" text="Export All Keys to CSV" class="action-button"/>
-            </ui:VisualElement>
+            <ui:Button name="ExportSheetButton" text="Export Selected Sheet to CSV" class="action-button"/>
         </ui:VisualElement>
         <ui:VisualElement class="section">
             <ui:Label text="Copy All Text" class="subsection-header"/>

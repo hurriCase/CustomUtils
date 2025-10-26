@@ -72,11 +72,13 @@ namespace CustomUtils.Runtime.Localization
 
             foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
             {
+                if (row.TryGetValue(language.ToString(), out var translation) is false)
+                    continue;
+
+                localizationEntry.SetTranslation(language, translation);
+
                 if (_usedLanguages.Contains(language) is false)
                     _usedLanguages.Add(language);
-
-                if (row.TryGetValue(language.ToString(), out var translation))
-                    localizationEntry.SetTranslation(language, translation);
             }
 
             return true;
