@@ -2,6 +2,8 @@
 {
     internal static class Constants
     {
+        internal const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
+
         internal const string UrlPattern = "https://docs.google.com/spreadsheets/d/{0}/export?format=csv&gid={1}";
         internal const string SheetResolverUrl =
             "https://script.google.com/macros/s/" +

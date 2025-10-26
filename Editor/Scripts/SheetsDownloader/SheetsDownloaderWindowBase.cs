@@ -20,8 +20,6 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         protected VisualElement CustomContentSlot { get; private set; }
         protected abstract TDatabase Database { get; }
 
-        private const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
-
         private SheetsDownloader<TDatabase, TSheet> _sheetsDownloader;
         private SerializedObject _serializedObject;
 
@@ -90,7 +88,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
         private void OpenGoogleSheet()
         {
-            Application.OpenURL(ZString.Format(TableUrlPattern, Database.TableId));
+            Application.OpenURL(ZString.Format(Constants.TableUrlPattern, Database.TableId));
         }
     }
 }
