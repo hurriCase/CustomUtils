@@ -43,6 +43,20 @@ namespace CustomUtils.Runtime.CSV.CSVEntry
         }
 
         /// <summary>
+        /// Gets the value from the specified column by exact name match.
+        /// </summary>
+        /// <param name="columnName">The name of the column to retrieve the value from.</param>
+        /// <returns>The value in the specified column, or empty string if column is not found or index is out of range.</returns>
+        [UsedImplicitly]
+        public string GetValue(string columnName)
+        {
+            if (_columnMap.TryGetValue(columnName, out var index) && index < _values.Length)
+                return _values[index] ?? string.Empty;
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Gets the first value from a column whose name matches the specified regex pattern.
         /// </summary>
         /// <param name="pattern">The regex pattern to match against column names (case-insensitive).</param>
