@@ -52,6 +52,9 @@ namespace CustomUtils.Runtime.ResponseTypes
 
         internal void DisplayMessage()
         {
+            if (string.IsNullOrEmpty(Message))
+                return;
+
             var title = IsValid ? "Success" : "Error";
             EditorUtility.DisplayDialog(title, Message, "OK");
         }

@@ -9,32 +9,6 @@ namespace CustomUtils.Editor.Scripts.Localization
     {
         private const char Separator = '\t';
 
-        internal static string ExportAllKeysWithGuids()
-        {
-            var entries = LocalizationRegistry.Instance.Entries.Values.ToArray();
-
-            if (entries.Length == 0)
-            {
-                Debug.LogWarning("[LocalizationSheetExporter::ExportAllKeysWithGuids] No localization entries found.");
-                return string.Empty;
-            }
-
-            using var tsvBuilder = ZString.CreateStringBuilder();
-
-            tsvBuilder.Append("GUID");
-            tsvBuilder.Append(Separator);
-            tsvBuilder.AppendLine("Key");
-
-            foreach (var entry in entries.OrderBy(static e => e.Key))
-            {
-                tsvBuilder.Append(entry.GUID);
-                tsvBuilder.Append(Separator);
-                tsvBuilder.AppendLine(EscapeField(entry.Key));
-            }
-
-            return tsvBuilder.ToString();
-        }
-
         internal static string ExportSheet(string sheetName)
         {
             var entries = LocalizationRegistry.Instance.Entries.Values

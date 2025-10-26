@@ -20,9 +20,6 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
         private LocalizationRegistry Registry => LocalizationRegistry.Instance;
 
-        private const string SheetsValueName = "sheets";
-        private const string LanguagesValueName = "languages";
-
         private LocalizationSettingsElements _elements;
 
         [MenuItem(MenuItemNames.LocalizationMenuName)]
@@ -35,8 +32,9 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         {
             LocalizationController.ReadLocalizationData();
 
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, SheetsValueName);
-            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages, LanguagesValueName);
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, LocalizationConstants.SheetsValueName);
+            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages,
+                LocalizationConstants.LanguagesValueName);
         }
 
         protected override void CreateCustomContent()
@@ -63,15 +61,20 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupSheetExportSection()
         {
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, SheetsValueName);
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets,
+                LocalizationConstants.SheetsValueName);
 
-            _elements.ExportSheetButton.clicked += ExportSheet;
-            _elements.ExportAllKeysButton.clicked += ExportAllKeys;
+            _elements.ExportSheetButton.clicked += () =>
+            {
+                var result = ExportSheet();
+                result.DisplayMessage();
+            };
         }
 
         private void SetupCopyAllTextSection()
         {
-            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages, LanguagesValueName);
+            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages,
+                LocalizationConstants.LanguagesValueName);
 
             _elements.CopyAllTextButton.clicked += () =>
             {
@@ -84,7 +87,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         {
             if (choices.Count == 0)
             {
-                var noChoiceMessage = ZString.Format("No {0} available", valueName);
+                var noChoiceMessage = ZString.Format(LocalizationConstants.NoChoiceMessageFormat, valueName);
                 dropdownField.choices = new List<string> { noChoiceMessage };
                 dropdownField.value = noChoiceMessage;
                 return;
@@ -97,64 +100,41 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
                 dropdownField.value = choiceNames[0];
         }
 
-        private void ExportSheet()
+        private Result ExportSheet()
         {
             var selectedSheet = _elements.SheetSelectionDropdown.value;
 
-            if (string.IsNullOrEmpty(selectedSheet) || selectedSheet == "No sheets available")
-            {
-                EditorUtility.DisplayDialog("Error", "Please select a sheet first.", "OK");
-                return;
-            }
+            if (string.IsNullOrEmpty(selectedSheet) || selectedSheet == LocalizationConstants.NoSheetsAvailable)
+                return Result.Invalid(LocalizationConstants.SelectSheetFirstMessage);
 
             var csvContent = LocalizationSheetExporter.ExportSheet(selectedSheet);
 
             if (string.IsNullOrEmpty(csvContent))
             {
-                EditorUtility.DisplayDialog("Error",
-                    $"Failed to export sheet '{selectedSheet}'. Make sure the sheet is loaded.", "OK");
-                return;
+                var errorMessage = ZString.Format(LocalizationConstants.ExportFailedMessageFormat, selectedSheet);
+                return Result.Invalid(errorMessage);
             }
 
             EditorGUIUtility.systemCopyBuffer = csvContent;
-
-            EditorUtility.DisplayDialog("Success",
-                $"Exported sheet '{selectedSheet}' to CSV and copied to clipboard.\n\n" +
-                "You can now paste this into your Google Sheet.", "OK");
-        }
-
-        private void ExportAllKeys()
-        {
-            var csvContent = LocalizationSheetExporter.ExportAllKeysWithGuids();
-
-            if (string.IsNullOrEmpty(csvContent))
-            {
-                EditorUtility.DisplayDialog("Error", "No localization entries found. Load sheets first.", "OK");
-                return;
-            }
-
-            EditorGUIUtility.systemCopyBuffer = csvContent;
-
-            EditorUtility.DisplayDialog("Success",
-                "Exported all keys with GUIDs to CSV and copied to clipboard.\n\n" +
-                "This is a simple GUID-Key mapping. For full sheet export with translations, use 'Export Selected Sheet to CSV'.",
-                "OK");
+            var successMessage = ZString.Format(LocalizationConstants.ExportSuccessMessageFormat, selectedSheet);
+            return Result.Valid(successMessage);
         }
 
         private Result CopyAllTextForLanguage()
         {
             var selectedLanguageString = _elements.LanguageSelectionDropdown.value;
 
-            if (string.IsNullOrEmpty(selectedLanguageString) || selectedLanguageString == "No languages available")
-                return Result.Invalid("Please select a language first.");
+            if (string.IsNullOrEmpty(selectedLanguageString) ||
+                selectedLanguageString == LocalizationConstants.NoLanguagesAvailable)
+                return Result.Invalid(LocalizationConstants.SelectLanguageFirstMessage);
 
             if (Enum.TryParse<SystemLanguage>(selectedLanguageString, out var language) is false)
-                return Result.Invalid("Invalid language selection.");
+                return Result.Invalid(LocalizationConstants.InvalidLanguageSelectionMessage);
 
             var allEntries = Registry.Entries.Values;
 
             if (allEntries.Count == 0)
-                return Result.Invalid("No localization entries found.");
+                return Result.Invalid(LocalizationConstants.NoLocalizationEntriesMessage);
 
             using var textBuilder = ZString.CreateStringBuilder();
             var copiedCount = 0;
@@ -171,10 +151,12 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
             }
 
             if (copiedCount == 0)
-                return Result.Invalid($"No translations found for {language}.");
+                return Result.Invalid(ZString.Format(LocalizationConstants.NoTranslationsFoundFormat,
+                    language));
 
             EditorGUIUtility.systemCopyBuffer = textBuilder.ToString();
-            return Result.Valid($"Copied {copiedCount} text entries for {language} to clipboard.");
+            return Result.Valid(ZString.Format(LocalizationConstants.CopySuccessMessageFormat,
+                copiedCount, language));
         }
     }
 }
