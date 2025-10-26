@@ -16,7 +16,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
             SheetSelectionDropdown = root.Q<DropdownField>("SheetSelection");
             ExportSheetButton = root.Q<Button>("ExportSheetButton");
             LanguageSelectionDropdown = root.Q<DropdownField>("LanguageSelection");
-            CopyAllTextButton = root.Q<Button>("CopyAllTextButton");
+            CopyAllTextButton = root.Q<Button>("CopyAllButton");
         }
     }
 }
