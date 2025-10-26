@@ -170,10 +170,10 @@ namespace CustomUtils.Editor.Scripts.Extensions
             string propertyName,
             VisualElement container)
         {
-            var tableIdProperty = serializedObject.FindField(propertyName);
+            var property = serializedObject.FindField(propertyName);
 
-            var propertyField = new PropertyField(tableIdProperty);
-            propertyField.BindProperty(tableIdProperty);
+            var propertyField = new PropertyField(property);
+            propertyField.BindProperty(property);
 
             container.Add(propertyField);
         }
