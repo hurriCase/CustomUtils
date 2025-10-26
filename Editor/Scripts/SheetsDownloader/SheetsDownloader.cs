@@ -29,8 +29,10 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         private readonly TDatabase _database;
         private readonly List<TSheet> _sheetsToDownload = new();
 
-        private string RequestUrl
-            => ZString.Format(Constants.RequestUrlFormat, Constants.SheetResolverUrl, _database.TableId);
+        private string RequestUrl => ZString.Format(
+            SheetDownloaderConstants.RequestUrlFormat,
+            SheetDownloaderConstants.SheetResolverUrl,
+            _database.TableId);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SheetsDownloader{T, T}"/> class.
@@ -61,7 +63,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
             return string.IsNullOrEmpty(request.error)
                 ? ProcessResolveResponse(request)
-                : Result.Invalid(ZString.Format(Constants.NetworkErrorFormat, request.error));
+                : Result.Invalid(ZString.Format(SheetDownloaderConstants.NetworkErrorFormat, request.error));
         }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             await FillSheetsToDownloadAsync();
 
             if (_sheetsToDownload.Count == 0)
-                return Result.Invalid(Constants.AllSheetsUpToDateMessage);
+                return Result.Invalid(SheetDownloaderConstants.AllSheetsUpToDateMessage);
 
             var changedCount = 0;
             foreach (var sheet in _sheetsToDownload)
@@ -95,8 +97,8 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             }
 
             var changeResult = changedCount > 0
-                ? Result.Valid(ZString.Format(Constants.ChangedSheetsDownloadedFormat, changedCount))
-                : Result.Invalid(Constants.AllSheetsUpToDateMessage);
+                ? Result.Valid(ZString.Format(SheetDownloaderConstants.ChangedSheetsDownloadedFormat, changedCount))
+                : Result.Invalid(SheetDownloaderConstants.AllSheetsUpToDateMessage);
 
             return changeResult;
         }
@@ -116,13 +118,13 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         public async UniTask<Result> DownloadSingleSheetAsync(TSheet sheet)
         {
             if (sheet == null)
-                return Result.Valid(Constants.SheetIsNullMessage);
+                return Result.Valid(SheetDownloaderConstants.SheetIsNullMessage);
 
             PrepareDownloadFolderIfNeeded();
 
             try
             {
-                var url = ZString.Format(Constants.UrlPattern, _database.TableId, sheet.Id);
+                var url = ZString.Format(SheetDownloaderConstants.UrlPattern, _database.TableId, sheet.Id);
 
                 using var request = UnityWebRequest.Get(url);
                 await request.SendWebRequest().ToUniTask();
@@ -130,8 +132,8 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
                 var error = GetRequestError(request);
                 if (string.IsNullOrEmpty(error) is false)
                 {
-                    var errorMessage = error.Contains(Constants.Error404Indicator)
-                        ? Constants.TableIdWrongMessage
+                    var errorMessage = error.Contains(SheetDownloaderConstants.Error404Indicator)
+                        ? SheetDownloaderConstants.TableIdWrongMessage
                         : error;
 
                     return Result.Invalid(errorMessage);
@@ -142,12 +144,13 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
                 sheet.ContentLength = data.Length;
 
-                return Result.Valid(ZString.Format(Constants.SheetDownloadedSuccessFormat, sheet.Name));
+                return Result.Valid(ZString.Format(SheetDownloaderConstants.SheetDownloadedSuccessFormat, sheet.Name));
             }
             catch (Exception ex)
             {
                 Debug.LogException(ex);
-                return Result.Invalid(ZString.Format(Constants.SheetDownloadFailedFormat, sheet.Name, ex.Message));
+                var message = ZString.Format(SheetDownloaderConstants.SheetDownloadFailedFormat, sheet.Name, ex.Message);
+                return Result.Invalid(message);
             }
         }
 
@@ -174,12 +177,12 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         {
             var error = ExtractInternalError(request);
             if (error != null)
-                return Result.Invalid(ZString.Format(Constants.TableNotFoundOrNoPermissionFormat, error));
+                return Result.Invalid(ZString.Format(SheetDownloaderConstants.TableNotFoundOrNoPermissionFormat, error));
 
             var sheets = JsonConvert.DeserializeObject<Dictionary<string, long>>(request.downloadHandler.text);
 
             if (sheets == null)
-                return Result.Invalid(Constants.FailedToParseResponseMessage);
+                return Result.Invalid(SheetDownloaderConstants.FailedToParseResponseMessage);
 
             var existingSheets =
                 _database.Sheets.ToDictionary(static sheet => sheet.Id, static sheet => sheet.ContentLength);
@@ -202,7 +205,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
         private async UniTask<long> GetSheetContentLengthAsync(long sheetId)
         {
-            var url = ZString.Format(Constants.UrlPattern, _database.TableId, sheetId);
+            var url = ZString.Format(SheetDownloaderConstants.UrlPattern, _database.TableId, sheetId);
 
             using var request = UnityWebRequest.Head(url);
             await request.SendWebRequest().ToUniTask();
@@ -210,14 +213,16 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             if (string.IsNullOrEmpty(request.error) is false)
                 return 0;
 
-            return long.TryParse(request.GetResponseHeader(Constants.ContentLengthHeader), out var length)
+            var responseHeader = request.GetResponseHeader(SheetDownloaderConstants.ContentLengthHeader);
+            return long.TryParse(responseHeader, out var length)
                 ? length
                 : 0;
         }
 
         private async UniTask SaveSheetDataAsync(TSheet sheet, byte[] data)
         {
-            var path = Path.Combine(_database.GetDownloadPath(), ZString.Concat(sheet.Name, Constants.CsvExtension));
+            var fileName = ZString.Concat(sheet.Name, SheetDownloaderConstants.CsvExtension);
+            var path = Path.Combine(_database.GetDownloadPath(), fileName);
             await File.WriteAllBytesAsync(path, data);
 
             await UniTask.SwitchToMainThread();
@@ -231,22 +236,23 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
             if (string.IsNullOrEmpty(request.error) is false)
                 return request.error;
 
-            return request.downloadHandler.text.Contains(Constants.GoogleSignInIndicator)
-                ? Constants.AccessDeniedMessage
+            return request.downloadHandler.text.Contains(SheetDownloaderConstants.GoogleSignInIndicator)
+                ? SheetDownloaderConstants.AccessDeniedMessage
                 : null;
         }
 
         private static string ExtractInternalError(UnityWebRequest request)
         {
             var matches =
-                Regex.Matches(request.downloadHandler.text, Constants.ErrorMessagePattern);
+                Regex.Matches(request.downloadHandler.text, SheetDownloaderConstants.ErrorMessagePattern);
 
             if (matches.Count == 0
-                && request.downloadHandler.text.Contains(Constants.GoogleScriptErrorIndicator) is false)
+                && request.downloadHandler.text.Contains(SheetDownloaderConstants.GoogleScriptErrorIndicator) is false)
                 return null;
 
             return matches.Count > 0
-                ? matches[1].Groups[Constants.MessageGroupName].Value.Replace(Constants.QuotReplacement, string.Empty)
+                ? matches[1].Groups[SheetDownloaderConstants.MessageGroupName].Value
+                    .Replace(SheetDownloaderConstants.QuotReplacement, string.Empty)
                 : request.downloadHandler.text;
         }
 

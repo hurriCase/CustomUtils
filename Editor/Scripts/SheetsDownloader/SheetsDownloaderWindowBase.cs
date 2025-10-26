@@ -88,7 +88,7 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
         private void OpenGoogleSheet()
         {
-            Application.OpenURL(ZString.Format(Constants.TableUrlPattern, Database.TableId));
+            Application.OpenURL(ZString.Format(SheetDownloaderConstants.TableUrlPattern, Database.TableId));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace CustomUtils.Editor.Scripts.SheetsDownloader
 {
-    internal static class Constants
+    internal static class SheetDownloaderConstants
     {
         internal const string TableUrlPattern = "https://docs.google.com/spreadsheets/d/{0}";
 
