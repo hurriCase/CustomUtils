@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CustomUtils.Editor.Scripts.SheetsDownloader;
 using CustomUtils.Runtime.Downloader;
 using CustomUtils.Runtime.Extensions;
@@ -9,39 +10,33 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using ZLinq;
 
-namespace CustomUtils.Editor.Scripts.Localization
+namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 {
     internal sealed class LocalizationSettingsWindow : SheetsDownloaderWindowBase<LocalizationDatabase, Sheet>
     {
         [SerializeField] private VisualTreeAsset _customLayout;
 
-        private EnumField _defaultLanguageField;
-        private DropdownField _sheetSelectionDropdown;
-        private DropdownField _languageSelectionDropdown;
+        private LocalizationSettingsElements _elements;
 
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
 
         [MenuItem(MenuItemNames.LocalizationMenuName)]
         internal static void ShowWindow()
         {
-            var window = GetWindow<LocalizationSettingsWindow>(nameof(LocalizationSettingsWindow).ToSpacedWords());
-            window.minSize = new Vector2(400, 600);
+            GetWindow<LocalizationSettingsWindow>(nameof(LocalizationSettingsWindow).ToSpacedWords());
         }
 
         protected override void OnSheetsDownloaded()
         {
             LocalizationController.ReadLocalizationData();
+
             UpdateLanguageChoices();
             UpdateSheetChoices();
         }
 
         protected override void CreateCustomContent()
         {
-            if (_customLayout is null)
-            {
-                Debug.LogError("[LocalizationSettingsWindow] Custom layout is not assigned!");
-                return;
-            }
+            _elements = new LocalizationSettingsElements(CustomContentSlot);
 
             _customLayout.CloneTree(CustomContentSlot);
 
@@ -52,11 +47,10 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void SetupDefaultLanguageField()
         {
-            _defaultLanguageField = CustomContentSlot.Q<EnumField>("DefaultLanguage");
-            _defaultLanguageField.Init(Database.DefaultLanguage);
-            _defaultLanguageField.value = Database.DefaultLanguage;
+            _elements.DefaultLanguageField.Init(Database.DefaultLanguage);
+            _elements.DefaultLanguageField.value = Database.DefaultLanguage;
 
-            _defaultLanguageField.RegisterValueChangedCallback(evt =>
+            _elements.DefaultLanguageField.RegisterValueChangedCallback(evt =>
             {
                 Database.DefaultLanguage = (SystemLanguage)evt.newValue;
                 EditorUtility.SetDirty(Database);
@@ -65,82 +59,66 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void SetupSheetExportSection()
         {
-            _sheetSelectionDropdown = CustomContentSlot.Q<DropdownField>("SheetSelection");
             UpdateSheetChoices();
 
-            var exportSheetButton = CustomContentSlot.Q<Button>("ExportSheetButton");
-            exportSheetButton.clicked += ExportSheet;
-
-            var exportAllKeysButton = CustomContentSlot.Q<Button>("ExportAllKeysButton");
-            exportAllKeysButton.clicked += ExportAllKeys;
+            _elements.ExportSheetButton.clicked += ExportSheet;
+            _elements.ExportAllKeysButton.clicked += ExportAllKeys;
         }
 
         private void SetupCopyAllTextSection()
         {
-            _languageSelectionDropdown = CustomContentSlot.Q<DropdownField>("LanguageSelection");
             UpdateLanguageChoices();
 
-            var copyAllTextButton = CustomContentSlot.Q<Button>("CopyAllTextButton");
-            copyAllTextButton.clicked += () => CopyAllTextForLanguage(includeKeys: false);
-
-            var copyWithKeysButton = CustomContentSlot.Q<Button>("CopyWithKeysButton");
-            copyWithKeysButton.clicked += () => CopyAllTextForLanguage(includeKeys: true);
+            _elements.CopyAllTextButton.clicked += () => CopyAllTextForLanguage(includeKeys: false);
+            _elements.CopyWithKeysButton.clicked += () => CopyAllTextForLanguage(includeKeys: true);
         }
 
         private void UpdateSheetChoices()
         {
-            if (_sheetSelectionDropdown is null || Database.Sheets is null || Database.Sheets.Count == 0)
+            if (Database.Sheets is null || Database.Sheets.Count == 0)
             {
-                if (_sheetSelectionDropdown != null)
-                {
-                    _sheetSelectionDropdown.choices = new System.Collections.Generic.List<string>
-                        { "No sheets available" };
-                    _sheetSelectionDropdown.value = "No sheets available";
-                    _sheetSelectionDropdown.SetEnabled(false);
-                }
+                _elements.SheetSelectionDropdown.choices = new List<string> { "No sheets available" };
+                _elements.SheetSelectionDropdown.value = "No sheets available";
+                _elements.SheetSelectionDropdown.SetEnabled(false);
 
                 return;
             }
 
-            var sheetNames = Database.Sheets.Select(sheet => sheet.Name).ToList();
-            _sheetSelectionDropdown.choices = sheetNames;
+            var sheetNames = Database.Sheets.Select(static sheet => sheet.Name).ToList();
+            _elements.SheetSelectionDropdown.choices = sheetNames;
 
-            if (sheetNames.Count > 0)
-            {
-                _sheetSelectionDropdown.value = sheetNames[0];
-                _sheetSelectionDropdown.SetEnabled(true);
-            }
+            if (sheetNames.Count <= 0)
+                return;
+
+            _elements.SheetSelectionDropdown.value = sheetNames[0];
+            _elements.SheetSelectionDropdown.SetEnabled(true);
         }
 
         private void UpdateLanguageChoices()
         {
-            if (_languageSelectionDropdown is null)
-                return;
-
             var availableLanguages = LocalizationController.GetAllLanguages();
 
             if (availableLanguages is null || availableLanguages.Length == 0)
             {
-                _languageSelectionDropdown.choices = new System.Collections.Generic.List<string>
-                    { "No languages available" };
-                _languageSelectionDropdown.value = "No languages available";
-                _languageSelectionDropdown.SetEnabled(false);
+                _elements.LanguageSelectionDropdown.choices = new List<string> { "No languages available" };
+                _elements.LanguageSelectionDropdown.value = "No languages available";
+                _elements.LanguageSelectionDropdown.SetEnabled(false);
                 return;
             }
 
             var languageStrings = availableLanguages.Select(lang => lang.ToString()).ToList();
-            _languageSelectionDropdown.choices = languageStrings;
+            _elements.LanguageSelectionDropdown.choices = languageStrings;
 
-            if (languageStrings.Count > 0)
-            {
-                _languageSelectionDropdown.value = languageStrings[0];
-                _languageSelectionDropdown.SetEnabled(true);
-            }
+            if (languageStrings.Count <= 0)
+                return;
+
+            _elements.LanguageSelectionDropdown.value = languageStrings[0];
+            _elements.LanguageSelectionDropdown.SetEnabled(true);
         }
 
         private void ExportSheet()
         {
-            var selectedSheet = _sheetSelectionDropdown.value;
+            var selectedSheet = _elements.SheetSelectionDropdown.value;
 
             if (string.IsNullOrEmpty(selectedSheet) || selectedSheet == "No sheets available")
             {
@@ -184,7 +162,7 @@ namespace CustomUtils.Editor.Scripts.Localization
 
         private void CopyAllTextForLanguage(bool includeKeys)
         {
-            var selectedLanguageString = _languageSelectionDropdown.value;
+            var selectedLanguageString = _elements.LanguageSelectionDropdown.value;
 
             if (string.IsNullOrEmpty(selectedLanguageString) || selectedLanguageString == "No languages available")
             {
