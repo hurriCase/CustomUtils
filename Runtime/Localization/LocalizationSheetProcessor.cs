@@ -13,6 +13,7 @@ namespace CustomUtils.Runtime.Localization
         private const string KeyColumnName = "Key";
 
         private static readonly HashSet<string> _processedGuids = new();
+        private static readonly List<SystemLanguage> _usedLanguages = new();
 
         internal static void ProcessSheets(List<Sheet> sheets)
         {
@@ -36,6 +37,8 @@ namespace CustomUtils.Runtime.Localization
 
         private static void ProcessSheet(CsvTable csvTable, string sheetName)
         {
+            _usedLanguages.Clear();
+
             foreach (var row in csvTable.Rows)
             {
                 if (TryCreateEntryFromRow(row, sheetName, out var entry) is false)
@@ -43,6 +46,8 @@ namespace CustomUtils.Runtime.Localization
 
                 LocalizationRegistry.Instance.AddOrUpdateEntry(entry);
             }
+
+            LocalizationRegistry.Instance.SupportedLanguages = _usedLanguages;
         }
 
         private static bool TryCreateEntryFromRow(CsvRow row, string sheetName, out LocalizationEntry localizationEntry)
@@ -50,7 +55,11 @@ namespace CustomUtils.Runtime.Localization
             localizationEntry = null;
             if (row.TryGetValue(GuidColumnName, out var guid) is false
                 || row.TryGetValue(KeyColumnName, out var key) is false)
+            {
+                Debug.LogError("[LocalizationSheetProcessor::TryCreateEntryFromRow]" +
+                               $"{GuidColumnName} or {KeyColumnName} column is missing in sheet '{sheetName}'");
                 return false;
+            }
 
             if (_processedGuids.Add(guid) is false)
             {
@@ -63,6 +72,9 @@ namespace CustomUtils.Runtime.Localization
 
             foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
             {
+                if (_usedLanguages.Contains(language) is false)
+                    _usedLanguages.Add(language);
+
                 if (row.TryGetValue(language.ToString(), out var translation))
                     localizationEntry.SetTranslation(language, translation);
             }

@@ -62,15 +62,7 @@ namespace CustomUtils.Runtime.Localization
         /// </summary>
         [UsedImplicitly]
         public static bool HasLanguage(SystemLanguage language)
-        {
-            foreach (var localizationEntry in LocalizationRegistry.Instance.Entries.Values)
-            {
-                if (localizationEntry.Translations.ContainsKey(language))
-                    return true;
-            }
-
-            return false;
-        }
+            => LocalizationRegistry.Instance.SupportedLanguages.Contains(language);
 
         /// <summary>
         /// Retrieves all localization keys across all available languages.
@@ -81,26 +73,6 @@ namespace CustomUtils.Runtime.Localization
                 .Select(static localizationEntry => localizationEntry.Key)
                 .OrderBy(static guid => guid)
                 .ToArray();
-
-        /// <summary>
-        /// Retrieves all supported languages available in the localization dictionary.
-        /// </summary>
-        [UsedImplicitly]
-        public static List<SystemLanguage> GetAllLanguages()
-        {
-            var languages = new HashSet<SystemLanguage>();
-
-            foreach (var localizationEntry in LocalizationRegistry.Instance.Entries.Values)
-            {
-                foreach (SystemLanguage language in Enum.GetValues(typeof(SystemLanguage)))
-                {
-                    if (localizationEntry.Translations.ContainsKey(language))
-                        languages.Add(language);
-                }
-            }
-
-            return languages.ToList();
-        }
 
         internal static void ReadLocalizationData()
         {

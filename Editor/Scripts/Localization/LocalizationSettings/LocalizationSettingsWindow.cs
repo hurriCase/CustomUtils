@@ -17,9 +17,13 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
     {
         [SerializeField] private VisualTreeAsset _customLayout;
 
-        private LocalizationSettingsElements _elements;
-
         protected override LocalizationDatabase Database => LocalizationDatabase.Instance;
+        private LocalizationRegistry Registry => LocalizationRegistry.Instance;
+
+        private const string SheetsValueName = "sheets";
+        private const string LanguagesValueName = "languages";
+
+        private LocalizationSettingsElements _elements;
 
         [MenuItem(MenuItemNames.LocalizationMenuName)]
         internal static void ShowWindow()
@@ -31,10 +35,8 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
         {
             LocalizationController.ReadLocalizationData();
 
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, "sheets");
-
-            var availableLanguages = LocalizationController.GetAllLanguages();
-            UpdateChoices(_elements.LanguageSelectionDropdown, availableLanguages, "languages");
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, SheetsValueName);
+            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages, LanguagesValueName);
         }
 
         protected override void CreateCustomContent()
@@ -61,7 +63,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupSheetExportSection()
         {
-            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, "sheets");
+            UpdateChoices(_elements.SheetSelectionDropdown, Database.Sheets, SheetsValueName);
 
             _elements.ExportSheetButton.clicked += ExportSheet;
             _elements.ExportAllKeysButton.clicked += ExportAllKeys;
@@ -69,8 +71,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         private void SetupCopyAllTextSection()
         {
-            var availableLanguages = LocalizationController.GetAllLanguages();
-            UpdateChoices(_elements.LanguageSelectionDropdown, availableLanguages, "languages");
+            UpdateChoices(_elements.LanguageSelectionDropdown, Registry.SupportedLanguages, LanguagesValueName);
 
             _elements.CopyAllTextButton.clicked += () =>
             {
@@ -150,7 +151,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
             if (Enum.TryParse<SystemLanguage>(selectedLanguageString, out var language) is false)
                 return Result.Invalid("Invalid language selection.");
 
-            var allEntries = LocalizationRegistry.Instance.Entries.Values;
+            var allEntries = Registry.Entries.Values;
 
             if (allEntries.Count == 0)
                 return Result.Invalid("No localization entries found.");

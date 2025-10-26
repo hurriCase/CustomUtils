@@ -23,6 +23,8 @@ namespace CustomUtils.Runtime.Localization
         [field: SerializeField]
         internal SerializedDictionary<string, HashSet<string>> TableToGuids { get; private set; } = new();
 
+        [field: SerializeField] internal List<SystemLanguage> SupportedLanguages { get; set; } = new();
+
         internal void AddOrUpdateEntry(LocalizationEntry entry)
         {
             Entries[entry.GUID] = entry;
