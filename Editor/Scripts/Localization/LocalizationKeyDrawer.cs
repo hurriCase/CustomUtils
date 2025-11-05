@@ -1,5 +1,6 @@
 ﻿using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -33,7 +34,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             LocalizationRegistry.Instance.Entries.TryGetValue(_guidProperty.stringValue, out _selectedEntry);
 
             _keyLabel = container.Q<DropdownField>("LocalizationKeyLabel");
-            _keyLabel.RegisterCallback<MouseDownEvent>(ShowKeySelectionWindow, TrickleDown.TrickleDown);
+            _keyLabel.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
 
             UpdateKeyFieldDisplay(_selectedEntry?.Key);
 
@@ -42,7 +43,7 @@ namespace CustomUtils.Editor.Scripts.Localization
             return container;
         }
 
-        private void ShowKeySelectionWindow(MouseDownEvent _)
+        private void ShowKeySelectionWindow()
         {
             LocalizationSelectorWindow.ShowWindow(_selectedEntry, OnSelectionChanged);
         }
