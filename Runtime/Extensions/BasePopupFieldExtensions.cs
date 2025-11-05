@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.Extensions
     [UsedImplicitly]
     public static class BasePopupFieldExtensions
     {
-        private const string UnityInputFieldCSSClass = "unity-popup-field__input";
+        private const string UnityInputFieldUSSClass = "unity-popup-field__input";
 
         /// <summary>
         /// Registers a click action on the popup field input element.
@@ -35,7 +35,7 @@ namespace CustomUtils.Runtime.Extensions
             var label = field.Q<Label>();
             label.pickingMode = PickingMode.Ignore;
 
-            var dropdownInput = field.Q(className: UnityInputFieldCSSClass);
+            var dropdownInput = field.Q(className: UnityInputFieldUSSClass);
             dropdownInput.pickingMode = PickingMode.Position;
         }
     }
