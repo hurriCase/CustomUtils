@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
@@ -15,7 +15,8 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
         private readonly SerializedProperty _serializedProperty;
         private readonly SerializedProperty _guidProperty;
         private readonly ListView _translationList;
-        private readonly DropdownField _keyDropdown;
+
+        private DropdownField _keyDropdown;
 
         private LocalizationEntry _selectedEntry;
         private List<KeyValuePair<SystemLanguage, string>> _translations;
@@ -25,33 +26,51 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
             _serializedProperty = property;
             _guidProperty = guidProperty;
 
-            _translationList = new ListView
+            _translationList = new NonReorderableListView
             {
                 headerTitle = label,
-                showFoldoutHeader = true,
-                showBoundCollectionSize = false,
-                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
                 makeItem = static () => new TextField { isReadOnly = true },
                 bindItem = BindItem
             };
 
-            var foldout = _translationList.Q<Foldout>();
-            foldout.value = false;
+            SetupKeyField(label);
 
+            SetupToggle();
+
+            Add(_translationList);
+        }
+
+        private void SetupKeyField(string label)
+        {
             _keyDropdown = new DropdownField
             {
-                label = string.Empty,
-                value = "[None]"
+                label = label,
+                value = "[None]",
+                style = { marginLeft = 0 }
             };
+
+            if (_keyDropdown.TryQ<Label>(out var fieldLabel))
+                fieldLabel.style.marginLeft = 0;
 
             _keyDropdown.AddUnityFileStyles();
             _keyDropdown.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
+        }
 
-            var toggle = foldout.Q<Toggle>();
-            toggle.AddUnityFileStyles();
-            toggle.Add(_keyDropdown);
+        private void SetupToggle()
+        {
+            if (_translationList.TryQ<Foldout>(out var foldout) is false)
+                return;
 
-            Add(_translationList);
+            foldout.value = false;
+
+            if (foldout.TryQ<Toggle>(out var toggle) is false)
+                return;
+
+            if (toggle.TryQ<Label>(out var toggleLabel))
+                toggleLabel.RemoveFromHierarchy();
+
+            if (toggle.TryQ<VisualElement>(out var toggleInput, className: Toggle.inputUssClassName))
+                toggleInput.Add(_keyDropdown);
         }
 
         internal void Initialize(LocalizationEntry entry)

@@ -10,7 +10,7 @@ namespace CustomUtils.Runtime.Extensions
     [UsedImplicitly]
     public static class BasePopupFieldExtensions
     {
-        private const string UnityInspectorFieldUssClassName = "unity-inspector-field";
+        private const string UnityInspectorFieldUssClassName = "inspector-field";
 
         /// <summary>
         /// Registers a click action on the popup field input element.
@@ -50,14 +50,32 @@ namespace CustomUtils.Runtime.Extensions
             field.AddToClassList(UnityInspectorFieldUssClassName);
         }
 
-        public static bool TryQ<TElement>(this VisualElement e,
-            out TElement element,
+        /// <summary>
+        /// Attempts to query a child element of the specified type.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the element to query for.</typeparam>
+        /// <param name="element">The visual element to query from.</param>
+        /// <param name="queriedElement">The queried element if found; otherwise, null.</param>
+        /// <param name="name">The name of the element to query for.</param>
+        /// <param name="className">The USS class name of the element to query for.</param>
+        /// <returns>True if the element was found; otherwise, false.</returns>
+        [UsedImplicitly]
+        public static bool TryQ<TElement>(
+            this VisualElement element,
+            out TElement queriedElement,
             string name = null,
             string className = null)
             where TElement : VisualElement
         {
-            element = e.Q<TElement>(name, className);
-            return element != null;
+            queriedElement = element.Q<TElement>(name, className);
+            var wasFound = queriedElement != null;
+
+#if UNITY_DEBUG
+            if (wasFound is false)
+                Debug.LogWarning($"[BasePopupFieldExtensions::TryQ] Element of {typeof(TElement)} type wasn't found");
+#endif
+
+            return wasFound;
         }
     }
 }
