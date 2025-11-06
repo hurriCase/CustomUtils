@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomUtils.Editor.Scripts.CustomEditorUtilities;
 using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.CustomTypes.Collections;
 using UnityEditor;
@@ -36,14 +37,13 @@ namespace CustomUtils.Editor.Scripts.EnumArray
         {
             var size = _entriesProperty.arraySize - _startIndex;
             var entries = Enumerable.Range(0, size).ToList();
-            var entriesList = new ListView(entries)
+
+            var entriesList = new NonReorderableListView
             {
-                showFoldoutHeader = true,
-                showBoundCollectionSize = false,
                 headerTitle = property.displayName,
-                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
                 makeItem = static () => new VisualElement(),
-                bindItem = BindItem
+                bindItem = BindItem,
+                itemsSource = entries
             };
 
             return entriesList;
