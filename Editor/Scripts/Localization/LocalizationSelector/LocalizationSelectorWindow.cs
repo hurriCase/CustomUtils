@@ -17,12 +17,12 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
         private LocalizationEntry _currentLocalizationEntry;
         private Action<LocalizationEntry> _onSelectionChanged;
 
-        internal static void ShowWindow(LocalizationEntry localizationEntry, Action<LocalizationEntry> onSelectionChanged)
+        internal static void ShowWindow(LocalizationEntry entry, Action<LocalizationEntry> onSelectionChanged)
         {
             var window = CreateInstance<LocalizationSelectorWindow>();
 
             window.titleContent = new GUIContent("Localization Selector");
-            window._currentLocalizationEntry = localizationEntry;
+            window._currentLocalizationEntry = entry;
             window._onSelectionChanged = onSelectionChanged;
 
             window.ShowUtility();
@@ -113,6 +113,8 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
             _currentLocalizationEntry = localizationEntry;
             SetupCurrentSelection();
             _onSelectionChanged?.Invoke(localizationEntry);
+
+            Close();
         }
     }
 }
