@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
 using CustomUtils.Runtime.Extensions;
@@ -7,37 +8,26 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CustomUtils.Editor.Scripts.Localization.Drawer
+namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
 {
     internal sealed class LocalizationKeyElement : VisualElement
     {
         private readonly SerializedProperty _serializedProperty;
         private readonly SerializedProperty _guidProperty;
-
-        private readonly DropdownField _keyLabel;
         private readonly ListView _translationList;
+        private readonly DropdownField _keyDropdown;
 
         private LocalizationEntry _selectedEntry;
         private List<KeyValuePair<SystemLanguage, string>> _translations;
-
-        private const string LocalizationKeyElementUssClassName = "localization-field";
 
         internal LocalizationKeyElement(SerializedProperty property, SerializedProperty guidProperty, string label)
         {
             _serializedProperty = property;
             _guidProperty = guidProperty;
 
-            AddToClassList(LocalizationKeyElementUssClassName);
-
-            _keyLabel = new DropdownField(label);
-            _keyLabel.AddUnityFileStyles();
-            _keyLabel.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
-
-            Add(_keyLabel);
-
             _translationList = new ListView
             {
-                headerTitle = "Translations",
+                headerTitle = label,
                 showFoldoutHeader = true,
                 showBoundCollectionSize = false,
                 virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
@@ -45,9 +35,23 @@ namespace CustomUtils.Editor.Scripts.Localization.Drawer
                 bindItem = BindItem
             };
 
-            _translationList.Q<Foldout>().value = false;
+            var foldout = _translationList.Q<Foldout>();
+            foldout.value = false;
 
-            _keyLabel.value = "[None]";
+            _keyDropdown = new DropdownField
+            {
+                label = string.Empty,
+                value = "[None]"
+            };
+
+            _keyDropdown.AddUnityFileStyles();
+            _keyDropdown.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
+
+            var toggle = foldout.Q<Toggle>();
+            toggle.AddUnityFileStyles();
+            toggle.Add(_keyDropdown);
+
+            Add(_translationList);
         }
 
         internal void Initialize(LocalizationEntry entry)
@@ -55,14 +59,13 @@ namespace CustomUtils.Editor.Scripts.Localization.Drawer
             _selectedEntry = entry;
             _translations = entry.Translations.ToList();
 
-            _keyLabel.value = entry.Key;
+            _keyDropdown.value = entry.Key;
 
             if (_translations.Count <= 0)
                 return;
 
             var indices = Enumerable.Range(0, _translations.Count).ToList();
             _translationList.itemsSource = indices;
-            Add(_translationList);
         }
 
         private void ShowKeySelectionWindow()
@@ -75,16 +78,13 @@ namespace CustomUtils.Editor.Scripts.Localization.Drawer
             _guidProperty.stringValue = selectedEntry.GUID;
             _serializedProperty.serializedObject.ApplyModifiedProperties();
 
-            _keyLabel.value = selectedEntry.Key;
+            _keyDropdown.value = selectedEntry.Key;
             _translations = selectedEntry.Translations.ToList();
 
             var indices = Enumerable.Range(0, _translations.Count).ToList();
             _translationList.itemsSource = indices;
 
             _selectedEntry = selectedEntry;
-
-            if (Contains(_translationList) is false)
-                Add(_translationList);
         }
 
         private void BindItem(VisualElement element, int index)

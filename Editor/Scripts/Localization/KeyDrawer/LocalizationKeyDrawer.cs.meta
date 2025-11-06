@@ -4,7 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - _styleSheet: {fileID: 7433441132597879392, guid: 773c47f09039499085f0133a4c83c79c, type: 3}
+  - _unityFieldStyle: {fileID: 7433441132597879392, guid: 2bde2a3eb5cd409a91ace1f23cfb864f, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

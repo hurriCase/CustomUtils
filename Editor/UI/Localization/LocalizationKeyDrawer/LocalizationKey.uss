@@ -1,4 +1,0 @@
-.localization-field {
-    flex-direction: column;
-    flex-grow: 1;
-}

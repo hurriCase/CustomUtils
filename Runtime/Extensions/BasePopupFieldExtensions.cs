@@ -31,8 +31,8 @@ namespace CustomUtils.Runtime.Extensions
                 static (_, tuple) => tuple.clickAction?.Invoke(tuple.source),
                 (source, clickAction), TrickleDown.TrickleDown);
 
-            var label = field.Q<Label>();
-            label.pickingMode = PickingMode.Ignore;
+            if (field.TryQ<Label>(out var label))
+                label.pickingMode = PickingMode.Ignore;
 
             var dropdownInput = field.Q(className: PopupField<string>.inputUssClassName);
             dropdownInput.pickingMode = PickingMode.Position;
@@ -48,6 +48,16 @@ namespace CustomUtils.Runtime.Extensions
         {
             field.AddToClassList(BaseField<TValueType>.alignedFieldUssClassName);
             field.AddToClassList(UnityInspectorFieldUssClassName);
+        }
+
+        public static bool TryQ<TElement>(this VisualElement e,
+            out TElement element,
+            string name = null,
+            string className = null)
+            where TElement : VisualElement
+        {
+            element = e.Q<TElement>(name, className);
+            return element != null;
         }
     }
 }

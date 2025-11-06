@@ -4,12 +4,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CustomUtils.Editor.Scripts.Localization.Drawer
+namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
 {
     [CustomPropertyDrawer(typeof(LocalizationKey))]
     internal sealed class LocalizationKeyDrawer : PropertyDrawer
     {
-        [SerializeField] private StyleSheet _styleSheet;
+        [SerializeField] private StyleSheet _unityFieldStyle;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
@@ -19,7 +19,7 @@ namespace CustomUtils.Editor.Scripts.Localization.Drawer
             if (LocalizationRegistry.Instance.Entries.TryGetValue(guidProperty.stringValue, out var selectedEntry))
                 rootVisualElement.Initialize(selectedEntry);
 
-            rootVisualElement.styleSheets.Add(_styleSheet);
+            rootVisualElement.styleSheets.Add(_unityFieldStyle);
 
             return rootVisualElement;
         }
