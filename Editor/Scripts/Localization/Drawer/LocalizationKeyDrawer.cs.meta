@@ -4,7 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - _localizationKeyLayout: {fileID: 9197481963319205126, guid: 633379e25b2502145896a2949b23f9ae, type: 3}
+  - _styleSheet: {fileID: 7433441132597879392, guid: 773c47f09039499085f0133a4c83c79c, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

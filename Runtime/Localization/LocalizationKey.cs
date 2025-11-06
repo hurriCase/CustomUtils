@@ -10,9 +10,6 @@ namespace CustomUtils.Runtime.Localization
     {
         [field: SerializeField] public string GUID { get; private set; }
 
-        [field: SerializeField, InspectorReadOnly]
-        internal SerializedDictionary<SystemLanguage, string> Translations { get; private set; }
-
         public bool IsValid => string.IsNullOrEmpty(GUID) is false;
     }
 }
