@@ -15,7 +15,7 @@ namespace CustomUtils.Runtime.Localization
         ResourcePaths.LocalizationRegistryAssetName,
         ResourcePaths.LocalizationSettingsResourcesPath
     )]
-    internal sealed class LocalizationRegistry : SingletonScriptableObject<LocalizationRegistry>
+    public sealed class LocalizationRegistry : SingletonScriptableObject<LocalizationRegistry>
     {
         [field: SerializeField]
         internal SerializedDictionary<string, LocalizationEntry> Entries { get; private set; } = new();
@@ -23,7 +23,7 @@ namespace CustomUtils.Runtime.Localization
         [field: SerializeField]
         internal SerializedDictionary<string, HashSet<string>> TableToGuids { get; private set; } = new();
 
-        [field: SerializeField] internal List<SystemLanguage> SupportedLanguages { get; set; } = new();
+        [field: SerializeField] public List<SystemLanguage> SupportedLanguages { get; set; } = new();
 
         internal void AddOrUpdateEntry(LocalizationEntry entry)
         {
