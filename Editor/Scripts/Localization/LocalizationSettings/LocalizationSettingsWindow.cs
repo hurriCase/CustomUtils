@@ -38,8 +38,8 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSettings
 
         protected override void CreateCustomContent()
         {
-            _customLayout.CloneTree(CustomContentSlot);
-            _elements = new LocalizationSettingsElements(CustomContentSlot);
+            _customLayout.CloneTree(rootVisualElement);
+            _elements = new LocalizationSettingsElements(rootVisualElement);
 
             SetupDefaultLanguageField();
             SetupSheetExportSection();

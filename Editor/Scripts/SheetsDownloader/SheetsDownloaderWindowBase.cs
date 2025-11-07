@@ -14,16 +14,10 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
         where TDatabase : SheetsDatabase<TDatabase, TSheet>
         where TSheet : Sheet, new()
     {
-        [SerializeField] private VisualTreeAsset _baseLayout;
-        [SerializeField] private VisualTreeAsset _sheetItemLayout;
-
-        protected VisualElement CustomContentSlot { get; private set; }
         protected abstract TDatabase Database { get; }
 
         private SheetsDownloader<TDatabase, TSheet> _sheetsDownloader;
         private SerializedObject _serializedObject;
-
-        private SheetsDownloaderElements _elements;
 
         protected abstract void CreateCustomContent();
         protected virtual void OnSheetsDownloaded() { }
@@ -37,27 +31,38 @@ namespace CustomUtils.Editor.Scripts.SheetsDownloader
 
         protected void CreateGUI()
         {
-            _baseLayout.CloneTree(rootVisualElement);
-            _elements = new SheetsDownloaderElements(rootVisualElement);
-
+            _serializedObject = new SerializedObject(Database);
             _sheetsDownloader = new SheetsDownloader<TDatabase, TSheet>(Database);
 
-            _serializedObject = new SerializedObject(Database);
+            CreateButtons();
 
-            _serializedObject.CreateProperty(nameof(Database.TableId), _elements.TableIdContainer);
-            _serializedObject.CreateProperty(nameof(Database.Sheets), _elements.SheetsContainer);
-
-            SetupButtons();
-
-            CustomContentSlot = rootVisualElement.Q<VisualElement>("CustomContentSlot");
+            _serializedObject.CreateProperty(nameof(Database.TableId), rootVisualElement);
+            _serializedObject.CreateProperty(nameof(Database.Sheets), rootVisualElement);
 
             CreateCustomContent();
         }
 
-        private void SetupButtons()
+        private void CreateButtons()
         {
-            _elements.DownloadAllButton.clicked += () => ProcessDownloadSheetsAsync().Forget();
-            _elements.OpenGoogleButton.clicked += OpenGoogleSheet;
+            var buttonContainer = new VisualElement();
+            buttonContainer.AddToClassList("unity-base-field");
+
+            var downloadAllButton = new Button(() => ProcessDownloadSheetsAsync().Forget())
+            {
+                text = "Download All Sheets",
+                style = { flexGrow = 1 }
+            };
+
+            var openGoogleButton = new Button(OpenGoogleSheet)
+            {
+                text = "Open Google Sheet",
+                style = { flexGrow = 1 }
+            };
+
+            buttonContainer.Add(downloadAllButton);
+            buttonContainer.Add(openGoogleButton);
+
+            rootVisualElement.Add(buttonContainer);
         }
 
         private async UniTaskVoid ProcessDownloadSingleSheetAsync(TSheet sheet)
