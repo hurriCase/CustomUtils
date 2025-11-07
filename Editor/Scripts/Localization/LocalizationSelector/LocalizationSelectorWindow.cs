@@ -12,6 +12,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
         [SerializeField] private VisualTreeAsset _windowLayout;
 
         private const string AllTablesName = "all tables";
+        private const string TableNameKey = "tableName";
 
         private LocalizationSelectorElements _elements;
         private LocalizationEntry _currentLocalizationEntry;
@@ -47,7 +48,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
             tableNames.Insert(0, AllTablesName);
 
             _elements.TableNamesDropdown.choices = tableNames;
-            _elements.TableNamesDropdown.value = tableNames[0];
+            _elements.TableNamesDropdown.value = EditorPrefs.GetString(TableNameKey, AllTablesName);;
             _elements.TableNamesDropdown.RegisterValueChangedCallback(OnSearchChanged);
         }
 
@@ -89,7 +90,12 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
 
         private void OnSearchChanged(ChangeEvent<string> changeEvent)
         {
-            var tableName = _elements.TableNamesDropdown.value == AllTablesName ? null : _elements.TableNamesDropdown.value;
+            var tableName = _elements.TableNamesDropdown.value == AllTablesName
+                ? null
+                : _elements.TableNamesDropdown.value;
+
+            EditorPrefs.SetString(TableNameKey, _elements.TableNamesDropdown.value);
+
             _elements.LocalizationEntriesList.itemsSource = LocalizationRegistry.Instance.SearchEntries(
                 _elements.SearchTextField.value,
                 tableName);
