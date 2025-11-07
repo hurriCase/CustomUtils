@@ -14,10 +14,10 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var guidProperty = property.FindFieldRelative(nameof(LocalizationKey.GUID));
-            var rootVisualElement = new LocalizationKeyElement(property, guidProperty, preferredLabel);
+            var rootVisualElement = new LocalizationKeyElement(guidProperty, preferredLabel);
 
             if (LocalizationRegistry.Instance.Entries.TryGetValue(guidProperty.stringValue, out var selectedEntry))
-                rootVisualElement.Initialize(selectedEntry);
+                rootVisualElement.UpdateLocalizationKey(selectedEntry);
 
             rootVisualElement.styleSheets.Add(_unityFieldStyle);
 
