@@ -21,16 +21,17 @@ namespace CustomUtils.Runtime.Localization
         internal SerializedDictionary<string, LocalizationEntry> Entries { get; private set; } = new();
         [field: SerializeField] public List<SystemLanguage> SupportedLanguages { get; set; } = new();
 
-        internal IReadOnlyDictionary<string, HashSet<string>> TableToGuids => _tableToGuids;
+        internal IReadOnlyDictionary<string, List<string>> TableToGuids => _tableToGuids;
 
-        private readonly Dictionary<string, HashSet<string>> _tableToGuids = new();
+        [field: SerializeField, HideInInspector]
+        private SerializedDictionary<string, List<string>> _tableToGuids = new();
 
         internal void AddOrUpdateEntry(LocalizationEntry entry)
         {
             Entries[entry.GUID] = entry;
 
             if (_tableToGuids.ContainsKey(entry.TableName) is false)
-                _tableToGuids[entry.TableName] = new HashSet<string>();
+                _tableToGuids[entry.TableName] = new List<string>();
 
             _tableToGuids[entry.TableName].Add(entry.GUID);
 
@@ -39,14 +40,12 @@ namespace CustomUtils.Runtime.Localization
 
         internal IList SearchEntries(string searchText, string tableName = null)
         {
-            var entriesToSearch = string.IsNullOrEmpty(tableName)
-                ? Entries.Values
-                : GetEntriesForTable(tableName);
+            var entries = GetEntriesFromTable(tableName);
 
             if (string.IsNullOrEmpty(searchText))
-                return entriesToSearch.ToArray();
+                return entries;
 
-            return entriesToSearch
+            return entries
                 .Where(entry => entry.Key.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
         }
@@ -58,9 +57,14 @@ namespace CustomUtils.Runtime.Localization
             this.MarkAsDirty();
         }
 
-        private IReadOnlyCollection<LocalizationEntry> GetEntriesForTable(string tableName) =>
-            _tableToGuids.TryGetValue(tableName, out var guids)
-                ? guids.Select(guid => Entries[guid]).ToArray()
-                : Array.Empty<LocalizationEntry>();
+        private LocalizationEntry[] GetEntriesFromTable(string tableName)
+        {
+            if (string.IsNullOrEmpty(tableName))
+                return Entries.Values.ToArray();
+
+            return _tableToGuids.TryGetValue(tableName, out var guids) is false
+                ? Array.Empty<LocalizationEntry>()
+                : guids.Select(guid => Entries[guid]).ToArray();
+        }
     }
 }
