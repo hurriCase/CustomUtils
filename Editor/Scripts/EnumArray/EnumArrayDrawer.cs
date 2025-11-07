@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CustomUtils.Editor.Scripts.CustomEditorUtilities;
-using CustomUtils.Editor.Scripts.Extensions;
+﻿using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.CustomTypes.Collections;
+using CustomUtils.Runtime.Extensions;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -19,51 +16,35 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            if (TryGetEnumType(fieldInfo.FieldType, out var enumType) is false)
+            if (fieldInfo.FieldType.TryGetEnumType(out var enumType) is false)
                 return null;
 
             var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
             _startIndex = (EnumMode)enumModeProperty.enumValueIndex == EnumMode.SkipFirst ? 1 : 0;
 
-            _enumNames = GetDistinctEnumNames(enumType);
-
+            _enumNames = enumType.GetDistinctEnumNames();
             _entriesProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.Entries));
 
             EnsureSize();
 
-            return CreateEntries(property);
+            var container = new Foldout { text = preferredLabel };
+
+            CreateEntries(container);
+
+            return container;
         }
 
-        private VisualElement CreateEntries(SerializedProperty property)
+        private void CreateEntries(VisualElement container)
         {
-            var size = _entriesProperty.arraySize;
-            var entries = Enumerable.Range(_startIndex, size).ToList();
-
-            var entriesList = new NonReorderableListView
+            for (var i = _startIndex; i < _entriesProperty.arraySize; i++)
             {
-                headerTitle = property.displayName,
-                makeItem = static () => new VisualElement(),
-                bindItem = BindItem,
-                itemsSource = entries
-            };
+                var entryProperty = _entriesProperty.GetArrayElementAtIndex(i);
+                var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
 
-            return entriesList;
-        }
+                var propertyField = new PropertyField(valueProperty, _enumNames[i]);
 
-        private void BindItem(VisualElement container, int index)
-        {
-            if (index < _startIndex)
-                return;
-
-            container.Clear();
-
-            var entryProperty = _entriesProperty.GetArrayElementAtIndex(index);
-            var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
-
-            var propertyField = new PropertyField(valueProperty, _enumNames[index]);
-            propertyField.BindProperty(valueProperty);
-
-            container.Add(propertyField);
+                container.Add(propertyField);
+            }
         }
 
         private void EnsureSize()
@@ -76,39 +57,6 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
             _entriesProperty.serializedObject.ApplyModifiedProperties();
             _entriesProperty.serializedObject.Update();
-        }
-
-        private string[] GetDistinctEnumNames(Type enumType)
-        {
-            var names = Enum.GetNames(enumType);
-            var values = Enum.GetValues(enumType);
-            var distinctNames = new List<string>();
-            var seenValues = new HashSet<int>();
-
-            for (var i = 0; i < names.Length; i++)
-            {
-                var intValue = Convert.ToInt32(values.GetValue(i));
-                if (seenValues.Add(intValue))
-                    distinctNames.Add(names[i]);
-            }
-
-            return distinctNames.ToArray();
-        }
-
-        private bool TryGetEnumType(Type type, out Type enumType)
-        {
-            enumType = null;
-            if (type.IsArray)
-                type = type.GetElementType();
-            if (type is null)
-                return false;
-
-            var genericArgs = type.GetGenericArguments();
-            if (genericArgs.Length <= 0)
-                return false;
-
-            enumType = genericArgs[0];
-            return true;
         }
     }
 }
