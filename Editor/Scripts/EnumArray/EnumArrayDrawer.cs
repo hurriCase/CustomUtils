@@ -22,11 +22,12 @@ namespace CustomUtils.Editor.Scripts.EnumArray
             if (TryGetEnumType(fieldInfo.FieldType, out var enumType) is false)
                 return null;
 
+            var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
+            _startIndex = (EnumMode)enumModeProperty.enumValueIndex == EnumMode.SkipFirst ? 1 : 0;
+
             _enumNames = GetDistinctEnumNames(enumType);
 
             _entriesProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.Entries));
-            var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
-            _startIndex = (EnumMode)enumModeProperty.enumValueIndex == EnumMode.SkipFirst ? 1 : 0;
 
             EnsureSize();
 
@@ -35,8 +36,8 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
         private VisualElement CreateEntries(SerializedProperty property)
         {
-            var size = _entriesProperty.arraySize - _startIndex;
-            var entries = Enumerable.Range(0, size).ToList();
+            var size = _entriesProperty.arraySize;
+            var entries = Enumerable.Range(_startIndex, size).ToList();
 
             var entriesList = new NonReorderableListView
             {
@@ -51,11 +52,12 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
         private void BindItem(VisualElement container, int index)
         {
+            if (index < _startIndex)
+                return;
+
             container.Clear();
 
-            var actualIndex = index + _startIndex;
-
-            var entryProperty = _entriesProperty.GetArrayElementAtIndex(actualIndex);
+            var entryProperty = _entriesProperty.GetArrayElementAtIndex(index);
             var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
 
             var propertyField = new PropertyField(valueProperty, _enumNames[index]);
