@@ -27,7 +27,7 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
             EnsureSize();
 
-            var container = new Foldout { text = preferredLabel };
+            var container = new Foldout { text = preferredLabel, viewDataKey = preferredLabel };
 
             CreateEntries(container);
 
