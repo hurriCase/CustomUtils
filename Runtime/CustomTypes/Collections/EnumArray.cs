@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure. Must be an unmanaged, Enum type.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
     [Serializable, UsedImplicitly, MemoryPackable]
-    public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>
+    public partial struct EnumArray<TEnum, TValue> : IEnumerable<TValue>, IEquatable<EnumArray<TEnum, TValue>>
         where TEnum : unmanaged, Enum
     {
         /// <summary>
@@ -35,7 +35,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// Gets the total number of elements in the array associated with the underlying enum type.
         /// </summary>
         [UsedImplicitly, MemoryPackIgnore]
-        public int Length => Entries?.Length ?? 0;
+        public int Length => Entries.Length;
 
         [MemoryPackIgnore]
         private static int GetValuesCount =>
@@ -154,5 +154,72 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <returns>A boxed enumerator for the array of values.</returns>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Determines whether the specified EnumArray is equal to the current EnumArray.
+        /// Compares both the enumeration mode and all array elements for equality.
+        /// </summary>
+        /// <param name="other">The EnumArray to compare with the current instance.</param>
+        /// <returns>true if the specified EnumArray is equal to the current instance; otherwise, false.</returns>
+        public readonly bool Equals(EnumArray<TEnum, TValue> other)
+        {
+            if (EnumMode != other.EnumMode)
+                return false;
+
+            if (Entries == null && other.Entries == null)
+                return true;
+
+            if (Entries == null || other.Entries == null)
+                return false;
+
+            if (Entries.Length != other.Entries.Length)
+                return false;
+
+            for (var i = 0; i < Entries.Length; i++)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(Entries[i].Value, other.Entries[i].Value) is false)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current EnumArray.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current instance.</param>
+        /// <returns>true if the specified object is equal to the current instance; otherwise, false.</returns>
+        public readonly override bool Equals(object obj) =>
+            obj is EnumArray<TEnum, TValue> other && Equals(other);
+
+        /// <summary>
+        /// Returns the hash code for the current EnumArray instance.
+        /// </summary>
+        /// <returns>A hash code for the current instance.</returns>
+        public readonly override int GetHashCode()
+        {
+            if (Entries == null)
+                return EnumMode.GetHashCode();
+
+            var hash = new HashCode();
+            hash.Add(EnumMode);
+
+            foreach (var entry in Entries)
+                hash.Add(entry.Value);
+
+            return hash.ToHashCode();
+        }
+
+        /// <summary>
+        /// Determines whether two EnumArray instances are equal.
+        /// </summary>
+        public static bool operator ==(EnumArray<TEnum, TValue> left, EnumArray<TEnum, TValue> right) =>
+            left.Equals(right);
+
+        /// <summary>
+        /// Determines whether two EnumArray instances are not equal.
+        /// </summary>
+        public static bool operator !=(EnumArray<TEnum, TValue> left, EnumArray<TEnum, TValue> right) =>
+            !left.Equals(right);
     }
 }
