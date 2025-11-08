@@ -26,16 +26,11 @@ namespace CustomUtils.Runtime.Extensions
             TSource source,
             Action<TSource> clickAction)
         {
-            field.pickingMode = PickingMode.Ignore;
-            field.RegisterCallback<ClickEvent, (TSource source, Action<TSource> clickAction)>(
+            var inputFiend = field.Q(className: PopupField<string>.inputUssClassName);
+            inputFiend.pickingMode = PickingMode.Position;
+            inputFiend.RegisterCallback<ClickEvent, (TSource source, Action<TSource> clickAction)>(
                 static (_, tuple) => tuple.clickAction?.Invoke(tuple.source),
                 (source, clickAction), TrickleDown.TrickleDown);
-
-            if (field.TryQ<Label>(out var label))
-                label.pickingMode = PickingMode.Ignore;
-
-            var dropdownInput = field.Q(className: PopupField<string>.inputUssClassName);
-            dropdownInput.pickingMode = PickingMode.Position;
         }
 
         /// <summary>
