@@ -37,6 +37,7 @@ namespace CustomUtils.Editor.Scripts.Localization.LocalizationSelector
             SetupTableNamesDropdown();
 
             _elements.SearchTextField.RegisterValueChangedCallback(OnSearchChanged);
+            _elements.SearchTextField.Focus();
 
             SetupCurrentSelection();
             SetupLocalizationEntriesList();
