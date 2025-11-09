@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using CustomUtils.Unsafe.Unsafe;
+using CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using MemoryPack;
 using UnityEngine;

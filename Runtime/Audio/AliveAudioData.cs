@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomUtils.Unsafe.CustomUtils.Unsafe;
+using CustomUtils.Unsafe;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.Audio

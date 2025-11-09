@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-namespace CustomUtils.Unsafe.CustomUtils.Unsafe
+namespace CustomUtils.Unsafe
 {
     /// <summary>
     /// Fast enum to int conversion using unsafe code. Zero allocations.
