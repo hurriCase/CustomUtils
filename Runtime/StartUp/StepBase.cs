@@ -1,40 +1,47 @@
 ﻿using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
+using R3;
 using UnityEngine;
 
 namespace CustomUtils.Runtime.StartUp
 {
-    // ReSharper disable once MemberCanBeInternal
+    /// <inheritdoc />
     /// <summary>
-    /// Base class for initialization steps in the application startup process.
+    /// Base class for startup initialization steps.
     /// </summary>
-    public abstract class StepBase
+    [PublicAPI]
+    public abstract class StepBase : ScriptableObject
     {
         /// <summary>
-        /// Event that is triggered when the step completes execution.
+        /// Gets an observable that emits when the step completes execution.
         /// </summary>
-        /// <remarks>
-        /// The first parameter is the step index, and the second parameter is the step name.
-        /// </remarks>
-        public event Action<int, string> OnStepCompleted;
+        public Observable<StepData> OnStepCompletedObservable => _stepCompletedSubject.AsObservable();
 
-        internal virtual async UniTask Execute(int step)
+        private readonly Subject<StepData> _stepCompletedSubject = new();
+
+        protected const string InitializationStepsPath = "Initialization Steps/";
+
+        internal async UniTask Execute(int step, CancellationToken token)
         {
             try
             {
-                await ExecuteInternal();
-                OnStepCompleted?.Invoke(step, GetType().Name);
+                await ExecuteInternal(token);
+                _stepCompletedSubject.OnNext(new StepData(step, GetType().Name));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.LogError($"[{GetType().Name}::Execute] Step initialization failed: {e.Message}");
+                Debug.LogError($"[{GetType().Name}::Execute] Step initialization failed: {ex.Message}");
+                Debug.LogException(ex);
             }
         }
 
         /// <summary>
-        /// Contains the core implementation for the specific step.
+        /// Executes the internal initialization logic for the step.
         /// </summary>
-        /// <returns>A Task representing the asynchronous operation.</returns>
-        protected abstract UniTask ExecuteInternal();
+        /// <param name="token">The cancellation token to stop execution.</param>
+        /// <returns>A task representing the asynchronous execution operation.</returns>
+        protected abstract UniTask ExecuteInternal(CancellationToken token);
     }
 }
