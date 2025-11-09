@@ -8,7 +8,6 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeColors
     internal sealed class ThemeSolidColor : IThemeColor<Color>
     {
         [field: SerializeField] public string Name { get; private set; }
-        [field: SerializeField] public EnumArray<ThemeType, Color> Colors { get; private set; } =
-            new(EnumMode.SkipFirst);
+        [field: SerializeField] public EnumArray<ThemeType, Color> Colors { get; private set; }
     }
 }

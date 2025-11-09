@@ -1,29 +1,26 @@
 ﻿using CustomUtils.Editor.Scripts.Extensions;
+using CustomUtils.Runtime.CustomTypes;
 using CustomUtils.Runtime.CustomTypes.Collections;
 using CustomUtils.Runtime.Extensions;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace CustomUtils.Editor.Scripts.EnumArray
+namespace CustomUtils.Editor.Scripts
 {
     [CustomPropertyDrawer(typeof(EnumArray<,>))]
     public class EnumArrayDrawer : PropertyDrawer
     {
         private SerializedProperty _entriesProperty;
         private string[] _enumNames;
-        private int _startIndex;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             if (fieldInfo.FieldType.TryGetEnumType(out var enumType) is false)
                 return null;
 
-            var enumModeProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.EnumMode));
-            _startIndex = (EnumMode)enumModeProperty.enumValueIndex == EnumMode.SkipFirst ? 1 : 0;
-
             _enumNames = enumType.GetDistinctEnumNames();
-            _entriesProperty = property.FindFieldRelative(nameof(EnumArray<EnumMode, object>.Entries));
+            _entriesProperty = property.FindFieldRelative(nameof(EnumArray<NoneEnum, object>.Entries));
 
             EnsureSize();
 
@@ -36,7 +33,7 @@ namespace CustomUtils.Editor.Scripts.EnumArray
 
         private void CreateEntries(VisualElement container)
         {
-            for (var i = _startIndex; i < _entriesProperty.arraySize; i++)
+            for (var i = 0; i < _entriesProperty.arraySize; i++)
             {
                 var entryProperty = _entriesProperty.GetArrayElementAtIndex(i);
                 var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
