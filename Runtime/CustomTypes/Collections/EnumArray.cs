@@ -112,6 +112,15 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         }
 
         /// <summary>
+        /// Clears all entries in the array, setting them to their default values.
+        /// </summary>
+        [UsedImplicitly]
+        public void Clear()
+        {
+            Array.Clear(Entries, 0, Entries.Length);
+        }
+
+        /// <summary>
         /// Enumerates over (key, value) tuples like a dictionary without allocations.
         /// </summary>
         /// <returns>A struct enumerator that iterates through key-value pairs.</returns>
