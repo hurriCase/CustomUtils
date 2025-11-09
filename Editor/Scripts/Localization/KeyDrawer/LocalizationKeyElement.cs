@@ -1,38 +1,65 @@
-﻿using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
+﻿using AYellowpaper.SerializedCollections;
+using CustomUtils.Editor.Scripts.Localization.LocalizationSelector;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Localization;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
 {
     internal sealed class LocalizationKeyElement : VisualElement
     {
+        private const string NoneValue = "[None]";
+
+        private SerializedDictionary<string, LocalizationEntry> Entries => LocalizationRegistry.Instance.Entries;
+
         private readonly SerializedProperty _guidProperty;
         private readonly Foldout _translationsContainer;
-
-        private DropdownField _keyDropdown;
+        private readonly DropdownField _keyDropdown;
 
         private LocalizationEntry _selectedEntry;
 
         internal LocalizationKeyElement(SerializedProperty guidProperty, string label)
         {
             _guidProperty = guidProperty;
-
             _translationsContainer = new Foldout { text = label };
+            _keyDropdown = CreateKeyDropdown(label);
 
-            SetupKeyField(label);
-
-            SetupToggle();
-
+            SetupFoldoutToggle();
             Add(_translationsContainer);
+
+            OnPropertyChanged(_guidProperty);
+            this.TrackPropertyValue(_guidProperty, OnPropertyChanged);
         }
 
-        internal void UpdateLocalizationKey(LocalizationEntry entry)
+        private void OnPropertyChanged(SerializedProperty property)
+        {
+            if (Entries.TryGetValue(property.stringValue, out var entry))
+                UpdateLocalizationKey(entry);
+        }
+
+        private void ChangeLocalizationKey(LocalizationEntry selectedEntry)
+        {
+            Undo.RecordObject(_guidProperty.serializedObject.targetObject, "Change Localization Key");
+
+            _guidProperty.stringValue = selectedEntry.GUID;
+            _guidProperty.serializedObject.ApplyModifiedProperties();
+
+            UpdateLocalizationKey(selectedEntry);
+        }
+
+        private void UpdateLocalizationKey(LocalizationEntry entry)
         {
             _selectedEntry = entry;
-
             _keyDropdown.value = entry.Key;
+
+            DisplayTranslations(entry);
+        }
+
+        private void DisplayTranslations(LocalizationEntry entry)
+        {
+            _translationsContainer.Clear();
 
             foreach (var (systemLanguage, localization) in entry.Translations)
             {
@@ -52,27 +79,43 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
             LocalizationSelectorWindow.ShowWindow(_selectedEntry, ChangeLocalizationKey);
         }
 
-        private void ChangeLocalizationKey(LocalizationEntry selectedEntry)
+        private void SetupFoldoutToggle()
         {
-            _guidProperty.stringValue = selectedEntry.GUID;
-            _guidProperty.serializedObject.ApplyModifiedProperties();
+            if (_translationsContainer.TryQ(out Foldout foldout) is false)
+                return;
 
-            UpdateLocalizationKey(selectedEntry);
+            foldout.value = false;
+
+            if (foldout.TryQ(out Toggle toggle) is false)
+                return;
+
+            if (toggle.TryQ(out Label toggleLabel))
+                toggleLabel.RemoveFromHierarchy();
+
+            if (toggle.TryQ(out VisualElement toggleInput, className: Toggle.inputUssClassName))
+                toggleInput.Add(_keyDropdown);
         }
 
-        private void SetupKeyField(string label)
+        private DropdownField CreateKeyDropdown(string label)
         {
-            _keyDropdown = new DropdownField
+            var dropdown = new DropdownField
             {
                 label = label,
-                value = "[None]",
+                value = NoneValue,
                 style = { marginLeft = 0 }
             };
 
-            _keyDropdown.AddUnityFileStyles();
-            _keyDropdown.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
+            dropdown.AddUnityFileStyles();
+            dropdown.RegisterInputClick(this, static self => self.ShowKeySelectionWindow());
 
-            if (_keyDropdown.TryQ<Label>(out var fieldLabel) is false)
+            SetupDropdownLabel(dropdown);
+
+            return dropdown;
+        }
+
+        private void SetupDropdownLabel(VisualElement dropdown)
+        {
+            if (dropdown.TryQ(out Label fieldLabel) is false)
                 return;
 
             fieldLabel.style.marginLeft = 0;
@@ -83,23 +126,23 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
             }));
         }
 
-        private void AppendCopyAction(ContextualMenuPopulateEvent menuPopulateEvent)
+        private void AppendCopyAction(ContextualMenuPopulateEvent menuEvent)
         {
             var copyState = _selectedEntry != null
                 ? DropdownMenuAction.Status.Normal
                 : DropdownMenuAction.Status.Disabled;
 
-            menuPopulateEvent.menu.AppendAction("Copy Localization Key", CopyGUID, copyState);
+            menuEvent.menu.AppendAction("Copy Localization Key", CopyGUID, copyState);
         }
 
-        private void AppendPasteAction(ContextualMenuPopulateEvent menuPopulateEvent)
+        private void AppendPasteAction(ContextualMenuPopulateEvent menuEvent)
         {
             var clipboardContent = EditorGUIUtility.systemCopyBuffer;
-            var pasteState = LocalizationRegistry.Instance.Entries.ContainsKey(clipboardContent)
+            var pasteState = Entries.ContainsKey(clipboardContent)
                 ? DropdownMenuAction.Status.Normal
                 : DropdownMenuAction.Status.Disabled;
 
-            menuPopulateEvent.menu.AppendAction("Paste Localization Key", PasteLocalizationKey, pasteState);
+            menuEvent.menu.AppendAction("Paste Localization Key", PasteLocalizationKey, pasteState);
         }
 
         private void CopyGUID(DropdownMenuAction _)
@@ -109,29 +152,16 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
 
         private void PasteLocalizationKey(DropdownMenuAction _)
         {
-            if (string.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer))
+            var clipboardContent = EditorGUIUtility.systemCopyBuffer;
+
+            if (string.IsNullOrEmpty(clipboardContent))
+            {
                 ChangeLocalizationKey(null);
+                return;
+            }
 
-            var guid = EditorGUIUtility.systemCopyBuffer;
-            if (LocalizationRegistry.Instance.Entries.TryGetValue(guid, out var entry))
+            if (Entries.TryGetValue(clipboardContent, out var entry))
                 ChangeLocalizationKey(entry);
-        }
-
-        private void SetupToggle()
-        {
-            if (_translationsContainer.TryQ<Foldout>(out var foldout) is false)
-                return;
-
-            foldout.value = false;
-
-            if (foldout.TryQ<Toggle>(out var toggle) is false)
-                return;
-
-            if (toggle.TryQ<Label>(out var toggleLabel))
-                toggleLabel.RemoveFromHierarchy();
-
-            if (toggle.TryQ<VisualElement>(out var toggleInput, className: Toggle.inputUssClassName))
-                toggleInput.Add(_keyDropdown);
         }
     }
 }

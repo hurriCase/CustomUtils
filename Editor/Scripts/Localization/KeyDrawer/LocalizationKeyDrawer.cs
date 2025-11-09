@@ -16,9 +16,6 @@ namespace CustomUtils.Editor.Scripts.Localization.KeyDrawer
             var guidProperty = property.FindFieldRelative(nameof(LocalizationKey.GUID));
             var rootVisualElement = new LocalizationKeyElement(guidProperty, preferredLabel);
 
-            if (LocalizationRegistry.Instance.Entries.TryGetValue(guidProperty.stringValue, out var selectedEntry))
-                rootVisualElement.UpdateLocalizationKey(selectedEntry);
-
             rootVisualElement.styleSheets.Add(_unityFieldStyle);
 
             return rootVisualElement;
