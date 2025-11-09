@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using MemoryPack;
@@ -11,14 +12,12 @@ using ZLinq;
 namespace CustomUtils.Runtime.CustomTypes.Collections
 {
     /// <summary>
-    /// A generic struct that associates an array of values with an underlying enum type as keys.
+    /// A generic class that associates an array of values with an underlying enum type as keys.
     /// </summary>
     /// <typeparam name="TEnum">The enum type to be used as keys for this structure.</typeparam>
     /// <typeparam name="TValue">The type of values to be stored in the array.</typeparam>
     [Serializable, UsedImplicitly, MemoryPackable]
-    public partial struct EnumArray<TEnum, TValue> :
-        IEnumerable<TValue>, IEquatable<EnumArray<TEnum, TValue>>,
-        ISerializationCallbackReceiver
+    public partial class EnumArray<TEnum, TValue> : IEnumerable<TValue>, IEquatable<EnumArray<TEnum, TValue>>
         where TEnum : unmanaged, Enum
     {
         /// <summary>
@@ -31,7 +30,7 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// Gets the total number of elements in the array associated with the underlying enum type.
         /// </summary>
         [UsedImplicitly, MemoryPackIgnore]
-        public int Length => Entries?.Length ?? 0;
+        public int Length => Entries.Length;
 
         internal static string EntriesPropertyName => nameof(Entries);
 
@@ -40,6 +39,18 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
             Enum.GetValues(typeof(TEnum)).Cast<TEnum>()
                 .Distinct()
                 .Count();
+
+        /// <summary>
+        /// Initializes a new instance of the EnumArray with default values for all elements.
+        /// </summary>
+        [UsedImplicitly]
+        public EnumArray()
+        {
+            Entries = new Entry<TValue>[GetValuesCount];
+
+            for (var i = 0; i < Entries.Length; i++)
+                Entries[i] = new Entry<TValue>();
+        }
 
         /// <summary>
         /// Initializes a new instance of the EnumArray with all elements set to the specified default value.
@@ -100,25 +111,6 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
             set => Entries[index].Value = value;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void OnBeforeSerialize()
-        {
-            // No action needed
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void OnAfterDeserialize()
-        {
-            if (Entries != null && Entries.Length != 0)
-                return;
-
-            var count = GetValuesCount;
-            Entries = new Entry<TValue>[count];
-
-            for (var i = 0; i < count; i++)
-                Entries[i] = new Entry<TValue>();
-        }
-
         /// <summary>
         /// Enumerates over (key, value) tuples like a dictionary without allocations.
         /// </summary>
@@ -127,24 +119,16 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public TupleEnumerator<TEnum, TValue> AsTuples() => new(this);
 
         /// <summary>
-        ///
+        /// Returns a struct enumerator for iterating through the array of values.
         /// </summary>
         /// <returns>A struct enumerator for the array of values.</returns>
         [UsedImplicitly]
         public Enumerator<TValue> GetEnumerator() => new(Entries);
 
-        /// <summary>
-        /// Explicit interface implementation that boxes the struct enumerator only when needed.
-        /// Use the non-generic GetEnumerator() for better performance.
-        /// </summary>
-        /// <returns>A boxed enumerator for the array of values.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
 
-        /// <summary>
-        /// Explicit interface implementation for non-generic enumeration.
-        /// Use the non-generic GetEnumerator() for better performance.
-        /// </summary>
-        /// <returns>A boxed enumerator for the array of values.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
@@ -152,13 +136,13 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <param name="other">The EnumArray to compare with the current instance.</param>
         /// <returns>true if the specified EnumArray is equal to the current instance; otherwise, false.</returns>
-        public readonly bool Equals(EnumArray<TEnum, TValue> other)
+        public bool Equals(EnumArray<TEnum, TValue> other)
         {
-            if (Entries == null && other.Entries == null)
-                return true;
-
-            if (Entries == null || other.Entries == null)
+            if (ReferenceEquals(null, other))
                 return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
 
             if (Entries.Length != other.Entries.Length)
                 return false;
@@ -177,36 +161,25 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// </summary>
         /// <param name="obj">The object to compare with the current instance.</param>
         /// <returns>true if the specified object is equal to the current instance; otherwise, false.</returns>
-        public readonly override bool Equals(object obj) =>
+        public override bool Equals(object obj) =>
             obj is EnumArray<TEnum, TValue> other && Equals(other);
 
         /// <summary>
         /// Returns the hash code for the current EnumArray instance.
         /// </summary>
         /// <returns>A hash code for the current instance.</returns>
-        public readonly override int GetHashCode()
-        {
-            if (Entries == null)
-                return 0;
-
-            var hash = new HashCode();
-
-            foreach (var entry in Entries)
-                hash.Add(entry.Value);
-
-            return hash.ToHashCode();
-        }
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
 
         /// <summary>
         /// Determines whether two EnumArray instances are equal.
         /// </summary>
         public static bool operator ==(EnumArray<TEnum, TValue> left, EnumArray<TEnum, TValue> right) =>
-            left.Equals(right);
+            Equals(left, right);
 
         /// <summary>
         /// Determines whether two EnumArray instances are not equal.
         /// </summary>
         public static bool operator !=(EnumArray<TEnum, TValue> left, EnumArray<TEnum, TValue> right) =>
-            left.Equals(right) is false;
+            Equals(left, right) is false;
     }
 }
