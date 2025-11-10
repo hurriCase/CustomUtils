@@ -9,21 +9,15 @@ namespace CustomUtils.Runtime.UI.Theme
     public enum ThemeType
     {
         /// <summary>
-        /// No theme selected or default state.
-        /// </summary>
-        [UsedImplicitly]
-        None = 0,
-
-        /// <summary>
         /// Light theme variant with bright colors and light backgrounds.
         /// </summary>
         [UsedImplicitly]
-        Light = 1,
+        Light = 0,
 
         /// <summary>
         /// Dark theme variant with dark colors and dark backgrounds.
         /// </summary>
         [UsedImplicitly]
-        Dark = 2
+        Dark = 1
     }
 }
