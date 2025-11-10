@@ -1,4 +1,6 @@
-﻿using CustomUtils.Editor.Scripts.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using CustomUtils.Editor.Scripts.Extensions;
 using CustomUtils.Runtime.CustomTypes;
 using CustomUtils.Runtime.CustomTypes.Collections;
 using CustomUtils.Runtime.Extensions;
@@ -12,6 +14,10 @@ namespace CustomUtils.Editor.Scripts
     public class EnumArrayDrawer : PropertyDrawer
     {
         private SerializedProperty _entriesProperty;
+        private SerializedProperty _rootProperty;
+        private VisualElement _container;
+
+        private readonly List<PropertyField> _entries = new();
         private string[] _enumNames;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -19,16 +25,46 @@ namespace CustomUtils.Editor.Scripts
             if (fieldInfo.FieldType.TryGetEnumType(out var enumType) is false)
                 return null;
 
+            _rootProperty = property;
             _enumNames = enumType.GetDistinctEnumNames();
             _entriesProperty = property.FindFieldRelative(nameof(EnumArray<NoneEnum, object>.Entries));
 
             EnsureSize();
 
-            var container = new Foldout { text = preferredLabel, viewDataKey = preferredLabel };
+            _container = new Foldout { text = preferredLabel, viewDataKey = preferredLabel };
 
-            CreateEntries(container);
+            _container.AddManipulator(new ContextualMenuManipulator(AddActions));
 
-            return container;
+            CreateEntries(_container);
+
+            return _container;
+        }
+
+        private void AddActions(ContextualMenuPopulateEvent menuEvent)
+        {
+            menuEvent.menu.AppendAction("Copy", _ => _rootProperty.CopyTo());
+
+            var pasteStatus = SerializedPropertyClipboard.CanPaste()
+                ? DropdownMenuAction.Status.Normal
+                : DropdownMenuAction.Status.Disabled;
+
+            menuEvent.menu.AppendAction("Paste", _ => PasteValues(), pasteStatus);
+            menuEvent.menu.AppendAction("Reset", _ => ResetValues());
+        }
+
+        private void ResetValues()
+        {
+            _rootProperty.serializedObject.Update();
+
+            for (var i = 0; i < _entriesProperty.arraySize; i++)
+            {
+                var entryProperty = _entriesProperty.GetArrayElementAtIndex(i);
+                entryProperty.boxedValue = Activator.CreateInstance(entryProperty.boxedValue.GetType());
+            }
+
+            _rootProperty.serializedObject.ApplyModifiedProperties();
+
+            RebindEntries();
         }
 
         private void CreateEntries(VisualElement container)
@@ -40,7 +76,19 @@ namespace CustomUtils.Editor.Scripts
 
                 var propertyField = new PropertyField(valueProperty, _enumNames[i]);
 
+                _entries.Add(propertyField);
                 container.Add(propertyField);
+            }
+        }
+
+        private void RebindEntries()
+        {
+            for (var i = 0; i < _entries.Count && i < _entriesProperty.arraySize; i++)
+            {
+                var entryProperty = _entriesProperty.GetArrayElementAtIndex(i);
+                var valueProperty = entryProperty.FindFieldRelative(nameof(Entry<object>.Value));
+
+                _entries[i].BindProperty(valueProperty);
             }
         }
 
@@ -54,6 +102,12 @@ namespace CustomUtils.Editor.Scripts
 
             _entriesProperty.serializedObject.ApplyModifiedProperties();
             _entriesProperty.serializedObject.Update();
+        }
+
+        private void PasteValues()
+        {
+            _rootProperty.Paste();
+            _rootProperty.serializedObject.ApplyModifiedProperties();
         }
     }
 }
