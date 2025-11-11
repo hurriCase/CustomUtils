@@ -38,19 +38,13 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             SetAllDirty();
         }
 
-        public override void SetAllDirty()
-        {
-            base.SetAllDirty();
-
-            SetVerticesDirty();
-            this.MarkAsDirty();
-        }
-
         [UsedImplicitly]
         public void ChangeCapGeometry(CapGeometryType geometryType)
         {
             CapGeometry.AsNullable()?.Destroy();
             CapGeometry = CapGeometryFactory.CreateModifier(geometryType, gameObject);
+            this.MarkAsDirty();
+
             SetAllDirty();
         }
 
@@ -100,6 +94,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
             sprite = ResourceReferences.Instance.SquareSprite;
             type = Type.Filled;
             fillMethod = FillMethod.Radial360;
+            this.MarkAsDirty();
         }
 
         protected override void OnValidate()
@@ -124,6 +119,8 @@ namespace CustomUtils.Runtime.UI.CustomComponents.FilledImage
 
                 ChangeCapGeometry(CapGeometryType);
                 _previousCapGeometryType = CapGeometryType;
+                this.MarkAsDirty();
+
                 SetAllDirty();
             };
         }
