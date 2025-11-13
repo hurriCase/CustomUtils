@@ -78,6 +78,56 @@ namespace CustomUtils.Runtime.Extensions
         public static SystemLanguage ISOToSystemLanguage(this string isoCode)
             => GetReverseMap().GetValueOrDefault(isoCode, SystemLanguage.English);
 
+        /// <summary>
+        /// Converts a Unity SystemLanguage to a locale code in the format "language-REGION" (e.g., "en-US", "ja-JP").
+        /// This format is compatible with speech recognition APIs, localization systems, and web standards.
+        /// </summary>
+        /// <param name="language">The SystemLanguage to convert.</param>
+        /// <returns>The locale code string, or "en-US" if not found.</returns>
+        [UsedImplicitly]
+        public static string ToLocaleCode(this SystemLanguage language)
+        {
+            return language switch
+            {
+                SystemLanguage.English => "en-US",
+                SystemLanguage.Japanese => "ja-JP",
+                SystemLanguage.Russian => "ru-RU",
+                SystemLanguage.Spanish => "es-ES",
+                SystemLanguage.French => "fr-FR",
+                SystemLanguage.German => "de-DE",
+                SystemLanguage.Korean => "ko-KR",
+                SystemLanguage.Chinese => "zh-CN",
+                SystemLanguage.ChineseSimplified => "zh-CN",
+                SystemLanguage.ChineseTraditional => "zh-TW",
+                SystemLanguage.Portuguese => "pt-BR",
+                SystemLanguage.Italian => "it-IT",
+                SystemLanguage.Polish => "pl-PL",
+                SystemLanguage.Turkish => "tr-TR",
+                SystemLanguage.Dutch => "nl-NL",
+                SystemLanguage.Swedish => "sv-SE",
+                SystemLanguage.Norwegian => "nb-NO",
+                SystemLanguage.Danish => "da-DK",
+                SystemLanguage.Finnish => "fi-FI",
+                SystemLanguage.Czech => "cs-CZ",
+                SystemLanguage.Hungarian => "hu-HU",
+                SystemLanguage.Greek => "el-GR",
+                SystemLanguage.Hebrew => "he-IL",
+                SystemLanguage.Thai => "th-TH",
+                SystemLanguage.Vietnamese => "vi-VN",
+                SystemLanguage.Ukrainian => "uk-UA",
+                SystemLanguage.Arabic => "ar-SA",
+                SystemLanguage.Hindi => "hi-IN",
+                SystemLanguage.Bulgarian => "bg-BG",
+                SystemLanguage.Romanian => "ro-RO",
+                SystemLanguage.Slovak => "sk-SK",
+                SystemLanguage.Slovenian => "sl-SI",
+                SystemLanguage.Lithuanian => "lt-LT",
+                SystemLanguage.Latvian => "lv-LV",
+                SystemLanguage.Estonian => "et-EE",
+                _ => "en-US"
+            };
+        }
+
         private static Dictionary<string, SystemLanguage> GetReverseMap()
         {
             if (_reverseMap != null)
