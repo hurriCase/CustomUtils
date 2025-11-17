@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if FIREBASE
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
@@ -132,3 +133,4 @@ namespace CustomUtils.Runtime.Storage.Providers
             UniTask.FromResult(false);
     }
 }
+#endif
