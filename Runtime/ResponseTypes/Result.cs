@@ -1,5 +1,8 @@
 ﻿using JetBrains.Annotations;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace CustomUtils.Runtime.ResponseTypes
 {
@@ -50,6 +53,7 @@ namespace CustomUtils.Runtime.ResponseTypes
             Message = message;
         }
 
+#if UNITY_EDITOR
         internal void DisplayMessage()
         {
             if (string.IsNullOrEmpty(Message))
@@ -58,5 +62,6 @@ namespace CustomUtils.Runtime.ResponseTypes
             var title = IsValid ? "Success" : "Error";
             EditorUtility.DisplayDialog(title, Message, "OK");
         }
+#endif
     }
 }
