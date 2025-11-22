@@ -42,7 +42,7 @@ namespace CustomUtils.Runtime.StartUp
 
         private void LogStepCompletion(StepData stepData)
         {
-            var message = ZString.Format("[EntryPoint::LogStepCompletion] Step {0} completed: {1}",
+            var message = ZString.Format("[StartUpController::LogStepCompletion] Step {0} completed: {1}",
                 stepData.Step, stepData.StepName);
 
             Debug.Log(message);

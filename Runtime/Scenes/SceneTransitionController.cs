@@ -12,16 +12,16 @@ namespace CustomUtils.Runtime.Scenes
     {
         private readonly ISceneLoader _sceneLoader;
 
-        private SceneInstance _transitionsScene;
+        private SceneInstance _loadingScene;
 
         public SceneTransitionController(ISceneLoader sceneLoader)
         {
             _sceneLoader = sceneLoader;
         }
 
-        public async UniTask StartTransition(string transitionSceneAddress, string destinationSceneAddress)
+        public async UniTask StartTransition(string loadingSceneAddress, string destinationSceneAddress)
         {
-            _transitionsScene = await _sceneLoader.LoadSceneAsync(transitionSceneAddress, CancellationToken.None);
+            _loadingScene = await _sceneLoader.LoadSceneAsync(loadingSceneAddress, CancellationToken.None);
 
             _sceneLoader.LoadSceneAsync(destinationSceneAddress, CancellationToken.None, LoadSceneMode.Additive)
                 .Forget();
@@ -29,7 +29,7 @@ namespace CustomUtils.Runtime.Scenes
 
         public void EndTransition()
         {
-            _sceneLoader.TryUnloadScene(_transitionsScene);
+            _sceneLoader.TryUnloadScene(_loadingScene);
         }
     }
 }

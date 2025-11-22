@@ -7,7 +7,7 @@ namespace CustomUtils.Runtime.Scenes.Base
     public interface ISceneTransitionController
     {
         [UsedImplicitly]
-        UniTask StartTransition(string transitionSceneAddress, string destinationSceneAddress);
+        UniTask StartTransition(string loadingSceneAddress, string destinationSceneAddress);
 
         [UsedImplicitly]
         void EndTransition();

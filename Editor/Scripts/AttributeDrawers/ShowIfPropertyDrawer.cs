@@ -24,7 +24,7 @@ namespace CustomUtils.Editor.Scripts.AttributeDrawers
             UpdateVisibility(container, sourceProperty.boolValue, showIfAttribute.ShowType);
 
             propertyField.TrackPropertyValue(sourceProperty,
-                property => UpdateVisibility(container, property.boolValue, showIfAttribute.ShowType));
+                changedProperty => UpdateVisibility(container, changedProperty.boolValue, showIfAttribute.ShowType));
 
             return container;
         }
