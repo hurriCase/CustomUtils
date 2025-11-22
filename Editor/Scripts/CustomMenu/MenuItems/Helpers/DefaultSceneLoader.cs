@@ -11,7 +11,8 @@ namespace CustomUtils.Editor.Scripts.CustomMenu.MenuItems.Helpers
     public static class DefaultSceneLoader
     {
         // ReSharper disable once MemberCanBePrivate.Global
-        public static string EnableSetPlayModeSceneKey => $"{PlayerSettings.applicationIdentifier}.enableSetPlayModeScene";
+        public static string EnableSetPlayModeSceneKey =>
+            $"{PlayerSettings.applicationIdentifier}.enableSetPlayModeScene";
 
         private static bool IsChangePlayModeScene
         {
@@ -46,28 +47,14 @@ namespace CustomUtils.Editor.Scripts.CustomMenu.MenuItems.Helpers
 
         private static void ChangePlayModeScene()
         {
-            if (IsChangePlayModeScene is false)
-            {
-                var currentScene = GetAsset<SceneAsset>(SceneManager.GetActiveScene().name);
-                EditorSceneManager.playModeStartScene = currentScene;
-                return;
-            }
-
-            var startUpScene = CustomMenuSettings.Instance.DefaultSceneAsset;
-
-            if (startUpScene)
-                EditorSceneManager.playModeStartScene = startUpScene;
+            EditorSceneManager.playModeStartScene = IsChangePlayModeScene
+                ? CustomMenuSettings.Instance.DefaultSceneAsset
+                : null;
         }
 
-        private static T GetAsset<T>(string name) where T : Object
+        private static void OnSceneChanged(Scene oldScene, Scene newScene)
         {
-            var assets = AssetDatabase.FindAssets($"{name} t:{typeof(T).Name}");
-            if (assets.Length > 0)
-                return (T)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(assets[0]), typeof(T));
-
-            return null;
+            ChangePlayModeScene();
         }
-
-        private static void OnSceneChanged(Scene oldScene, Scene newScene) => ChangePlayModeScene();
     }
 }
