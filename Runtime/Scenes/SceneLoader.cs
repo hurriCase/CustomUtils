@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 
 namespace CustomUtils.Runtime.Scenes
 {
-    [UsedImplicitly]
+    [PublicAPI]
     public sealed class SceneLoader : ISceneLoader
     {
         private SceneInstance _sceneInstance;

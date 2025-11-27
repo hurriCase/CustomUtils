@@ -3,13 +3,16 @@ using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.Scenes.Base
 {
-    [UsedImplicitly]
+    [PublicAPI]
     public interface ISceneTransitionController
     {
-        [UsedImplicitly]
-        UniTask StartTransition(string loadingSceneAddress, string destinationSceneAddress);
+        bool IsLoading { get; }
 
-        [UsedImplicitly]
-        void EndTransition();
+        UniTask StartTransition(
+            string loadingSceneAddress,
+            string destinationSceneAddress,
+            bool isEndAfterTransition = true);
+
+        UniTask EndTransition();
     }
 }

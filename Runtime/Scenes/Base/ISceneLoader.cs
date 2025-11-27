@@ -9,7 +9,7 @@ namespace CustomUtils.Runtime.Scenes.Base
     /// <summary>
     /// Interface for loading and unloading Addressable scenes.
     /// </summary>
-    [UsedImplicitly]
+    [PublicAPI]
     public interface ISceneLoader
     {
         /// <summary>
@@ -18,7 +18,6 @@ namespace CustomUtils.Runtime.Scenes.Base
         /// <param name="sceneAddress">Addressable scene address to load.</param>
         /// <param name="token">Cancellation token.</param>
         /// <param name="loadMode">Scene loading mode. Defaults to Single.</param>
-        [UsedImplicitly]
         UniTask<SceneInstance> LoadSceneAsync(
             string sceneAddress,
             CancellationToken token = default,
@@ -28,7 +27,6 @@ namespace CustomUtils.Runtime.Scenes.Base
         /// Attempts to unload the specified scene instance.
         /// </summary>
         /// <param name="sceneInstance">Scene instance to unload.</param>
-        [UsedImplicitly]
         void TryUnloadScene(SceneInstance sceneInstance);
     }
 }
