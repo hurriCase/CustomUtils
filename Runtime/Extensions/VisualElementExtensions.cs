@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using CustomUtils.Unsafe;
 using JetBrains.Annotations;
 using R3;
@@ -17,10 +18,29 @@ namespace CustomUtils.Runtime.Extensions
         /// </summary>
         /// <param name="visualElement">The visual element to show or hide.</param>
         /// <param name="isActive">True to show the element; false to hide it.</param>
-        [UsedImplicitly]
         public static void SetActive(this VisualElement visualElement, bool isActive)
         {
             visualElement.style.display = isActive ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        /// <summary>
+        /// Creates an observable stream from a button's click events.
+        /// </summary>
+        /// <param name="visualElement">The visual element containing the button.</param>
+        /// <param name="buttonName">The name of the button to observe.</param>
+        /// <returns>An observable that emits when the button is clicked.</returns>
+
+        // There is no overload that accepts extra parameters for FromEvent
+        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
+        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
+        public static Observable<Unit> CreateButtonObservable(this VisualElement visualElement, string buttonName)
+        {
+            var playButton = visualElement.Q<Button>(buttonName);
+
+            return Observable.FromEvent(
+                handler => playButton.clicked += handler,
+                handler => playButton.clicked -= handler
+            );
         }
 
         /// <summary>
@@ -54,7 +74,6 @@ namespace CustomUtils.Runtime.Extensions
         /// <param name="source">The source data or object to be passed to the callback when invoked.</param>
         /// <param name="callback">The callback action to execute when the VisualElement is detached from the panel.</param>
         /// <typeparam name="TSource">The type of the source parameter passed to the callback.</typeparam>
-        [UsedImplicitly]
         public static void RegisterDetachCallback<TSource>(
             this VisualElement element,
             TSource source,
