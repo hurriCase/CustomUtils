@@ -44,33 +44,5 @@ namespace CustomUtils.Runtime.Extensions
             field.AddToClassList(BaseField<TValueType>.alignedFieldUssClassName);
             field.AddToClassList(UnityInspectorFieldUssClassName);
         }
-
-        /// <summary>
-        /// Attempts to query a child element of the specified type.
-        /// </summary>
-        /// <typeparam name="TElement">The type of the element to query for.</typeparam>
-        /// <param name="element">The visual element to query from.</param>
-        /// <param name="queriedElement">The queried element if found; otherwise, null.</param>
-        /// <param name="name">The name of the element to query for.</param>
-        /// <param name="className">The USS class name of the element to query for.</param>
-        /// <returns>True if the element was found; otherwise, false.</returns>
-        [UsedImplicitly]
-        public static bool TryQ<TElement>(
-            this VisualElement element,
-            out TElement queriedElement,
-            string name = null,
-            string className = null)
-            where TElement : VisualElement
-        {
-            queriedElement = element.Q<TElement>(name, className);
-            var wasFound = queriedElement != null;
-
-#if UNITY_DEBUG
-            if (wasFound is false)
-                Debug.LogWarning($"[BasePopupFieldExtensions::TryQ] Element of {typeof(TElement)} type wasn't found");
-#endif
-
-            return wasFound;
-        }
     }
 }

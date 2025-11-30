@@ -5,6 +5,10 @@ using JetBrains.Annotations;
 using R3;
 using UnityEngine.UIElements;
 
+#if IS_DEBUG
+using UnityEngine;
+#endif
+
 namespace CustomUtils.Runtime.Extensions
 {
     /// <summary>
@@ -81,6 +85,34 @@ namespace CustomUtils.Runtime.Extensions
         {
             element.RegisterCallback<DetachFromPanelEvent, (TSource source, Action<TSource> callback)>(
                 static (_, tuple) => tuple.callback.Invoke(tuple.source), (source, callback));
+        }
+
+        /// <summary>
+        /// Attempts to query a child element of the specified type.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the element to query for.</typeparam>
+        /// <param name="element">The visual element to query from.</param>
+        /// <param name="queriedElement">The queried element if found; otherwise, null.</param>
+        /// <param name="name">The name of the element to query for.</param>
+        /// <param name="className">The USS class name of the element to query for.</param>
+        /// <returns>True if the element was found; otherwise, false.</returns>
+        [UsedImplicitly]
+        public static bool TryQ<TElement>(
+            this VisualElement element,
+            out TElement queriedElement,
+            string name = null,
+            string className = null)
+            where TElement : VisualElement
+        {
+            queriedElement = element.Q<TElement>(name, className);
+            var wasFound = queriedElement != null;
+
+#if IS_DEBUG
+            if (wasFound is false)
+                Debug.LogWarning($"[BasePopupFieldExtensions::TryQ] Element of {typeof(TElement)} type wasn't found");
+#endif
+
+            return wasFound;
         }
     }
 }
