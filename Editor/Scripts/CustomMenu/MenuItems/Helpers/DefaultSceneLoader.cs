@@ -2,7 +2,6 @@
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
 
 // ReSharper disable UnusedMember.Global
 namespace CustomUtils.Editor.Scripts.CustomMenu.MenuItems.Helpers
