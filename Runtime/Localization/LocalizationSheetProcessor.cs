@@ -53,13 +53,18 @@ namespace CustomUtils.Runtime.Localization
         private static bool TryCreateEntryFromRow(CsvRow row, string sheetName, out LocalizationEntry localizationEntry)
         {
             localizationEntry = null;
-            if (row.TryGetValue(GuidColumnName, out var guid) is false
-                || row.TryGetValue(KeyColumnName, out var key) is false)
+
+            if (row.TryGetValue(KeyColumnName, out var key) is false)
             {
                 Debug.LogError("[LocalizationSheetProcessor::TryCreateEntryFromRow]" +
-                               $"{GuidColumnName} or {KeyColumnName} column is missing in sheet '{sheetName}'");
+                               $"{KeyColumnName} column is missing in sheet '{sheetName}'");
                 return false;
             }
+
+            var guid = row.TryGetValue(GuidColumnName, out var existingGuid)
+                       && string.IsNullOrEmpty(existingGuid) is false
+                ? existingGuid
+                : Guid.NewGuid().ToString();
 
             if (_processedGuids.Add(guid) is false)
             {
