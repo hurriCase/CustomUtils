@@ -1,0 +1,18 @@
+{
+    "name": "CrazyGames.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f62c4463da54e444a94f136e514a4e82"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
