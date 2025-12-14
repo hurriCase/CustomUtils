@@ -44,10 +44,10 @@ namespace CustomUtils.Runtime.Storage
         private static IStorageProvider CreateProvider()
         {
             return
-#if YANDEX && !UNITY_EDITOR && UNITY_WEBGL
-                new PlayerPrefsProvider();
-#elif ANDROID && !UNITY_EDITOR && UNITY_ANDROID
+#if !UNITY_EDITOR && UNITY_ANDROID
                 new BinaryFileProvider();
+#elif CRAZY_GAMES
+                new CrazyGamesStorageProvider();
 #elif UNITY_EDITOR
                 new PlayerPrefsProvider();
 #else
