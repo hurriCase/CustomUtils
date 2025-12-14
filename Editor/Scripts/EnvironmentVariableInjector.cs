@@ -1,4 +1,5 @@
-﻿using CustomUtils.Editor.Scripts.InputDialog;
+﻿#if UNITY_ANDROID
+using CustomUtils.Editor.Scripts.InputDialog;
 using CustomUtils.Runtime.Extensions;
 using UnityEditor;
 using UnityEditor.Build;
@@ -30,3 +31,4 @@ namespace CustomUtils.Editor.Scripts
         }
     }
 }
+#endif
