@@ -1,0 +1,19 @@
+{
+    "name": "CrazyGames",
+    "rootNamespace": "",
+    "references": [
+        "GUID:17cebe795956342e29939a5c0435289f"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
