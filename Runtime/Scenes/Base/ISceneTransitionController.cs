@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Eflatun.SceneReference;
 using JetBrains.Annotations;
 
 namespace CustomUtils.Runtime.Scenes.Base
@@ -9,8 +10,8 @@ namespace CustomUtils.Runtime.Scenes.Base
         bool IsLoading { get; }
 
         UniTask StartTransition(
-            string loadingSceneAddress,
-            string destinationSceneAddress,
+            SceneReference transitionScene,
+            SceneReference destinationScene,
             bool isEndAfterTransition = true);
 
         UniTask EndTransition();

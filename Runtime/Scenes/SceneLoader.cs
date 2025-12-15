@@ -37,7 +37,7 @@ namespace CustomUtils.Runtime.Scenes
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[SceneLoader::LoadSceneAsync] Failed to load scene {sceneAddress}: {ex.Message}");
+                Debug.LogException(ex);
                 throw;
             }
         }

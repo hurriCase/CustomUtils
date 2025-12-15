@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using CustomUtils.Runtime.Scenes.Base;
 using Cysharp.Threading.Tasks;
+using Eflatun.SceneReference;
 using JetBrains.Annotations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,7 @@ namespace CustomUtils.Runtime.Scenes
         public bool IsLoading { get; private set; }
 
         private SceneInstance _transitionsScene;
+        private SceneInstance _currentScene;
 
         private readonly ISceneLoader _sceneLoader;
 
@@ -22,15 +24,21 @@ namespace CustomUtils.Runtime.Scenes
         }
 
         public async UniTask StartTransition(
-            string transitionSceneAddress,
-            string destinationSceneAddress,
+            SceneReference transitionScene,
+            SceneReference destinationScene,
             bool isEndAfterTransition = true)
         {
             IsLoading = true;
 
-            _transitionsScene = await _sceneLoader.LoadSceneAsync(transitionSceneAddress, CancellationToken.None);
+            _transitionsScene = await _sceneLoader.LoadSceneAsync(
+                transitionScene.Address,
+                CancellationToken.None,
+                LoadSceneMode.Additive);
 
-            await _sceneLoader.LoadSceneAsync(destinationSceneAddress, CancellationToken.None, LoadSceneMode.Additive);
+            if (_currentScene.Scene.IsValid())
+                _sceneLoader.TryUnloadScene(_currentScene);
+
+            _currentScene = await _sceneLoader.LoadSceneAsync(destinationScene.Address, CancellationToken.None);
 
             IsLoading = false;
 
