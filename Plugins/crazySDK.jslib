@@ -65,11 +65,6 @@ mergeInto(LibraryManager.library, {
         window.CrazyGames.SDK.user.addAuthListener(function (user) {
           SendMessage('CrazySDKSingleton', 'JSLibCallback_AuthListener', JSON.stringify({ userJson: JSON.stringify(user) }));
         });
-        window.CrazyGames.SDK.ad.addAdblockPopupListener(function (e) {
-          if (e === 'open') {
-            window.UnitySDK.unlockPointer();
-          }
-        });
       });
     });
   },
