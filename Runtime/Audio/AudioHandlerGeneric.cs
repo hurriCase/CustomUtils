@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomUtils.Runtime.Audio.Containers;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe;
 using Cysharp.Threading.Tasks;
@@ -44,17 +45,19 @@ namespace CustomUtils.Runtime.Audio
             await SoundVolume.InitAsync(SoundVolumeKey, destroyCancellationToken, defaultSoundVolume);
 
             _soundPool = new PoolHandler<AudioSource>();
-            _soundPool.Init(soundSourcePrefab, defaultSoundPoolCount, defaultSoundPoolCount * 5);
+            _soundPool.Init(
+                soundSourcePrefab,
+                defaultSoundPoolCount,
+                defaultSoundPoolCount * 5,
+                parent: transform);
 
             audioDatabaseGeneric.Init();
 
-            SoundVolume
-                .Subscribe(this, static (volume, handler) => handler.OnSoundVolumeChanged(volume))
-                .AddTo(ref _disposableBag);
+            SoundVolume.SubscribeUntilDestroy(this,
+                static (volume, handler) => handler.OnSoundVolumeChanged(volume));
 
-            MusicVolume
-                .Subscribe(this, static (volume, handler) => handler.OnMusicVolumeChanged(volume))
-                .AddTo(ref _disposableBag);
+            MusicVolume.SubscribeUntilDestroy(this,
+                static (volume, handler) => handler.OnMusicVolumeChanged(volume));
         }
 
         public virtual AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
@@ -126,6 +129,11 @@ namespace CustomUtils.Runtime.Audio
             musicSource.Play();
 
             return musicSource;
+        }
+
+        public virtual void StopMusic()
+        {
+            musicSource.Stop();
         }
 
         public virtual void StopSound(TSoundType soundType)
