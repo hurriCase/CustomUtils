@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomUtils.Runtime.Audio.Containers;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe;
 using Cysharp.Threading.Tasks;
@@ -20,7 +21,8 @@ namespace CustomUtils.Runtime.Audio
         [SerializeField] protected AudioSource clipSource;
         [SerializeField] protected AudioSource musicSource;
         [SerializeField] protected AudioSource oneShotSource;
-        [SerializeField] protected int defaultSoundPoolCount = 3;
+        [SerializeField] protected int soundPoolSize;
+        [SerializeField] protected int maxPoolSize;
 
         public virtual PersistentReactiveProperty<float> MusicVolume { get; } = new();
         public virtual PersistentReactiveProperty<float> SoundVolume { get; } = new();
@@ -30,7 +32,7 @@ namespace CustomUtils.Runtime.Audio
         private readonly List<AliveAudioData<TSoundType>> _audiosToRemove = new();
 
         private PoolHandler<AudioSource> _soundPool;
-        private DisposableBag _disposableBag;
+        private AudioData _currentMusicData;
 
         private const string MusicVolumeKey = "MusicVolumeKey";
         private const string SoundVolumeKey = "SoundVolumeKey";
@@ -44,17 +46,12 @@ namespace CustomUtils.Runtime.Audio
             await SoundVolume.InitAsync(SoundVolumeKey, destroyCancellationToken, defaultSoundVolume);
 
             _soundPool = new PoolHandler<AudioSource>();
-            _soundPool.Init(soundSourcePrefab, defaultSoundPoolCount, defaultSoundPoolCount * 5);
+            _soundPool.Init(soundSourcePrefab, soundPoolSize, maxPoolSize, parent: transform);
 
             audioDatabaseGeneric.Init();
 
-            SoundVolume
-                .Subscribe(this, static (volume, handler) => handler.OnSoundVolumeChanged(volume))
-                .AddTo(ref _disposableBag);
-
-            MusicVolume
-                .Subscribe(this, static (volume, handler) => handler.OnMusicVolumeChanged(volume))
-                .AddTo(ref _disposableBag);
+            SoundVolume.SubscribeUntilDestroy(this, static (volume, self) => self.OnSoundVolumeChanged(volume));
+            MusicVolume.SubscribeUntilDestroy(this, static (volume, self) => self.OnMusicVolumeChanged(volume));
         }
 
         public virtual AudioSource PlaySound(TSoundType soundType, float volumeModifier = 1, float pitchModifier = 1)
@@ -125,7 +122,14 @@ namespace CustomUtils.Runtime.Audio
             musicSource.volume = data.RandomVolume * MusicVolume.Value;
             musicSource.Play();
 
+            _currentMusicData = data;
+
             return musicSource;
+        }
+
+        public virtual void StopMusic()
+        {
+            musicSource.Stop();
         }
 
         public virtual void StopSound(TSoundType soundType)
@@ -156,7 +160,7 @@ namespace CustomUtils.Runtime.Audio
         protected virtual void OnSoundVolumeChanged(float soundVolume)
         {
             foreach (var aliveAudioData in _aliveAudios)
-                aliveAudioData.AudioSource.volume *= soundVolume;
+                aliveAudioData.AudioSource.volume = soundVolume;
         }
 
         /// <summary>
@@ -165,7 +169,7 @@ namespace CustomUtils.Runtime.Audio
         /// <param name="musicVolume">New music volume level</param>
         protected virtual void OnMusicVolumeChanged(float musicVolume)
         {
-            musicSource.volume *= musicVolume;
+            musicSource.volume = (_currentMusicData?.RandomVolume ?? 0) * musicVolume;
         }
 
         private bool ShouldPlaySound(TSoundType soundType, SoundContainer<TSoundType> soundData)
@@ -187,14 +191,10 @@ namespace CustomUtils.Runtime.Audio
             _aliveAudios.Remove(aliveData);
         }
 
-        /// <summary>
-        /// Cleans up subscriptions when the object is destroyed
-        /// </summary>
         protected virtual void OnDestroy()
         {
-            MusicVolume?.Dispose();
-            SoundVolume?.Dispose();
-            _disposableBag.Dispose();
+            MusicVolume.Dispose();
+            SoundVolume.Dispose();
         }
     }
 }
