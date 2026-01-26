@@ -1,0 +1,19 @@
+{
+    "name": "GameDistribution",
+    "rootNamespace": "GameDistribution",
+    "references": [
+        "GUID:e83d267d115097b489005b6b908a868a"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
