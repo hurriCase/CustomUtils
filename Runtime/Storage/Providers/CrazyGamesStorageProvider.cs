@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿#if CRAZY_GAMES
+using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using CustomUtils.Runtime.Storage.DataTransformers;
 using Cysharp.Threading.Tasks;
@@ -45,3 +46,4 @@ namespace CustomUtils.Runtime.Storage.Providers
         }
     }
 }
+#endif
