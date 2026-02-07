@@ -16,9 +16,9 @@ namespace CustomUtils.Runtime.UI.CustomComponents.Selectables.Toggles
     {
         [field: SerializeField] public TextMeshProUGUI Text { get; private set; }
         [field: SerializeField] public ProceduralImage Image { get; private set; }
-        [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; }
-        [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; }
-        [field: SerializeField] public List<ToggleGraphicMapping> AdditionalGraphics { get; set; }
+        [field: SerializeField] public List<GameObject> CheckedObjects { get; private set; } = new();
+        [field: SerializeField] public List<GameObject> UncheckedObjects { get; private set; } = new();
+        [field: SerializeField] public List<ToggleGraphicMapping> AdditionalGraphics { get; set; } = new();
 
         protected override void Awake()
         {
