@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CustomUtils.Runtime
 {
-    [Resource(ResourcePaths.ResourceReferencesFullPath, ResourcePaths.ResourceReferencesAssetName)]
+    [Resource(name: nameof(ResourceReferences))]
     internal sealed class ResourceReferences : SingletonScriptableObject<ResourceReferences>
     {
         [field: SerializeField] internal Sprite SquareSprite { get; private set; }

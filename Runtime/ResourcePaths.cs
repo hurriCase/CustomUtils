@@ -25,16 +25,9 @@
         internal const string AssetLoaderConfigAssetName = "AssetLoaderConfig";
         internal const string AssetLoaderConfigResourcesPath = "AssetLoader";
 
-        internal const string ResourceReferencesFullPath = "Assets/CustomUtils/Resources";
-        internal const string ResourceReferencesAssetName = "ResourceReferences";
-
         internal const string LoggerSettingsResourcesPath = "Logger";
         internal const string LoggerSettingsFullPath = ResourcesPath + LoggerSettingsResourcesPath;
         internal const string LoggerSettingsAssetName = "LogCollectorSettings";
-
-        internal const string LocalizationKeyDatabaseAssetName = "LocalizationKeyDatabase";
-        internal const string LocalizationKeyDatabaseResourcesPath = "Assets/Resources/Localization";
-        internal const string LocalizationKeyDatabaseFullPath = LocalizationKeyDatabaseResourcesPath + "/" + LocalizationKeyDatabaseAssetName + ".asset";
 
         internal const string MappingsPath = "Mappings/";
 
