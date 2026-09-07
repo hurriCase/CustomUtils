@@ -282,7 +282,18 @@ namespace Editor_Default_Resources.CustomMenu.Scripts.Editor
             }}
             else
                 GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
+{(item.StretchToParent ? @"
+            if (instance.transform is RectTransform rectTransform)
+            {
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
 
+                rectTransform.anchoredPosition = Vector2.zero;
+                rectTransform.sizeDelta = Vector2.zero;
+            }
+" : string.Empty)}
             Undo.RegisterCreatedObjectUndo(instance, ""Create "" + instance.name);
 
             Selection.activeObject = instance;
