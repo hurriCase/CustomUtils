@@ -122,7 +122,8 @@ namespace CustomUtils.Runtime.Pools.Objects
         protected virtual void OnDestroy(TEntity entity)
         {
             onDestroyCallback?.Invoke(entity);
-            Object.Destroy(entity);
+            if (Application.isPlaying)
+                Object.Destroy(entity);
         }
 
         protected abstract void SetActive(TEntity entity, bool active);
