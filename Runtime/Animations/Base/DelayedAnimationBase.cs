@@ -12,14 +12,17 @@ namespace CustomUtils.Runtime.Animations.Base
         [SerializeField] protected TTarget target;
         [SerializeField] private DelayedAnimationSettingsBase<TState, TContent> _animationSettings;
 
-        protected TContent targetSource;
+        protected TContent targetContent;
 
         protected override Tween OnPlayAnimation(TState state, bool isInstant)
         {
+            if (CurrentAnimation.isAlive)
+                CurrentAnimation.Stop();
+
             if (isInstant && _animationSettings.SkipWhenInstant)
                 return default;
 
-            targetSource = _animationSettings.States[state];
+            targetContent = _animationSettings.States[state];
 
             if (isInstant)
             {
@@ -27,16 +30,19 @@ namespace CustomUtils.Runtime.Animations.Base
                 return default;
             }
 
-            if (CurrentAnimation.isAlive)
-                CurrentAnimation.Stop();
-
             return Tween.Delay(
-                this,
+                target,
                 _animationSettings.Delay,
-                static self => self.UpdateState(),
+                _ => UpdateState(),
                 _animationSettings.UseUnscaledTime);
         }
 
-        protected abstract void UpdateState();
+        private void UpdateState()
+        {
+            if (target)
+                OnUpdateState(target, targetContent);
+        }
+
+        protected abstract void OnUpdateState(TTarget target, TContent targetContent);
     }
 }

@@ -21,14 +21,14 @@ namespace CustomUtils.Runtime.Animations.Base
         {
             var currentState = states[state];
 
+            if (CurrentAnimation.isAlive)
+                CurrentAnimation.Stop();
+
             if (isInstant)
             {
                 SetValueInstant(currentState.TweenSettings.endValue);
                 return default;
             }
-
-            if (CurrentAnimation.isAlive)
-                CurrentAnimation.Stop();
 
             return CreateTween(currentState);
         }

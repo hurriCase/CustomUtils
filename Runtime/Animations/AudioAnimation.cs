@@ -15,9 +15,9 @@ namespace CustomUtils.Runtime.Animations
     public sealed class AudioAnimation<TState> : DelayedAnimationBase<AudioSource, AudioClip, TState>
         where TState : unmanaged, Enum
     {
-        protected override void UpdateState()
+        protected override void OnUpdateState(AudioSource audioSource, AudioClip audioClip)
         {
-            target.PlayOneShot(targetSource);
+            audioSource.PlayOneShot(audioClip);
         }
     }
 }

@@ -15,9 +15,9 @@ namespace CustomUtils.Runtime.Animations.Sprite
     public sealed class SpriteSwapAnimation<TState> : DelayedAnimationBase<Image, UnityEngine.Sprite, TState>
         where TState : unmanaged, Enum
     {
-        protected override void UpdateState()
+        protected override void OnUpdateState(Image image, UnityEngine.Sprite sprite)
         {
-            target.sprite = targetSource;
+            image.sprite = sprite;
         }
     }
 }
