@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: GradientConfig
   m_EditorClassIdentifier: CustomUtils::CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier.ShaderGradient.GradientConfig
   <GradientKeywords>k__BackingField:
-    _serializedList:
-    - Key: 0
-      Value: GRADIENT_MULTI
-    - Key: 1
-      Value: GRADIENT_DIAMOND
-    - Key: 2
-      Value: GRADIENT_RADIAL
-    - Key: 3
-      Value: GRADIENT_ANGULAR
+  - key: 0
+    value: GRADIENT_MULTI
+  - key: 1
+    value: GRADIENT_DIAMOND
+  - key: 2
+    value: GRADIENT_RADIAL
+  - key: 3
+    value: GRADIENT_ANGULAR
