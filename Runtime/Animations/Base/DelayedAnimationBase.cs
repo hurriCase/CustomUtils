@@ -2,12 +2,14 @@
 using CustomUtils.Runtime.Animations.Base.Settings;
 using PrimeTween;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CustomUtils.Runtime.Animations.Base
 {
     [Serializable]
     public abstract class DelayedAnimationBase<TTarget, TContent, TState> : StatefulAnimationBase<TState>
         where TState : unmanaged, Enum
+		where TTarget : Object
     {
         [SerializeField] protected TTarget target;
         [SerializeField] private DelayedAnimationSettingsBase<TState, TContent> _animationSettings;
